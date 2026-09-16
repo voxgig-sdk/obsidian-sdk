@@ -1,0 +1,35 @@
+# API Information
+
+
+main: {
+  kit: {
+    info: {
+      description: `The Local REST API plugin for Obsidian, which serves the open vault over HTTP on
+the machine Obsidian is running on. Scoped here to the vault itself: list the
+vault, read, create, replace, append to and delete a file, and list the tags in
+use.
+
+Upstream specification by the plugin authors, reduced by Voxgig. Not an official
+Obsidian document, and not an API Obsidian ships: the plugin must be installed
+and its API key configured.`
+      security: {
+        in: "header"
+        name: "Authorization"
+        prefix: "Bearer"
+        scheme: "apiKeyAuth"
+        type: "http"
+      }
+      servers: [
+        {
+          description: "The Local REST API plugin, enabled inside Obsidian. HTTPS runs on 27124 with a self-signed certificate."
+          url: "http://127.0.0.1:27123"
+        }
+      ]
+      summary: "The Local REST API plugin for Obsidian, which serves the open vault over HTTP on the machine Obsidian is running on."
+      title: "Obsidian Local REST API"
+      version: "1.0"
+      website: "http://127.0.0.1"
+    }
+  }
+}
+

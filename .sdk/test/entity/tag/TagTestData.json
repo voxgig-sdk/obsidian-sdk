@@ -1,0 +1,98 @@
+{
+  "existing": {
+    "tag": {
+      "TAG00": {
+        "count": 20,
+        "name": "s15"
+      },
+      "TAG01": {
+        "count": 40,
+        "name": "s29"
+      },
+      "TAG02": {
+        "count": 60,
+        "name": "s3d"
+      }
+    }
+  },
+  "new": {
+    "tag": {
+      "tag_ref01": {
+        "count": 80,
+        "name": "s51"
+      }
+    }
+  },
+  "requests": {
+    "GET /tags/": {
+      "provenance": "operation-contract",
+      "contract": {
+        "parameters": [],
+        "protocol": "http",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "tags": [
+                    {
+                      "count": 3,
+                      "name": "project"
+                    },
+                    {
+                      "count": 1,
+                      "name": "important"
+                    },
+                    {
+                      "count": 2,
+                      "name": "work"
+                    },
+                    {
+                      "count": 2,
+                      "name": "work/tasks"
+                    }
+                  ]
+                },
+                "schema": {
+                  "properties": {
+                    "tags": {
+                      "items": {
+                        "properties": {
+                          "count": {
+                            "description": "Number of times this tag is used across the vault.",
+                            "type": "number"
+                          },
+                          "name": {
+                            "description": "Tag name without the leading `#`.",
+                            "type": "string"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "A list of tags with their usage counts."
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "securitySchemes": {
+          "apiKeyAuth": {
+            "description": "Find your API Key in your Obsidian settings\nin the \"Local REST API\" section under \"Plugins\".\n",
+            "scheme": "bearer",
+            "type": "http"
+          }
+        },
+        "securitySource": "definition"
+      }
+    }
+  }
+}

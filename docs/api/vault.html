@@ -1,0 +1,1079 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Vault | Obsidian Local REST API</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><a class="skip" href="#content">Skip to content</a>
+<header class="site-header"><a class="site-title" href="../index.html">Obsidian Local REST API<span>SDK documentation</span></a><div class="site-links"><a class="repo-link" href="https://github.com/voxgig-sdk/obsidian-sdk">voxgig-sdk/obsidian-sdk</a></div></header>
+<div class="site-notice" role="note"></div>
+<div class="shell"><nav class="site-nav" aria-label="Documentation"><div class="search"><label for="search">Search documentation</label><input id="search" type="search" data-base="../" placeholder="Find a guide or reference"><div id="results" aria-live="polite"></div></div><details><summary>Overview</summary><a href="../index.html">Obsidian Local REST API</a></details>
+<details open><summary>API</summary><a href="../api/index.html">API overview</a>
+<a href="../api/tag.html">Tag</a>
+<a aria-current="page" href="../api/vault.html">Vault</a><div class="nav-sections"><a class="nav-section" href="#post-vaultfilename">POST /vault/{filename}</a>
+<a class="nav-section" href="#get-vault">GET /vault/</a>
+<a class="nav-section" href="#get-vaultfilename">GET /vault/{filename}</a>
+<a class="nav-section" href="#get-vaultpathtodirectory">GET /vault/{pathToDirectory}/</a>
+<a class="nav-section" href="#patch-vaultfilename">PATCH /vault/{filename}</a>
+<a class="nav-section" href="#delete-vaultfilename">DELETE /vault/{filename}</a>
+<a class="nav-section" href="#put-vaultfilename">PUT /vault/{filename}</a></div></details>
+<details><summary>Guides</summary><a href="../guides/authentication.html">Authentication</a>
+<a href="../guides/first-call.html">Make your first API call</a>
+<a href="../guides/errors.html">Handle errors</a>
+<a href="../guides/concepts.html">Entities, SDKs, and tools</a></details>
+<details><summary>SDKs</summary><a href="../sdks/go.html">Golang</a>
+<a href="../sdks/lua.html">Lua</a>
+<a href="../sdks/php.html">PHP</a>
+<a href="../sdks/py.html">Python</a>
+<a href="../sdks/rb.html">Ruby</a>
+<a href="../sdks/ts.html">TypeScript</a></details>
+<details><summary>Tools</summary><a href="../tools/go-cli.html">Go CLI</a>
+<a href="../tools/go-mcp.html">Go MCP server</a></details>
+<details><summary>Features</summary><a href="../features/debug.html">Request/response capture ring buffer for debugging</a>
+<a href="../features/idempotency.html">Idempotency keys for safe retries of mutating operations</a>
+<a href="../features/metrics.html">Statistics capture: per-operation counters and latency</a>
+<a href="../features/paging.html">Pagination signals for list operations</a>
+<a href="../features/ratelimit.html">Client-side rate limiting via a token bucket</a>
+<a href="../features/retry.html">Automatic retry of transient failures with exponential backoff</a>
+<a href="../features/test.html">In-memory mock transport for testing without a live server</a>
+<a href="../features/timeout.html">Per-request timeout with transport abort</a></details></nav><main id="content"><div class="page-context"><span class="section-dot" aria-hidden="true"></span>API</div><h1 id="vault">Vault</h1>
+<h2 id="operations">Operations</h2>
+<p>Every route this entity exposes. Each route links to its own reference on this page.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Route</th>
+<th>SDK operation</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST</code></td>
+<td><a href="#post-vaultfilename"><code>/vault/{filename}</code></a></td>
+<td><code>create</code></td>
+<td>Success; content appended to the targeted section (via URL path elements). The full updated file content is returned. Any advisory warnings (for example a heading rebased past level 6) are JSON-encoded, then percent-encoded, in the <code>Markdown-Patch-Warnings</code> response header</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><a href="#get-vault"><code>/vault/</code></a></td>
+<td><code>list</code></td>
+<td>Success</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><a href="#get-vaultfilename"><code>/vault/{filename}</code></a></td>
+<td><code>load</code></td>
+<td>Success</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><a href="#get-vaultpathtodirectory"><code>/vault/{pathToDirectory}/</code></a></td>
+<td><code>load</code></td>
+<td>Success</td>
+</tr>
+<tr>
+<td><code>PATCH</code></td>
+<td><a href="#patch-vaultfilename"><code>/vault/{filename}</code></a></td>
+<td><code>patch</code></td>
+<td>Success. The body is the patched document. Any advisory warnings (for example a heading rebased past level 6) are JSON-encoded, then percent-encoded, in the <code>Markdown-Patch-Warnings</code> response header</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><a href="#delete-vaultfilename"><code>/vault/{filename}</code></a></td>
+<td><code>remove</code></td>
+<td>Success</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td><a href="#put-vaultfilename"><code>/vault/{filename}</code></a></td>
+<td><code>update</code></td>
+<td>Success; targeted section replaced (via URL path elements). The full updated file content is returned. Any advisory warnings (for example a heading rebased past level 6) are JSON-encoded, then percent-encoded, in the <code>Markdown-Patch-Warnings</code> response header</td>
+</tr>
+</tbody>
+</table>
+<h2 id="fields">Fields</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>content</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>String payload: a heading/block body or label, a new block id for a block <code>marker</code> rename (letters, numbers, hyphens, and underscores only), or a new frontmatter key name for a frontmatter <code>marker</code> rename.</td>
+</tr>
+<tr>
+<td><code>createTargetIfMissing</code></td>
+<td><code>boolean</code></td>
+<td>No</td>
+<td>Create the target (heading path, block id, or frontmatter key) if it does not already exist.</td>
+</tr>
+<tr>
+<td><code>destination</code></td>
+<td><code>object</code></td>
+<td>Yes</td>
+<td>For a heading move (operation <code>replace</code>, scope <code>parent</code>): where the section is re-parented.</td>
+</tr>
+<tr>
+<td><code>files</code></td>
+<td><code>array</code></td>
+<td>No</td>
+<td></td>
+</tr>
+<tr>
+<td><code>id</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td></td>
+</tr>
+<tr>
+<td><code>ifMatch</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Optimistic-concurrency token (the <code>version</code> from a prior document map).</td>
+</tr>
+<tr>
+<td><code>operation</code></td>
+<td><code>string</code></td>
+<td>Yes</td>
+<td>What happens to the scoped span: replace it, insert before (<code>prepend</code>) or after (<code>append</code>), or <code>delete</code> it.</td>
+</tr>
+<tr>
+<td><code>rejectIfContentPreexists</code></td>
+<td><code>boolean</code></td>
+<td>No</td>
+<td>Fail a <code>prepend</code>/<code>append</code> when the string content already appears in the target span (makes those operations idempotent on retry).</td>
+</tr>
+<tr>
+<td><code>scope</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Which part of the target the operation acts on (default <code>content</code>).</td>
+</tr>
+<tr>
+<td><code>target</code></td>
+<td><code>any</code></td>
+<td>Yes</td>
+<td>The node to edit.</td>
+</tr>
+<tr>
+<td><code>targetType</code></td>
+<td><code>string</code></td>
+<td>Yes</td>
+<td>The kind of node to edit.</td>
+</tr>
+<tr>
+<td><code>value</code></td>
+<td><code>any</code></td>
+<td>No</td>
+<td>Structured JSON payload: a frontmatter value (any JSON, string, number, boolean, array, object, null; for <code>prepend</code>/<code>append</code> this merges: list concat, dict merge, string concat), or table rows on a <code>block</code> target's <code>content</code> cell (a 2-D a…</td>
+</tr>
+<tr>
+<td><code>within</code></td>
+<td><code>integer</code></td>
+<td>No</td>
+<td>Refines a heading target to one of the section's direct-body top-level blocks (a paragraph, list, table, code fence, blockquote, …): 0 is the first block in document order, and a negative index counts from the end (-1 = last).</td>
+</tr>
+</tbody>
+</table>
+<h2 id="create">create</h2>
+<h3 id="post-vaultfilename" class="operation" data-method="post"><code>POST</code> /vault/{filename}</h3>
+<p>Authentication: bearer token (<code>apiKeyAuth</code>).</p>
+<h4 id="parameters">Parameters</h4>
+<p>| Parameter | In | Type | Required | Description |
+| --- | --- | --- | --- |
+| <code>filename</code> | <code>path</code> | <code>string (path)</code> | Yes | Path to the relevant file (relative to your vault root). Optionally, you may include a reference to target a sub-part of the document; see &quot;Targeting a Sub-part of your Document&quot; for details. |
+| <code>Markdown-Patch-Version</code> | <code>header</code> | <code>enum: 1, 2</code> | No | Selects which markdown-patch format governs this request. You do not normally need to send this header. By default (2.0), a PATCH carries its whole instruction in the JSON request body, the document map returns a nested heading tree plus a <code>version</code> token, and a sub-part of a document is targeted with URL path elements (for example <code>.../heading/My%20Section</code>). Set it to <code>1</code> to opt into the deprecated 1.x behavior: the header-driven PATCH format, header-based targeting (<code>Target-Type</code>/<code>Target</code>/<code>Target-Delimiter</code>/<code>Target-Scope</code>) on GET/PUT/POST, and the <code>::</code>-joined document map. Responses served by 1.x carry a <code>Deprecation: true; sunset-version=&amp;quot;6.0&amp;quot;</code> header. Any value other than <code>1</code> or <code>2</code> returns <code>400 InvalidPatchVersionHeader</code>. One place an <em>explicit</em> <code>2</code> matters: PATCH's raw-content mode with header-based targeting. Because <code>Target-Type</code>/<code>Target</code> headers on a PATCH are ambiguous between the 1.x format and raw-content mode, a PATCH carrying them without this header is rejected with <code>400 PatchHeaderTargetingRequiresExplicitVersion</code>, send <code>1</code> for the deprecated engine or <code>2</code> for raw-content mode. On GET/PUT/POST, supplying those targeting headers without <code>1</code> is rejected with <code>400 HeaderTargetingRequiresVersion1</code> (use URL path elements instead), and PATCH URL-element targeting likewise needs no version header. |
+| <code>Create-Target-If-Missing</code> | <code>header</code> | <code>enum: true, false</code> | No | If the specified Target does not exist, create it? |
+| <code>Reject-If-Content-Preexists</code> | <code>header</code> | <code>enum: true, false</code> | No | If patch data already exists in Target, reject the patch? |</p>
+<h4 id="request-body">Request body</h4>
+<p><code>text/markdown</code></p>
+<p>The request body is <code>string</code>.</p>
+<h4 id="responses">Responses</h4>
+<h5 id="200-success-content-appended-to-the-targeted-section-via-url-path-elements-the-full-updated-file-content-is-returned-any-advisory-warnings-for-example-a-heading-rebased-past-level-6-are-json-encoded-then-percent-encoded-in-the-markdown-patch-warnings-response-header" class="status" data-status="2xx">200: Success; content appended to the targeted section (via URL path elements). The full updated file content is returned. Any advisory warnings (for example a heading rebased past level 6) are JSON-encoded, then percent-encoded, in the <code>Markdown-Patch-Warnings</code> response header</h5>
+<p><code>text/markdown</code></p>
+<p>The response is <code>string</code>.</p>
+<h5 id="204-success-content-appended-to-end-of-file" class="status" data-status="2xx">204: Success; content appended to end of file</h5>
+<h5 id="400-bad-request" class="status" data-status="4xx">400: Bad Request</h5>
+<p><code>application/json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>errorCode</code></td>
+<td><code>number</code></td>
+<td>No</td>
+<td>A 5-digit error code uniquely identifying this particular type of error.</td>
+</tr>
+<tr>
+<td><code>message</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Message describing the error.</td>
+</tr>
+</tbody>
+</table>
+<h5 id="405-your-path-references-a-directory-instead-of-a-file-this-request-method-is-valid-only-for-updating-files" class="status" data-status="4xx">405: Your path references a directory instead of a file; this request method is valid only for updating files.</h5>
+<p><code>application/json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>errorCode</code></td>
+<td><code>number</code></td>
+<td>No</td>
+<td>A 5-digit error code uniquely identifying this particular type of error.</td>
+</tr>
+<tr>
+<td><code>message</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Message describing the error.</td>
+</tr>
+</tbody>
+</table>
+<h5 id="409-reject-if-content-preexists-was-set-and-the-content-already-appears-in-the-targeted-section" class="status" data-status="4xx">409: <code>Reject-If-Content-Preexists</code> was set and the content already appears in the targeted section</h5>
+<p><code>application/json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>errorCode</code></td>
+<td><code>number</code></td>
+<td>No</td>
+<td>A 5-digit error code uniquely identifying this particular type of error.</td>
+</tr>
+<tr>
+<td><code>message</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Message describing the error.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="list">list</h2>
+<h3 id="get-vault" class="operation" data-method="get"><code>GET</code> /vault/</h3>
+<p>Authentication: bearer token (<code>apiKeyAuth</code>).</p>
+<h4 id="responses-1">Responses</h4>
+<h5 id="200-success" class="status" data-status="2xx">200: Success</h5>
+<p><code>application/json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>files</code></td>
+<td><code>array of string</code></td>
+<td>No</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Example response:</p>
+<pre><code class="language-json">{
+  &quot;files&quot;: [
+    &quot;mydocument.md&quot;,
+    &quot;somedirectory/&quot;
+  ]
+}
+</code></pre>
+<h5 id="404-directory-does-not-exist" class="status" data-status="4xx">404: Directory does not exist</h5>
+<p><code>application/json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>errorCode</code></td>
+<td><code>number</code></td>
+<td>No</td>
+<td>A 5-digit error code uniquely identifying this particular type of error.</td>
+</tr>
+<tr>
+<td><code>message</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Message describing the error.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="load">load</h2>
+<h3 id="get-vaultfilename" class="operation" data-method="get"><code>GET</code> /vault/{filename}</h3>
+<p>Authentication: bearer token (<code>apiKeyAuth</code>).</p>
+<h4 id="parameters-1">Parameters</h4>
+<p>| Parameter | In | Type | Required | Description |
+| --- | --- | --- | --- |
+| <code>filename</code> | <code>path</code> | <code>string (path)</code> | Yes | Path to the relevant file (relative to your vault root). Optionally, you may include a reference to target a sub-part of the document; see &quot;Targeting a Sub-part of your Document&quot; for details. |
+| <code>Markdown-Patch-Version</code> | <code>header</code> | <code>enum: 1, 2</code> | No | Selects which markdown-patch format governs this request. You do not normally need to send this header. By default (2.0), a PATCH carries its whole instruction in the JSON request body, the document map returns a nested heading tree plus a <code>version</code> token, and a sub-part of a document is targeted with URL path elements (for example <code>.../heading/My%20Section</code>). Set it to <code>1</code> to opt into the deprecated 1.x behavior: the header-driven PATCH format, header-based targeting (<code>Target-Type</code>/<code>Target</code>/<code>Target-Delimiter</code>/<code>Target-Scope</code>) on GET/PUT/POST, and the <code>::</code>-joined document map. Responses served by 1.x carry a <code>Deprecation: true; sunset-version=&amp;quot;6.0&amp;quot;</code> header. Any value other than <code>1</code> or <code>2</code> returns <code>400 InvalidPatchVersionHeader</code>. One place an <em>explicit</em> <code>2</code> matters: PATCH's raw-content mode with header-based targeting. Because <code>Target-Type</code>/<code>Target</code> headers on a PATCH are ambiguous between the 1.x format and raw-content mode, a PATCH carrying them without this header is rejected with <code>400 PatchHeaderTargetingRequiresExplicitVersion</code>, send <code>1</code> for the deprecated engine or <code>2</code> for raw-content mode. On GET/PUT/POST, supplying those targeting headers without <code>1</code> is rejected with <code>400 HeaderTargetingRequiresVersion1</code> (use URL path elements instead), and PATCH URL-element targeting likewise needs no version header. |
+| <code>Target-Scope</code> | <code>header</code> | <code>enum: content, marker, markerAndContent</code> | No | For a URL-path-targeted read: which part of the target to return (default <code>content</code>), mirroring PATCH's scopes with a round-trip guarantee, what a scope returns is exactly what a <code>replace</code> at that scope consumes. - <code>content</code> (default): the node's body, a heading's body with its levels made relative to the target, a block's text, a frontmatter value. - <code>marker</code>: the label, a heading's raw text (no <code>#</code>s, and without the duplicate-marker suffix its map key may carry), a block's bare id, a frontmatter key. - <code>markerAndContent</code>: the whole node, a heading's subtree with its own line as <code># Title</code> (levels relative to its parent), a block's full span including its <code>^id</code>, or a frontmatter entry as a <code>&amp;#123;key: value&amp;#125;</code> JSON object. <code>parent</code> places a section but carries no readable value, and returns <code>400 InvalidTargetScopeHeader</code>. Only meaningful when the URL path addresses a sub-part of the note. |</p>
+<h4 id="responses-2">Responses</h4>
+<h5 id="200-success-1" class="status" data-status="2xx">200: Success</h5>
+<p><code>application/json</code></p>
+<p>The response is <code>any</code>.</p>
+<p><code>application/vnd.olrapi.document-map+json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>blocks</code></td>
+<td><code>array of string</code></td>
+<td>No</td>
+<td>Block reference ids, bare (no leading <code>^</code>), in document order.</td>
+</tr>
+<tr>
+<td><code>frontmatterFields</code></td>
+<td><code>array of string</code></td>
+<td>No</td>
+<td></td>
+</tr>
+<tr>
+<td><code>headings</code></td>
+<td><code>object</code></td>
+<td>No</td>
+<td>The document's headings nested by containment: each heading's text maps to a HeadingTree of its child headings, and a leaf heading maps to <code>&amp;#123;&amp;#125;</code>. Nesting carries no heading level, a level skipped in the source leaves no hole. To target a heading, use the path of keys from the top level down to it as a HeadingAddress. A repeated sibling heading appears once, but its children are not lost: they merge into that one key, because a heading is addressed by its whole path rather than its name. Given <code>## Log / ### Monday</code> followed by <code>## Log / ### Tuesday</code>, the tree is <code>&amp;#123;&amp;quot;Log&amp;quot;: &amp;#123;&amp;quot;Monday&amp;quot;: &amp;#123;&amp;#125;, &amp;quot;Tuesday&amp;quot;: &amp;#123;&amp;#125;&amp;#125;&amp;#125;</code> and both are separately addressable. Only sections that share an entire path are one address, and that address resolves to the first in document order. The tree therefore lists exactly the headings you can target.</td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Content-hash token for the file; pass it back as a PATCH <code>ifMatch</code> to make an edit conditional on the file being unchanged.</td>
+</tr>
+</tbody>
+</table>
+<p><code>application/vnd.olrapi.note+json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>backlinks</code></td>
+<td><code>array of string</code></td>
+<td>Yes</td>
+<td>Vault-relative paths of files that link to this file.</td>
+</tr>
+<tr>
+<td><code>content</code></td>
+<td><code>string</code></td>
+<td>Yes</td>
+<td></td>
+</tr>
+<tr>
+<td><code>frontmatter</code></td>
+<td><code>object</code></td>
+<td>Yes</td>
+<td></td>
+</tr>
+<tr>
+<td><code>links</code></td>
+<td><code>array of string</code></td>
+<td>Yes</td>
+<td>Vault-relative paths of files this file links to.</td>
+</tr>
+<tr>
+<td><code>path</code></td>
+<td><code>string</code></td>
+<td>Yes</td>
+<td></td>
+</tr>
+<tr>
+<td><code>stat</code></td>
+<td><code>object</code></td>
+<td>Yes</td>
+<td></td>
+</tr>
+<tr>
+<td><code>stat.ctime</code></td>
+<td><code>number</code></td>
+<td>Yes</td>
+<td></td>
+</tr>
+<tr>
+<td><code>stat.mtime</code></td>
+<td><code>number</code></td>
+<td>Yes</td>
+<td></td>
+</tr>
+<tr>
+<td><code>stat.size</code></td>
+<td><code>number</code></td>
+<td>Yes</td>
+<td></td>
+</tr>
+<tr>
+<td><code>tags</code></td>
+<td><code>array of string</code></td>
+<td>Yes</td>
+<td></td>
+</tr>
+<tr>
+<td><code>unresolvedLinks</code></td>
+<td><code>array of string</code></td>
+<td>Yes</td>
+<td>Link text found in this file that does not resolve to an existing vault file.</td>
+</tr>
+</tbody>
+</table>
+<p><code>text/html</code></p>
+<p>The response is <code>string</code>.</p>
+<p><code>text/markdown</code></p>
+<p>The response is <code>string</code>.</p>
+<h5 id="400-the-markdown-patch-version-header-was-invalid-not-1-or-2-the-deprecated-target-typetarget-headers-were-invalid-the-target-scope-header-was-not-a-readable-scope-content-marker-markerandcontent-or-a-frontmatter-target-was-combined-with-accept-texthtml-frontmatter-has-no-html-rendering" class="status" data-status="4xx">400: The <code>Markdown-Patch-Version</code> header was invalid (not <code>1</code> or <code>2</code>), the deprecated <code>Target-Type</code>/<code>Target</code> headers were invalid, the <code>Target-Scope</code> header was not a readable scope (<code>content</code>, <code>marker</code>, <code>markerAndContent</code>), or a frontmatter target was combined with <code>Accept: text/html</code> (frontmatter has no HTML rendering).</h5>
+<p><code>application/json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>errorCode</code></td>
+<td><code>number</code></td>
+<td>No</td>
+<td>A 5-digit error code uniquely identifying this particular type of error.</td>
+</tr>
+<tr>
+<td><code>message</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Message describing the error.</td>
+</tr>
+</tbody>
+</table>
+<h5 id="404-file-or-target-section-does-not-exist" class="status" data-status="4xx">404: File or target section does not exist</h5>
+<h3 id="get-vaultpathtodirectory" class="operation" data-method="get"><code>GET</code> /vault/{pathToDirectory}/</h3>
+<p>Authentication: bearer token (<code>apiKeyAuth</code>).</p>
+<h4 id="parameters-2">Parameters</h4>
+<p>| Parameter | In | Type | Required | Description |
+| --- | --- | --- | --- |
+| <code>pathToDirectory</code> | <code>path</code> | <code>string (path)</code> | Yes | Path to list files from (relative to your vault root). Note that empty directories will not be returned. Note: this particular interactive tool requires that you provide an argument for this field, but the API itself will allow you to list the root folder of your vault. If you would like to try listing content in the root of your vault using this interactive tool, use the above &quot;List files that exist in the root of your vault&quot; form above. |</p>
+<h4 id="responses-3">Responses</h4>
+<h5 id="200-success-2" class="status" data-status="2xx">200: Success</h5>
+<p><code>application/json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>files</code></td>
+<td><code>array of string</code></td>
+<td>No</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Example response:</p>
+<pre><code class="language-json">{
+  &quot;files&quot;: [
+    &quot;mydocument.md&quot;,
+    &quot;somedirectory/&quot;
+  ]
+}
+</code></pre>
+<h5 id="404-directory-does-not-exist-1" class="status" data-status="4xx">404: Directory does not exist</h5>
+<p><code>application/json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>errorCode</code></td>
+<td><code>number</code></td>
+<td>No</td>
+<td>A 5-digit error code uniquely identifying this particular type of error.</td>
+</tr>
+<tr>
+<td><code>message</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Message describing the error.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="patch">patch</h2>
+<h3 id="patch-vaultfilename" class="operation" data-method="patch"><code>PATCH</code> /vault/{filename}</h3>
+<p>Authentication: bearer token (<code>apiKeyAuth</code>).</p>
+<h4 id="parameters-3">Parameters</h4>
+<p>| Parameter | In | Type | Required | Description |
+| --- | --- | --- | --- |
+| <code>filename</code> | <code>path</code> | <code>string (path)</code> | Yes | Path to the relevant file (relative to your vault root). Optionally, you may include a reference to target a sub-part of the document; see &quot;Targeting a Sub-part of your Document&quot; for details. |
+| <code>Markdown-Patch-Version</code> | <code>header</code> | <code>enum: 1, 2</code> | No | Selects which markdown-patch format governs this request. You do not normally need to send this header. By default (2.0), a PATCH carries its whole instruction in the JSON request body, the document map returns a nested heading tree plus a <code>version</code> token, and a sub-part of a document is targeted with URL path elements (for example <code>.../heading/My%20Section</code>). Set it to <code>1</code> to opt into the deprecated 1.x behavior: the header-driven PATCH format, header-based targeting (<code>Target-Type</code>/<code>Target</code>/<code>Target-Delimiter</code>/<code>Target-Scope</code>) on GET/PUT/POST, and the <code>::</code>-joined document map. Responses served by 1.x carry a <code>Deprecation: true; sunset-version=&amp;quot;6.0&amp;quot;</code> header. Any value other than <code>1</code> or <code>2</code> returns <code>400 InvalidPatchVersionHeader</code>. One place an <em>explicit</em> <code>2</code> matters: PATCH's raw-content mode with header-based targeting. Because <code>Target-Type</code>/<code>Target</code> headers on a PATCH are ambiguous between the 1.x format and raw-content mode, a PATCH carrying them without this header is rejected with <code>400 PatchHeaderTargetingRequiresExplicitVersion</code>, send <code>1</code> for the deprecated engine or <code>2</code> for raw-content mode. On GET/PUT/POST, supplying those targeting headers without <code>1</code> is rejected with <code>400 HeaderTargetingRequiresVersion1</code> (use URL path elements instead), and PATCH URL-element targeting likewise needs no version header. |
+| <code>Target-Type</code> | <code>header</code> | <code>enum: heading, block, frontmatter</code> | No | Raw-content mode: the type of node the instruction targets (<code>heading</code>, <code>block</code>, or <code>frontmatter</code>). Must be used together with the <code>Target</code> header and an explicit <code>Markdown-Patch-Version: 2</code>; alternatively, put the target in the URL path (<code>.../heading/A/B</code>) and omit both headers. Supplying both is rejected with <code>422 ConflictingTargetSpecification</code>. |
+| <code>Target</code> | <code>header</code> | <code>string</code> | No | Raw-content mode: the node the instruction targets. The encoding is type-dependent, mirroring the instruction's <code>target</code> field. For a <code>heading</code>, the value is JSON, an array of heading texts from the top level down, or <code>null</code> for the document root, then percent-encoded: <code>[&amp;quot;A&amp;quot;,&amp;quot;B&amp;quot;]</code> is sent as <code>%5B%22A%22%2C%22B%22%5D</code>. For a <code>block</code> or <code>frontmatter</code> target, the value is the plain id/key, percent-encoded if it contains non-ASCII characters. A heading value that does not decode to JSON (for example a bare 1.x-style <code>A::B</code> path) is rejected with <code>400 InvalidTargetHeader</code>. |
+| <code>Within</code> | <code>header</code> | <code>string</code> | No | Raw-content mode: the instruction's <code>within</code>, a single integer (for example <code>-1</code>) refining a heading target to one of the section's direct-body top-level blocks (0-based document order, negative counting from the end; isolated <code>^id</code> lines are not counted). With the default <code>content</code> scope the body is spliced literally into that block, an <code>append</code> <em>continues</em> it, and a bodiless <code>delete</code> removes it; with <code>Target-Scope: markerAndContent</code>, <code>prepend</code>/<code>append</code> insert the body as a new block beside it. Heading targets only; cannot be combined with <code>Create-Target-If-Missing</code>. |
+| <code>Operation</code> | <code>header</code> | <code>enum: replace, prepend, append, delete</code> | No | Raw-content mode: the instruction's operation. Required whenever the target rides in the URL path or the <code>Target-Type</code>/<code>Target</code> headers. |
+| <code>Target-Scope</code> | <code>header</code> | <code>enum: content, marker, markerAndContent, parent</code> | No | Raw-content mode: the instruction's <code>scope</code>, <code>content</code> (default), <code>marker</code>, <code>markerAndContent</code>, or <code>parent</code> (a move; carries its destination in the <code>Destination</code> header). See the instruction-body documentation for what each scope addresses. |
+| <code>Destination</code> | <code>header</code> | <code>string</code> | No | Raw-content mode: where a moved heading lands (<code>Target-Scope: parent</code>). The instruction's <code>destination</code> object as JSON, then percent-encoded: <code>&amp;#123;&amp;quot;parent&amp;quot;:[&amp;quot;Appendix&amp;quot;],&amp;quot;place&amp;quot;:&amp;quot;last&amp;quot;&amp;#125;</code> is sent as <code>%7B%22parent%22%3A%5B%22Appendix%22%5D%2C%22place%22%3A%22last%22%7D</code>. A move carries no body. |
+| <code>If-Match</code> | <code>header</code> | <code>string</code> | No | Raw-content mode: the instruction's <code>ifMatch</code> optimistic-concurrency token, the <code>version</code> from a document map, bare or wrapped in one pair of double quotes (RFC 9110 ETag style). A mismatch fails with <code>412</code> and leaves the file untouched. |
+| <code>Create-Target-If-Missing</code> | <code>header</code> | <code>enum: true, false</code> | No | If the specified Target does not exist, create it? |
+| <code>Reject-If-Content-Preexists</code> | <code>header</code> | <code>enum: true, false</code> | No | If patch data already exists in Target, reject the patch? |</p>
+<h4 id="request-body-1">Request body</h4>
+<p><code>application/json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>content</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>String payload: a heading/block body or label, a new block id for a block <code>marker</code> rename (letters, numbers, hyphens, and underscores only), or a new frontmatter key name for a frontmatter <code>marker</code> rename. Heading levels are relative to the edited span (a leading <code>#</code> becomes a direct child). For heading writes, whitespace is library-owned: leading/trailing blank lines here are ignored, and the engine supplies the blank line that keeps inserted content a separate block, never add newlines to control spacing. (Block-target <code>content</code> is the exception: it is spliced literally for inline edits.) A heading <code>marker</code> rename may not contain a line break. Provide exactly one of <code>content</code>, <code>value</code>, or <code>destination</code>.</td>
+</tr>
+<tr>
+<td><code>createTargetIfMissing</code></td>
+<td><code>boolean</code></td>
+<td>No</td>
+<td>Create the target (heading path, block id, or frontmatter key) if it does not already exist.</td>
+</tr>
+<tr>
+<td><code>destination</code></td>
+<td><code>object</code></td>
+<td>No</td>
+<td>For a heading move (operation <code>replace</code>, scope <code>parent</code>): where the section is re-parented. Provide exactly one of <code>content</code>, <code>value</code>, or <code>destination</code>.</td>
+</tr>
+<tr>
+<td><code>destination.parent</code></td>
+<td><code>array of string</code></td>
+<td>Yes</td>
+<td>The section's new parent heading address, or null/[] for the document root.</td>
+</tr>
+<tr>
+<td><code>destination.place</code></td>
+<td><code>enum: first, last or object or object</code></td>
+<td>Yes</td>
+<td>Position among the new parent's children: &quot;first&quot;, &quot;last&quot;, or { before } / { after } a sibling heading address.</td>
+</tr>
+<tr>
+<td><code>ifMatch</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Optimistic-concurrency token (the <code>version</code> from a prior document map). If set and the document has changed since, the patch fails with a precondition error without modifying the file.</td>
+</tr>
+<tr>
+<td><code>operation</code></td>
+<td><code>enum: replace, prepend, append, delete</code></td>
+<td>Yes</td>
+<td>What happens to the scoped span: replace it, insert before (<code>prepend</code>) or after (<code>append</code>), or <code>delete</code> it.</td>
+</tr>
+<tr>
+<td><code>rejectIfContentPreexists</code></td>
+<td><code>boolean</code></td>
+<td>No</td>
+<td>Fail a <code>prepend</code>/<code>append</code> when the string content already appears in the target span (makes those operations idempotent on retry).</td>
+</tr>
+<tr>
+<td><code>scope</code></td>
+<td><code>enum: content, marker, markerAndContent, parent</code></td>
+<td>No</td>
+<td>Which part of the target the operation acts on (default <code>content</code>). <code>content</code>: the node body, for a heading, its whole subtree below the heading line. <code>marker</code>: the label only, a heading line, a block <code>^id</code>, or a frontmatter key (<code>replace</code> renames it). <code>markerAndContent</code>: the whole node/subtree (<code>prepend</code>/<code>append</code> insert a sibling). <code>parent</code>: a heading's place in the tree, only with operation <code>replace</code>, carrying a <code>destination</code> (a move).</td>
+</tr>
+<tr>
+<td><code>target</code></td>
+<td><code>array of string or string</code></td>
+<td>Yes</td>
+<td>The node to edit. For a heading: an array of heading texts from the top level down to the target (for example [&quot;Overview&quot;,&quot;Details&quot;]), or null/[] for the document root. If a heading is a duplicate of an earlier sibling under the same parent, its address carries an extra non-printable marker suffix appended by the server, copy that address verbatim from wherever the document's heading structure was discovered, never retype or reconstruct it. For a block: the bare block id, without the leading <code>^</code> (letters, numbers, hyphens, and underscores only), a duplicate block id's later occurrence carries the same kind of marker suffix, copied verbatim the same way. For a frontmatter field: the key.</td>
+</tr>
+<tr>
+<td><code>targetType</code></td>
+<td><code>enum: heading, block, frontmatter</code></td>
+<td>Yes</td>
+<td>The kind of node to edit.</td>
+</tr>
+<tr>
+<td><code>value</code></td>
+<td><code>any</code></td>
+<td>No</td>
+<td>Structured JSON payload: a frontmatter value (any JSON, string, number, boolean, array, object, null; for <code>prepend</code>/<code>append</code> this merges: list concat, dict merge, string concat), or table rows on a <code>block</code> target's <code>content</code> cell (a 2-D array of strings, one row per entry, <code>replace</code> swaps the body rows, <code>prepend</code>/<code>append</code> insert before/after the existing ones; each row's length must match the table's column count). Table cells are content, not table source: a <code>|</code> is escaped for you, and a cell containing a line break is rejected, since a row is a single line. Provide exactly one of <code>content</code>, <code>value</code>, or <code>destination</code>.</td>
+</tr>
+<tr>
+<td><code>within</code></td>
+<td><code>integer</code></td>
+<td>No</td>
+<td>Refines a heading target to one of the section's direct-body top-level blocks (a paragraph, list, table, code fence, blockquote, …): 0 is the first block in document order, and a negative index counts from the end (-1 = last). Isolated <code>^id</code> lines are not counted, so indices match the rendered blocks. With scope <code>content</code>, the edit is a literal splice into that block, you own the joint, so <code>append</code> <em>continues</em> the block (for example content <code>\n- item</code> extends a list), and <code>delete</code> removes the block. With scope <code>markerAndContent</code>, <code>prepend</code>/<code>append</code> insert a new block immediately before/after it, with library-owned blank-line separators. Heading targets only; cannot be combined with <code>createTargetIfMissing</code>.</td>
+</tr>
+</tbody>
+</table>
+<p><code>application/vnd.olrapi.patch-instruction+json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>content</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>String payload: a heading/block body or label, a new block id for a block <code>marker</code> rename (letters, numbers, hyphens, and underscores only), or a new frontmatter key name for a frontmatter <code>marker</code> rename. Heading levels are relative to the edited span (a leading <code>#</code> becomes a direct child). For heading writes, whitespace is library-owned: leading/trailing blank lines here are ignored, and the engine supplies the blank line that keeps inserted content a separate block, never add newlines to control spacing. (Block-target <code>content</code> is the exception: it is spliced literally for inline edits.) A heading <code>marker</code> rename may not contain a line break. Provide exactly one of <code>content</code>, <code>value</code>, or <code>destination</code>.</td>
+</tr>
+<tr>
+<td><code>createTargetIfMissing</code></td>
+<td><code>boolean</code></td>
+<td>No</td>
+<td>Create the target (heading path, block id, or frontmatter key) if it does not already exist.</td>
+</tr>
+<tr>
+<td><code>destination</code></td>
+<td><code>object</code></td>
+<td>No</td>
+<td>For a heading move (operation <code>replace</code>, scope <code>parent</code>): where the section is re-parented. Provide exactly one of <code>content</code>, <code>value</code>, or <code>destination</code>.</td>
+</tr>
+<tr>
+<td><code>destination.parent</code></td>
+<td><code>array of string</code></td>
+<td>Yes</td>
+<td>The section's new parent heading address, or null/[] for the document root.</td>
+</tr>
+<tr>
+<td><code>destination.place</code></td>
+<td><code>enum: first, last or object or object</code></td>
+<td>Yes</td>
+<td>Position among the new parent's children: &quot;first&quot;, &quot;last&quot;, or { before } / { after } a sibling heading address.</td>
+</tr>
+<tr>
+<td><code>ifMatch</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Optimistic-concurrency token (the <code>version</code> from a prior document map). If set and the document has changed since, the patch fails with a precondition error without modifying the file.</td>
+</tr>
+<tr>
+<td><code>operation</code></td>
+<td><code>enum: replace, prepend, append, delete</code></td>
+<td>Yes</td>
+<td>What happens to the scoped span: replace it, insert before (<code>prepend</code>) or after (<code>append</code>), or <code>delete</code> it.</td>
+</tr>
+<tr>
+<td><code>rejectIfContentPreexists</code></td>
+<td><code>boolean</code></td>
+<td>No</td>
+<td>Fail a <code>prepend</code>/<code>append</code> when the string content already appears in the target span (makes those operations idempotent on retry).</td>
+</tr>
+<tr>
+<td><code>scope</code></td>
+<td><code>enum: content, marker, markerAndContent, parent</code></td>
+<td>No</td>
+<td>Which part of the target the operation acts on (default <code>content</code>). <code>content</code>: the node body, for a heading, its whole subtree below the heading line. <code>marker</code>: the label only, a heading line, a block <code>^id</code>, or a frontmatter key (<code>replace</code> renames it). <code>markerAndContent</code>: the whole node/subtree (<code>prepend</code>/<code>append</code> insert a sibling). <code>parent</code>: a heading's place in the tree, only with operation <code>replace</code>, carrying a <code>destination</code> (a move).</td>
+</tr>
+<tr>
+<td><code>target</code></td>
+<td><code>array of string or string</code></td>
+<td>Yes</td>
+<td>The node to edit. For a heading: an array of heading texts from the top level down to the target (for example [&quot;Overview&quot;,&quot;Details&quot;]), or null/[] for the document root. If a heading is a duplicate of an earlier sibling under the same parent, its address carries an extra non-printable marker suffix appended by the server, copy that address verbatim from wherever the document's heading structure was discovered, never retype or reconstruct it. For a block: the bare block id, without the leading <code>^</code> (letters, numbers, hyphens, and underscores only), a duplicate block id's later occurrence carries the same kind of marker suffix, copied verbatim the same way. For a frontmatter field: the key.</td>
+</tr>
+<tr>
+<td><code>targetType</code></td>
+<td><code>enum: heading, block, frontmatter</code></td>
+<td>Yes</td>
+<td>The kind of node to edit.</td>
+</tr>
+<tr>
+<td><code>value</code></td>
+<td><code>any</code></td>
+<td>No</td>
+<td>Structured JSON payload: a frontmatter value (any JSON, string, number, boolean, array, object, null; for <code>prepend</code>/<code>append</code> this merges: list concat, dict merge, string concat), or table rows on a <code>block</code> target's <code>content</code> cell (a 2-D array of strings, one row per entry, <code>replace</code> swaps the body rows, <code>prepend</code>/<code>append</code> insert before/after the existing ones; each row's length must match the table's column count). Table cells are content, not table source: a <code>|</code> is escaped for you, and a cell containing a line break is rejected, since a row is a single line. Provide exactly one of <code>content</code>, <code>value</code>, or <code>destination</code>.</td>
+</tr>
+<tr>
+<td><code>within</code></td>
+<td><code>integer</code></td>
+<td>No</td>
+<td>Refines a heading target to one of the section's direct-body top-level blocks (a paragraph, list, table, code fence, blockquote, …): 0 is the first block in document order, and a negative index counts from the end (-1 = last). Isolated <code>^id</code> lines are not counted, so indices match the rendered blocks. With scope <code>content</code>, the edit is a literal splice into that block, you own the joint, so <code>append</code> <em>continues</em> the block (for example content <code>\n- item</code> extends a list), and <code>delete</code> removes the block. With scope <code>markerAndContent</code>, <code>prepend</code>/<code>append</code> insert a new block immediately before/after it, with library-owned blank-line separators. Heading targets only; cannot be combined with <code>createTargetIfMissing</code>.</td>
+</tr>
+</tbody>
+</table>
+<p><code>text/markdown</code></p>
+<p>The request body is <code>string</code>.</p>
+<h4 id="responses-4">Responses</h4>
+<h5 id="200-success-the-body-is-the-patched-document-any-advisory-warnings-for-example-a-heading-rebased-past-level-6-are-json-encoded-then-percent-encoded-in-the-markdown-patch-warnings-response-header" class="status" data-status="2xx">200: Success. The body is the patched document. Any advisory warnings (for example a heading rebased past level 6) are JSON-encoded, then percent-encoded, in the <code>Markdown-Patch-Warnings</code> response header</h5>
+<h5 id="400-bad-request-the-instruction-was-malformed-the-operationscopetargettype-combination-is-not-part-of-the-algebra-the-markdown-patch-version-header-was-invalid-an-instruction-mode-request-had-a-non-object-body-or-a-raw-content-mode-header-could-not-be-decoded-a-heading-target-that-is-not-percent-encoded-json-a-malformed-destination-an-unsupported-body-content-type-header-based-targeting-without-an-explicit-markdown-patch-version-returns-patchheadertargetingrequiresexplicitversion-here-see-response-message-for-details" class="status" data-status="4xx">400: Bad Request; the instruction was malformed, the operation×scope×targetType combination is not part of the algebra, the <code>Markdown-Patch-Version</code> header was invalid, an instruction-mode request had a non-object body, or a raw-content-mode header could not be decoded (a heading <code>Target</code> that is not percent-encoded JSON, a malformed <code>Destination</code>, an unsupported body content type). Header-based targeting without an explicit <code>Markdown-Patch-Version</code> returns <code>PatchHeaderTargetingRequiresExplicitVersion</code> here. See response message for details</h5>
+<p><code>application/json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>errorCode</code></td>
+<td><code>number</code></td>
+<td>No</td>
+<td>A 5-digit error code uniquely identifying this particular type of error.</td>
+</tr>
+<tr>
+<td><code>message</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Message describing the error.</td>
+</tr>
+</tbody>
+</table>
+<h5 id="404-the-file-or-the-addressed-target-within-it-does-not-exist-and-createtargetifmissing-was-not-set" class="status" data-status="4xx">404: The file, or the addressed target within it, does not exist (and <code>createTargetIfMissing</code> was not set)</h5>
+<p><code>application/json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>errorCode</code></td>
+<td><code>number</code></td>
+<td>No</td>
+<td>A 5-digit error code uniquely identifying this particular type of error.</td>
+</tr>
+<tr>
+<td><code>message</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Message describing the error.</td>
+</tr>
+</tbody>
+</table>
+<h5 id="405-your-path-references-a-directory-instead-of-a-file-this-request-method-is-valid-only-for-updating-files-1" class="status" data-status="4xx">405: Your path references a directory instead of a file; this request method is valid only for updating files.</h5>
+<p><code>application/json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>errorCode</code></td>
+<td><code>number</code></td>
+<td>No</td>
+<td>A 5-digit error code uniquely identifying this particular type of error.</td>
+</tr>
+<tr>
+<td><code>message</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Message describing the error.</td>
+</tr>
+</tbody>
+</table>
+<h5 id="409-rejectifcontentpreexists-was-set-and-the-content-already-appears-in-the-target-span" class="status" data-status="4xx">409: <code>rejectIfContentPreexists</code> was set and the content already appears in the target span</h5>
+<p><code>application/json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>errorCode</code></td>
+<td><code>number</code></td>
+<td>No</td>
+<td>A 5-digit error code uniquely identifying this particular type of error.</td>
+</tr>
+<tr>
+<td><code>message</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Message describing the error.</td>
+</tr>
+</tbody>
+</table>
+<h5 id="412-precondition-failed-the-ifmatch-token-did-not-match-the-current-document-version-the-file-was-not-modified" class="status" data-status="4xx">412: Precondition Failed: the <code>ifMatch</code> token did not match the current document version; the file was not modified</h5>
+<p><code>application/json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>errorCode</code></td>
+<td><code>number</code></td>
+<td>No</td>
+<td>A 5-digit error code uniquely identifying this particular type of error.</td>
+</tr>
+<tr>
+<td><code>message</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Message describing the error.</td>
+</tr>
+</tbody>
+</table>
+<h5 id="422-conflicting-target-specifications-more-than-one-of-url-path-elements-target-typetarget-headers-and-an-applicationvndolrapipatch-instructionjson-instruction-body-was-supplied" class="status" data-status="4xx">422: Conflicting target specifications: more than one of URL path elements, <code>Target-Type</code>/<code>Target</code> headers, and an <code>application/vnd.olrapi.patch-instruction+json</code> instruction body was supplied</h5>
+<p><code>application/json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>errorCode</code></td>
+<td><code>number</code></td>
+<td>No</td>
+<td>A 5-digit error code uniquely identifying this particular type of error.</td>
+</tr>
+<tr>
+<td><code>message</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Message describing the error.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="remove">remove</h2>
+<h3 id="delete-vaultfilename" class="operation" data-method="delete"><code>DELETE</code> /vault/{filename}</h3>
+<p>Authentication: bearer token (<code>apiKeyAuth</code>).</p>
+<h4 id="parameters-4">Parameters</h4>
+<p>| Parameter | In | Type | Required | Description |
+| --- | --- | --- | --- |
+| <code>permanent</code> | <code>query</code> | <code>enum: true, false</code> | No | If &quot;true&quot;, the file is permanently deleted instead of being moved to trash. Defaults to &quot;false&quot;, which moves the file to trash following the user's Obsidian &quot;Deleted files&quot; preference (either the &quot;.trash&quot; folder or the system trash). |
+| <code>filename</code> | <code>path</code> | <code>string (path)</code> | Yes | Path to the relevant file (relative to your vault root). Optionally, you may include a reference to target a sub-part of the document; see &quot;Targeting a Sub-part of your Document&quot; for details. |</p>
+<h4 id="responses-5">Responses</h4>
+<h5 id="204-success" class="status" data-status="2xx">204: Success</h5>
+<h5 id="404-file-does-not-exist" class="status" data-status="4xx">404: File does not exist</h5>
+<p><code>application/json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>errorCode</code></td>
+<td><code>number</code></td>
+<td>No</td>
+<td>A 5-digit error code uniquely identifying this particular type of error.</td>
+</tr>
+<tr>
+<td><code>message</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Message describing the error.</td>
+</tr>
+</tbody>
+</table>
+<h5 id="405-your-path-references-a-directory-instead-of-a-file-this-request-method-is-valid-only-for-updating-files-2" class="status" data-status="4xx">405: Your path references a directory instead of a file; this request method is valid only for updating files.</h5>
+<p><code>application/json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>errorCode</code></td>
+<td><code>number</code></td>
+<td>No</td>
+<td>A 5-digit error code uniquely identifying this particular type of error.</td>
+</tr>
+<tr>
+<td><code>message</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Message describing the error.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="update">update</h2>
+<h3 id="put-vaultfilename" class="operation" data-method="put"><code>PUT</code> /vault/{filename}</h3>
+<p>Authentication: bearer token (<code>apiKeyAuth</code>).</p>
+<h4 id="parameters-5">Parameters</h4>
+<p>| Parameter | In | Type | Required | Description |
+| --- | --- | --- | --- |
+| <code>filename</code> | <code>path</code> | <code>string (path)</code> | Yes | Path to the relevant file (relative to your vault root). Optionally, you may include a reference to target a sub-part of the document; see &quot;Targeting a Sub-part of your Document&quot; for details. |
+| <code>Markdown-Patch-Version</code> | <code>header</code> | <code>enum: 1, 2</code> | No | Selects which markdown-patch format governs this request. You do not normally need to send this header. By default (2.0), a PATCH carries its whole instruction in the JSON request body, the document map returns a nested heading tree plus a <code>version</code> token, and a sub-part of a document is targeted with URL path elements (for example <code>.../heading/My%20Section</code>). Set it to <code>1</code> to opt into the deprecated 1.x behavior: the header-driven PATCH format, header-based targeting (<code>Target-Type</code>/<code>Target</code>/<code>Target-Delimiter</code>/<code>Target-Scope</code>) on GET/PUT/POST, and the <code>::</code>-joined document map. Responses served by 1.x carry a <code>Deprecation: true; sunset-version=&amp;quot;6.0&amp;quot;</code> header. Any value other than <code>1</code> or <code>2</code> returns <code>400 InvalidPatchVersionHeader</code>. One place an <em>explicit</em> <code>2</code> matters: PATCH's raw-content mode with header-based targeting. Because <code>Target-Type</code>/<code>Target</code> headers on a PATCH are ambiguous between the 1.x format and raw-content mode, a PATCH carrying them without this header is rejected with <code>400 PatchHeaderTargetingRequiresExplicitVersion</code>, send <code>1</code> for the deprecated engine or <code>2</code> for raw-content mode. On GET/PUT/POST, supplying those targeting headers without <code>1</code> is rejected with <code>400 HeaderTargetingRequiresVersion1</code> (use URL path elements instead), and PATCH URL-element targeting likewise needs no version header. |
+| <code>Reject-If-Content-Preexists</code> | <code>header</code> | <code>enum: true, false</code> | No | If patch data already exists in Target, reject the patch? |</p>
+<h4 id="request-body-2">Request body</h4>
+<p><code>*/*</code></p>
+<p>The request body is <code>string</code>.</p>
+<p><code>text/markdown</code></p>
+<p>The request body is <code>string</code>.</p>
+<h4 id="responses-6">Responses</h4>
+<h5 id="200-success-targeted-section-replaced-via-url-path-elements-the-full-updated-file-content-is-returned-any-advisory-warnings-for-example-a-heading-rebased-past-level-6-are-json-encoded-then-percent-encoded-in-the-markdown-patch-warnings-response-header" class="status" data-status="2xx">200: Success; targeted section replaced (via URL path elements). The full updated file content is returned. Any advisory warnings (for example a heading rebased past level 6) are JSON-encoded, then percent-encoded, in the <code>Markdown-Patch-Warnings</code> response header</h5>
+<p><code>text/markdown</code></p>
+<p>The response is <code>string</code>.</p>
+<h5 id="204-success-entire-file-replaced" class="status" data-status="2xx">204: Success; entire file replaced</h5>
+<h5 id="400-incoming-file-could-not-be-processed-make-sure-you-have-specified-a-reasonable-file-name-and-make-sure-you-have-set-a-reasonable-39content-type39-header-if-you-are-uploading-a-note-39textmarkdown39-is-likely-the-right-choice" class="status" data-status="4xx">400: Incoming file could not be processed. Make sure you have specified a reasonable file name, and make sure you have set a reasonable 'Content-Type' header; if you are uploading a note, 'text/markdown' is likely the right choice.</h5>
+<p><code>application/json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>errorCode</code></td>
+<td><code>number</code></td>
+<td>No</td>
+<td>A 5-digit error code uniquely identifying this particular type of error.</td>
+</tr>
+<tr>
+<td><code>message</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Message describing the error.</td>
+</tr>
+</tbody>
+</table>
+<h5 id="405-your-path-references-a-directory-instead-of-a-file-this-request-method-is-valid-only-for-updating-files-3" class="status" data-status="4xx">405: Your path references a directory instead of a file; this request method is valid only for updating files.</h5>
+<p><code>application/json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>errorCode</code></td>
+<td><code>number</code></td>
+<td>No</td>
+<td>A 5-digit error code uniquely identifying this particular type of error.</td>
+</tr>
+<tr>
+<td><code>message</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Message describing the error.</td>
+</tr>
+</tbody>
+</table>
+<h5 id="409-reject-if-content-preexists-was-set-and-the-content-already-appears-in-the-targeted-section-1" class="status" data-status="4xx">409: <code>Reject-If-Content-Preexists</code> was set and the content already appears in the targeted section</h5>
+<p><code>application/json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>errorCode</code></td>
+<td><code>number</code></td>
+<td>No</td>
+<td>A 5-digit error code uniquely identifying this particular type of error.</td>
+</tr>
+<tr>
+<td><code>message</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Message describing the error.</td>
+</tr>
+</tbody>
+</table>
+</main></div>
+<script src="../assets/search.js" defer></script></body></html>

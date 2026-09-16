@@ -1,0 +1,52 @@
+# Entity: tag
+
+main: kit: entity: tag: {
+
+  alias: field: {}
+
+  fields: [
+    {
+      name: "count"
+      req: false
+      short: "Number of times this tag is used across the vault."
+      type: "`$NUMBER`"
+    }
+    {
+      name: "name"
+      req: false
+      short: "Tag name without the leading `#`."
+      type: "`$STRING`"
+    }
+  ]
+
+  name: "tag"
+  op: {
+    list: {
+      name: "list"
+      points: [
+        {
+          contract: {
+            id: "GET /tags/"
+            json: "{\"parameters\":[],\"protocol\":\"http\",\"responses\":{\"200\":{\"content\":{\"application/json\":{\"example\":{\"tags\":[{\"count\":3,\"name\":\"project\"},{\"count\":1,\"name\":\"important\"},{\"count\":2,\"name\":\"work\"},{\"count\":2,\"name\":\"work/tasks\"}]},\"schema\":{\"properties\":{\"tags\":{\"items\":{\"properties\":{\"count\":{\"description\":\"Number of times this tag is used across the vault.\",\"type\":\"number\"},\"name\":{\"description\":\"Tag name without the leading `#`.\",\"type\":\"string\"}},\"type\":\"object\"},\"type\":\"array\"}},\"type\":\"object\"}}},\"description\":\"A list of tags with their usage counts.\"}},\"security\":[{\"apiKeyAuth\":[]}],\"securitySchemes\":{\"apiKeyAuth\":{\"description\":\"Find your API Key in your Obsidian settings\\nin the \\\"Local REST API\\\" section under \\\"Plugins\\\".\\n\",\"scheme\":\"bearer\",\"type\":\"http\"}},\"securitySource\":\"definition\"}"
+            source: "openapi3"
+            version: 1
+          }
+          method: "GET"
+          orig: "/tags/"
+          segments: [
+            {
+              lit: "tags"
+            }
+          ]
+          transform: {
+            req: "`reqdata`"
+            res: "`body.tags`"
+          }
+        }
+      ]
+    }
+  }
+
+
+
+}

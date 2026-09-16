@@ -1,0 +1,104 @@
+# BasicVaultFlow
+
+main: kit: flow: BasicVaultFlow:
+{
+  entity: "vault",
+  kind: "basic",
+  name: "BasicVaultFlow",
+  step: [
+    {
+      input: {
+        ref: "vault_ref01"
+      }
+
+      match: {
+        filename: "filename01"
+      }
+
+      op: "create"
+    }
+
+    {
+      op: "list",
+      valid: [
+        {
+          apply: "ItemExists",
+          def: {
+            ref: "vault_ref01"
+          }
+        }
+      ]
+    }
+
+    {
+      input: {
+        ref: "vault_ref01",
+        srcdatavar: "vault_ref01_data",
+        suffix: "_up0",
+        textfield: "content"
+      }
+
+      op: "update",
+      spec: [
+        {
+          apply: "TextFieldMark",
+          def: {
+            mark: "Mark01-vault_ref01"
+          }
+        }
+      ]
+    }
+
+    {
+      input: {
+        ref: "vault_ref01",
+        srcdatavar: "vault_ref01_data",
+        suffix: "_dt0"
+      }
+
+      match: {
+        id: "vault01"
+      }
+
+      op: "load",
+      valid: [
+        {
+          apply: "TextFieldMark",
+          def: {
+            mark: "Mark01-vault_ref01"
+          }
+        }
+      ]
+    }
+
+    {
+      input: {
+        ref: "vault_ref01",
+        suffix: "_rm0"
+      }
+
+      match: {
+        id: "vault01"
+      }
+
+      op: "remove"
+    }
+
+    {
+      input: {
+        suffix: "_rt0"
+      }
+
+      op: "list",
+      valid: [
+        {
+          apply: "ItemNotExists",
+          def: {
+            ref: "vault_ref01"
+          }
+        }
+      ]
+    }
+  ],
+  "key$": "BasicVaultFlow"
+}

@@ -1,0 +1,2473 @@
+{
+  "NAME": "OBSIDIAN",
+  "Name": "Obsidian",
+  "def": "obsidian-vault-only.json",
+  "main": {
+    "api": {
+      "entity": {},
+      "guide": {}
+    },
+    "custom": {
+      "plurals": {}
+    },
+    "def": {
+      "desc": ""
+    },
+    "kit": {
+      "author": {
+        "name": "",
+        "url": ""
+      },
+      "config": {
+        "docs_order": [
+          "ts",
+          "py",
+          "php",
+          "go",
+          "rb",
+          "lua"
+        ],
+        "headers": {
+          "content-type": "application/json"
+        },
+        "repr": "auto"
+      },
+      "contributor": {},
+      "doc": {
+        "active": true,
+        "assets": {
+          "path": ".sdk/doc/assets"
+        },
+        "brand": {
+          "label": "",
+          "notice": "",
+          "shortNotice": "",
+          "url": ""
+        },
+        "ci": {
+          "active": true,
+          "branch": "main"
+        },
+        "content": {
+          "path": ".sdk/doc/content"
+        },
+        "edition": {
+          "github-pages": {
+            "active": true,
+            "base": "node_modules/@voxgig/docgen/project/.sdk",
+            "brand": {},
+            "filter": {
+              "entities": [],
+              "features": [],
+              "targets": []
+            },
+            "kind": "github-pages",
+            "name": "github-pages",
+            "origname": "",
+            "output": {
+              "path": "docs"
+            },
+            "package": "@voxgig/docgen",
+            "site": {
+              "active": true
+            },
+            "style": {},
+            "title": ""
+          },
+          "summary": {
+            "active": true,
+            "base": "node_modules/@voxgig/docgen/project/.sdk",
+            "brand": {},
+            "filter": {
+              "entities": [],
+              "features": [],
+              "targets": []
+            },
+            "kind": "summary",
+            "name": "summary",
+            "origname": "",
+            "output": {
+              "path": "SUMMARY.md"
+            },
+            "package": "@voxgig/docgen",
+            "site": {
+              "active": true
+            },
+            "style": {},
+            "title": ""
+          }
+        },
+        "qa": {
+          "vocabulary": []
+        },
+        "style": {
+          "color": {
+            "accent": "#00c6d8",
+            "background": "#f5f5f9",
+            "darkBackground": "#0f1117",
+            "darkText": "#e6edf3",
+            "primary": "#e70042",
+            "text": "#0a0a0a"
+          },
+          "font": "Nunito, system-ui, sans-serif",
+          "fontFile": "",
+          "headingFont": "Nunito, system-ui, sans-serif",
+          "headingFontFile": "",
+          "logo": "",
+          "mode": "light",
+          "mono": "ui-monospace, monospace",
+          "monoFile": ""
+        },
+        "target": {}
+      },
+      "entity": {
+        "tag": {
+          "active": true,
+          "alias": {
+            "field": {}
+          },
+          "fields": [
+            {
+              "active": true,
+              "name": "count",
+              "req": false,
+              "short": "Number of times this tag is used across the vault.",
+              "type": "`$NUMBER`"
+            },
+            {
+              "active": true,
+              "name": "name",
+              "req": false,
+              "short": "Tag name without the leading `#`.",
+              "type": "`$STRING`"
+            }
+          ],
+          "name": "tag",
+          "op": {
+            "list": {
+              "input": "data",
+              "name": "list",
+              "points": [
+                {
+                  "active": true,
+                  "args": {},
+                  "contract": {
+                    "id": "GET /tags/",
+                    "json": "{\"parameters\":[],\"protocol\":\"http\",\"responses\":{\"200\":{\"content\":{\"application/json\":{\"example\":{\"tags\":[{\"count\":3,\"name\":\"project\"},{\"count\":1,\"name\":\"important\"},{\"count\":2,\"name\":\"work\"},{\"count\":2,\"name\":\"work/tasks\"}]},\"schema\":{\"properties\":{\"tags\":{\"items\":{\"properties\":{\"count\":{\"description\":\"Number of times this tag is used across the vault.\",\"type\":\"number\"},\"name\":{\"description\":\"Tag name without the leading `#`.\",\"type\":\"string\"}},\"type\":\"object\"},\"type\":\"array\"}},\"type\":\"object\"}}},\"description\":\"A list of tags with their usage counts.\"}},\"security\":[{\"apiKeyAuth\":[]}],\"securitySchemes\":{\"apiKeyAuth\":{\"description\":\"Find your API Key in your Obsidian settings\\nin the \\\"Local REST API\\\" section under \\\"Plugins\\\".\\n\",\"scheme\":\"bearer\",\"type\":\"http\"}},\"securitySource\":\"definition\"}",
+                    "source": "openapi3",
+                    "version": 1
+                  },
+                  "kind": "http",
+                  "method": "GET",
+                  "orig": "/tags/",
+                  "segments": [
+                    {
+                      "lit": "tags"
+                    }
+                  ],
+                  "select": {},
+                  "transform": {
+                    "req": "`reqdata`",
+                    "res": "`body.tags`"
+                  }
+                }
+              ]
+            }
+          },
+          "relations": {
+            "ancestors": []
+          }
+        },
+        "vault": {
+          "active": true,
+          "alias": {
+            "field": {}
+          },
+          "fields": [
+            {
+              "active": true,
+              "name": "content",
+              "req": false,
+              "short": "String payload: a heading/block body or label, a new block id for a block `marker` rename (letters, numbers, hyphens, and underscores only), or a new frontmatter key name for a frontmatter `marker` rename.",
+              "type": "`$STRING`"
+            },
+            {
+              "active": true,
+              "name": "createTargetIfMissing",
+              "req": false,
+              "short": "Create the target (heading path, block id, or frontmatter key) if it does not already exist.",
+              "type": "`$BOOLEAN`"
+            },
+            {
+              "active": true,
+              "name": "destination",
+              "req": true,
+              "short": "For a heading move (operation `replace`, scope `parent`): where the section is re-parented.",
+              "type": "`$OBJECT`",
+              "union": {
+                "branches": 3,
+                "count": 1,
+                "depth": 2
+              }
+            },
+            {
+              "active": true,
+              "name": "files",
+              "req": false,
+              "type": "`$ARRAY`"
+            },
+            {
+              "active": true,
+              "name": "id",
+              "req": false,
+              "type": "`$STRING`"
+            },
+            {
+              "active": true,
+              "name": "ifMatch",
+              "req": false,
+              "short": "Optimistic-concurrency token (the `version` from a prior document map).",
+              "type": "`$STRING`"
+            },
+            {
+              "active": true,
+              "name": "operation",
+              "req": true,
+              "short": "What happens to the scoped span: replace it, insert before (`prepend`) or after (`append`), or `delete` it.",
+              "type": "`$STRING`"
+            },
+            {
+              "active": true,
+              "name": "rejectIfContentPreexists",
+              "req": false,
+              "short": "Fail a `prepend`/`append` when the string content already appears in the target span (makes those operations idempotent on retry).",
+              "type": "`$BOOLEAN`"
+            },
+            {
+              "active": true,
+              "name": "scope",
+              "req": false,
+              "short": "Which part of the target the operation acts on (default `content`).",
+              "type": "`$STRING`"
+            },
+            {
+              "active": true,
+              "name": "target",
+              "req": true,
+              "short": "The node to edit.",
+              "type": "`$ANY`",
+              "union": {
+                "branches": 2,
+                "count": 1,
+                "depth": 0
+              }
+            },
+            {
+              "active": true,
+              "name": "targetType",
+              "req": true,
+              "short": "The kind of node to edit.",
+              "type": "`$STRING`"
+            },
+            {
+              "active": true,
+              "name": "value",
+              "req": false,
+              "short": "Structured JSON payload: a frontmatter value (any JSON — string, number, boolean, array, object, null; for `prepend`/`append` this merges: list concat, dict merge, string concat), or table rows on a `block` target's `content` cell (a 2-D a…",
+              "type": "`$ANY`"
+            },
+            {
+              "active": true,
+              "name": "within",
+              "req": false,
+              "short": "Refines a heading target to one of the section's direct-body top-level blocks (a paragraph, list, table, code fence, blockquote, …): 0 is the first block in document order, and a negative index counts from the end (-1 = last).",
+              "type": "`$INTEGER`"
+            }
+          ],
+          "id": {
+            "field": "id",
+            "name": "id"
+          },
+          "name": "vault",
+          "op": {
+            "create": {
+              "input": "data",
+              "name": "create",
+              "points": [
+                {
+                  "active": true,
+                  "args": {
+                    "header": [
+                      {
+                        "active": true,
+                        "example": "false",
+                        "kind": "header",
+                        "name": "create_target_if_missing",
+                        "orig": "create_target_if_missing",
+                        "reqd": false,
+                        "type": "`$STRING`"
+                      },
+                      {
+                        "active": true,
+                        "example": "2",
+                        "kind": "header",
+                        "name": "markdown_patch_version",
+                        "orig": "markdown_patch_version",
+                        "reqd": false,
+                        "type": "`$STRING`"
+                      },
+                      {
+                        "active": true,
+                        "example": "false",
+                        "kind": "header",
+                        "name": "reject_if_content_preexist",
+                        "orig": "reject_if_content_preexist",
+                        "reqd": false,
+                        "type": "`$STRING`"
+                      }
+                    ],
+                    "params": [
+                      {
+                        "active": true,
+                        "kind": "param",
+                        "name": "id",
+                        "orig": "filename",
+                        "reqd": true,
+                        "type": "`$STRING`"
+                      }
+                    ]
+                  },
+                  "contract": {
+                    "id": "POST /vault/{filename}",
+                    "json": "{\"parameters\":[{\"description\":\"Path to the relevant file (relative to your vault root).\\n Optionally, you may include a reference to target a sub-part of the document; see \\\"Targeting a Sub-part of your Document\\\" for details.\",\"in\":\"path\",\"name\":\"filename\",\"required\":true,\"schema\":{\"format\":\"path\",\"type\":\"string\"}},{\"description\":\"Selects which markdown-patch format governs this request. You do not normally\\nneed to send this header. By default (2.0), a PATCH carries its whole instruction\\nin the JSON request body, the document map returns a nested heading tree plus a\\n`version` token, and a sub-part of a document is targeted with URL path elements\\n(e.g. `.../heading/My%20Section`). Set it to `1` to opt into the deprecated 1.x\\nbehavior: the header-driven PATCH format, header-based targeting\\n(`Target-Type`/`Target`/`Target-Delimiter`/`Target-Scope`) on GET/PUT/POST, and\\nthe `::`-joined document map. Responses served by 1.x carry a\\n`Deprecation: true; sunset-version=\\\"6.0\\\"` header. Any value other than `1` or `2`\\nreturns `400 InvalidPatchVersionHeader`.\\n\\nOne place an *explicit* `2` matters: PATCH's raw-content mode with header-based\\ntargeting. Because `Target-Type`/`Target` headers on a PATCH are ambiguous between\\nthe 1.x format and raw-content mode, a PATCH carrying them without this header is\\nrejected with `400 PatchHeaderTargetingRequiresExplicitVersion` — send `1` for the\\ndeprecated engine or `2` for raw-content mode. On GET/PUT/POST, supplying those\\ntargeting headers without `1` is rejected with `400 HeaderTargetingRequiresVersion1`\\n(use URL path elements instead), and PATCH URL-element targeting likewise needs no\\nversion header.\\n\",\"in\":\"header\",\"name\":\"Markdown-Patch-Version\",\"required\":false,\"schema\":{\"default\":\"2\",\"enum\":[\"1\",\"2\"],\"type\":\"string\"}},{\"description\":\"If the specified Target does not exist, create it?\",\"in\":\"header\",\"name\":\"Create-Target-If-Missing\",\"required\":false,\"schema\":{\"default\":\"false\",\"enum\":[\"true\",\"false\"],\"type\":\"string\"}},{\"description\":\"If patch data already exists in Target, reject the patch?\",\"in\":\"header\",\"name\":\"Reject-If-Content-Preexists\",\"required\":false,\"schema\":{\"default\":\"false\",\"enum\":[\"true\",\"false\"],\"type\":\"string\"}}],\"protocol\":\"http\",\"requestBody\":{\"content\":{\"text/markdown\":{\"schema\":{\"example\":\"# This is my document\\n\\nsomething else here\\n\",\"type\":\"string\"}}},\"description\":\"Content you would like to append.\",\"required\":true},\"responses\":{\"200\":{\"content\":{\"text/markdown\":{\"schema\":{\"type\":\"string\"}}},\"description\":\"Success; content appended to the targeted section (via URL path elements). The full updated file content is returned. Any advisory warnings (e.g. a heading rebased past level 6) are JSON-encoded, then percent-encoded, in the `Markdown-Patch-Warnings` response header.\",\"headers\":{\"Markdown-Patch-Warnings\":{\"description\":\"Present only when the write produced warnings: a percent-encoded JSON array of `{ code, message }` objects. Decode with `decodeURIComponent` before parsing as JSON.\",\"schema\":{\"type\":\"string\"}}}},\"204\":{\"description\":\"Success; content appended to end of file.\"},\"400\":{\"content\":{\"application/json\":{\"schema\":{\"properties\":{\"errorCode\":{\"description\":\"A 5-digit error code uniquely identifying this particular type of error.\\n\",\"example\":40149,\"type\":\"number\"},\"message\":{\"description\":\"Message describing the error.\",\"example\":\"A brief description of the error.\",\"type\":\"string\"}},\"type\":\"object\"}}},\"description\":\"Bad Request\"},\"405\":{\"content\":{\"application/json\":{\"schema\":{\"properties\":{\"errorCode\":{\"description\":\"A 5-digit error code uniquely identifying this particular type of error.\\n\",\"example\":40149,\"type\":\"number\"},\"message\":{\"description\":\"Message describing the error.\",\"example\":\"A brief description of the error.\",\"type\":\"string\"}},\"type\":\"object\"}}},\"description\":\"Your path references a directory instead of a file; this request method is valid only for updating files.\\n\"},\"409\":{\"content\":{\"application/json\":{\"schema\":{\"properties\":{\"errorCode\":{\"description\":\"A 5-digit error code uniquely identifying this particular type of error.\\n\",\"example\":40149,\"type\":\"number\"},\"message\":{\"description\":\"Message describing the error.\",\"example\":\"A brief description of the error.\",\"type\":\"string\"}},\"type\":\"object\"}}},\"description\":\"`Reject-If-Content-Preexists` was set and the content already appears in the targeted section.\"}},\"security\":[{\"apiKeyAuth\":[]}],\"securitySchemes\":{\"apiKeyAuth\":{\"description\":\"Find your API Key in your Obsidian settings\\nin the \\\"Local REST API\\\" section under \\\"Plugins\\\".\\n\",\"scheme\":\"bearer\",\"type\":\"http\"}},\"securitySource\":\"definition\"}",
+                    "source": "openapi3",
+                    "version": 1
+                  },
+                  "kind": "http",
+                  "method": "POST",
+                  "orig": "/vault/{filename}",
+                  "rename": {
+                    "param": {
+                      "filename": "id"
+                    }
+                  },
+                  "segments": [
+                    {
+                      "lit": "vault"
+                    },
+                    {
+                      "var": "id"
+                    }
+                  ],
+                  "select": {
+                    "exist": [
+                      "create_target_if_missing",
+                      "id",
+                      "markdown_patch_version",
+                      "reject_if_content_preexist"
+                    ]
+                  },
+                  "transform": {
+                    "req": "`reqdata`",
+                    "res": "`body`"
+                  }
+                }
+              ]
+            },
+            "list": {
+              "input": "data",
+              "name": "list",
+              "points": [
+                {
+                  "active": true,
+                  "args": {},
+                  "contract": {
+                    "id": "GET /vault/",
+                    "json": "{\"parameters\":[],\"protocol\":\"http\",\"responses\":{\"200\":{\"content\":{\"application/json\":{\"example\":{\"files\":[\"mydocument.md\",\"somedirectory/\"]},\"schema\":{\"properties\":{\"files\":{\"items\":{\"type\":\"string\"},\"type\":\"array\"}},\"type\":\"object\"}}},\"description\":\"Success\"},\"404\":{\"content\":{\"application/json\":{\"schema\":{\"properties\":{\"errorCode\":{\"description\":\"A 5-digit error code uniquely identifying this particular type of error.\\n\",\"example\":40149,\"type\":\"number\"},\"message\":{\"description\":\"Message describing the error.\",\"example\":\"A brief description of the error.\",\"type\":\"string\"}},\"type\":\"object\"}}},\"description\":\"Directory does not exist\"}},\"security\":[{\"apiKeyAuth\":[]}],\"securitySchemes\":{\"apiKeyAuth\":{\"description\":\"Find your API Key in your Obsidian settings\\nin the \\\"Local REST API\\\" section under \\\"Plugins\\\".\\n\",\"scheme\":\"bearer\",\"type\":\"http\"}},\"securitySource\":\"definition\"}",
+                    "source": "openapi3",
+                    "version": 1
+                  },
+                  "kind": "http",
+                  "method": "GET",
+                  "orig": "/vault/",
+                  "segments": [
+                    {
+                      "lit": "vault"
+                    }
+                  ],
+                  "select": {},
+                  "transform": {
+                    "req": "`reqdata`",
+                    "res": "`body.files`"
+                  }
+                }
+              ]
+            },
+            "load": {
+              "input": "data",
+              "name": "load",
+              "points": [
+                {
+                  "active": true,
+                  "args": {
+                    "header": [
+                      {
+                        "active": true,
+                        "example": "2",
+                        "kind": "header",
+                        "name": "markdown_patch_version",
+                        "orig": "markdown_patch_version",
+                        "reqd": false,
+                        "type": "`$STRING`"
+                      },
+                      {
+                        "active": true,
+                        "example": "content",
+                        "kind": "header",
+                        "name": "target_scope",
+                        "orig": "target_scope",
+                        "reqd": false,
+                        "type": "`$STRING`"
+                      }
+                    ],
+                    "params": [
+                      {
+                        "active": true,
+                        "kind": "param",
+                        "name": "id",
+                        "orig": "filename",
+                        "reqd": true,
+                        "type": "`$STRING`"
+                      }
+                    ]
+                  },
+                  "contract": {
+                    "id": "GET /vault/{filename}",
+                    "json": "{\"parameters\":[{\"description\":\"Path to the relevant file (relative to your vault root).\\n Optionally, you may include a reference to target a sub-part of the document; see \\\"Targeting a Sub-part of your Document\\\" for details.\",\"in\":\"path\",\"name\":\"filename\",\"required\":true,\"schema\":{\"format\":\"path\",\"type\":\"string\"}},{\"description\":\"Selects which markdown-patch format governs this request. You do not normally\\nneed to send this header. By default (2.0), a PATCH carries its whole instruction\\nin the JSON request body, the document map returns a nested heading tree plus a\\n`version` token, and a sub-part of a document is targeted with URL path elements\\n(e.g. `.../heading/My%20Section`). Set it to `1` to opt into the deprecated 1.x\\nbehavior: the header-driven PATCH format, header-based targeting\\n(`Target-Type`/`Target`/`Target-Delimiter`/`Target-Scope`) on GET/PUT/POST, and\\nthe `::`-joined document map. Responses served by 1.x carry a\\n`Deprecation: true; sunset-version=\\\"6.0\\\"` header. Any value other than `1` or `2`\\nreturns `400 InvalidPatchVersionHeader`.\\n\\nOne place an *explicit* `2` matters: PATCH's raw-content mode with header-based\\ntargeting. Because `Target-Type`/`Target` headers on a PATCH are ambiguous between\\nthe 1.x format and raw-content mode, a PATCH carrying them without this header is\\nrejected with `400 PatchHeaderTargetingRequiresExplicitVersion` — send `1` for the\\ndeprecated engine or `2` for raw-content mode. On GET/PUT/POST, supplying those\\ntargeting headers without `1` is rejected with `400 HeaderTargetingRequiresVersion1`\\n(use URL path elements instead), and PATCH URL-element targeting likewise needs no\\nversion header.\\n\",\"in\":\"header\",\"name\":\"Markdown-Patch-Version\",\"required\":false,\"schema\":{\"default\":\"2\",\"enum\":[\"1\",\"2\"],\"type\":\"string\"}},{\"description\":\"For a URL-path-targeted read: which part of the target to return\\n(default `content`), mirroring PATCH's scopes with a round-trip\\nguarantee — what a scope returns is exactly what a `replace` at that\\nscope consumes.\\n\\n- `content` (default): the node's body — a heading's body with its\\n  levels made relative to the target, a block's text, a frontmatter\\n  value.\\n- `marker`: the label — a heading's raw text (no `#`s, and without the\\n  duplicate-marker suffix its map key may carry), a block's bare id, a\\n  frontmatter key.\\n- `markerAndContent`: the whole node — a heading's subtree with its own\\n  line as `# Title` (levels relative to its parent), a block's full\\n  span including its `^id`, or a frontmatter entry as a `{key: value}`\\n  JSON object.\\n\\n`parent` places a section but carries no readable value, and returns\\n`400 InvalidTargetScopeHeader`. Only meaningful when the URL path\\naddresses a sub-part of the note.\\n\",\"in\":\"header\",\"name\":\"Target-Scope\",\"required\":false,\"schema\":{\"default\":\"content\",\"enum\":[\"content\",\"marker\",\"markerAndContent\"],\"type\":\"string\"}}],\"protocol\":\"http\",\"responses\":{\"200\":{\"content\":{\"application/json\":{\"description\":\"Returned when the URL path targets a frontmatter field (`.../frontmatter/fieldName`); the JSON value of that field.\",\"schema\":{}},\"application/vnd.olrapi.document-map+json\":{\"schema\":{\"description\":\"The document map. To receive the deprecated 1.x shape — heading paths as\\n`::`-joined strings, block ids prefixed with `^`, and no `version` —\\nsend `Markdown-Patch-Version: 1`.\\n\",\"properties\":{\"blocks\":{\"description\":\"Block reference ids, bare (no leading `^`), in document order.\",\"example\":[\"blockref1\",\"anotherBlockRef\"],\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"frontmatterFields\":{\"example\":[\"title\",\"tags\",\"dateCreated\"],\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"headings\":{\"additionalProperties\":{\"additionalProperties\":{\"additionalProperties\":\"[Circular *components.schemas.HeadingTree.additionalProperties]\",\"description\":\"The document's headings nested by containment: each heading's text\\nmaps to a HeadingTree of its child headings, and a leaf heading maps\\nto `{}`. Nesting carries no heading level — a level skipped in the\\nsource leaves no hole. To target a heading, use the path of keys from\\nthe top level down to it as a HeadingAddress.\\n\\nA repeated sibling heading appears once, but its children are not\\nlost: they merge into that one key, because a heading is addressed by\\nits whole path rather than its name. Given `## Log / ### Monday`\\nfollowed by `## Log / ### Tuesday`, the tree is\\n`{\\\"Log\\\": {\\\"Monday\\\": {}, \\\"Tuesday\\\": {}}}` and both are separately\\naddressable. Only sections that share an entire path are one address,\\nand that address resolves to the first in document order. The tree\\ntherefore lists exactly the headings you can target.\\n\",\"example\":{\"Appendix\":{},\"Overview\":{\"Details\":{}}},\"type\":\"object\"},\"description\":\"The document's headings nested by containment: each heading's text\\nmaps to a HeadingTree of its child headings, and a leaf heading maps\\nto `{}`. Nesting carries no heading level — a level skipped in the\\nsource leaves no hole. To target a heading, use the path of keys from\\nthe top level down to it as a HeadingAddress.\\n\\nA repeated sibling heading appears once, but its children are not\\nlost: they merge into that one key, because a heading is addressed by\\nits whole path rather than its name. Given `## Log / ### Monday`\\nfollowed by `## Log / ### Tuesday`, the tree is\\n`{\\\"Log\\\": {\\\"Monday\\\": {}, \\\"Tuesday\\\": {}}}` and both are separately\\naddressable. Only sections that share an entire path are one address,\\nand that address resolves to the first in document order. The tree\\ntherefore lists exactly the headings you can target.\\n\",\"example\":{\"Appendix\":{},\"Overview\":{\"Details\":{}}},\"type\":\"object\"},\"description\":\"The document's headings nested by containment: each heading's text\\nmaps to a HeadingTree of its child headings, and a leaf heading maps\\nto `{}`. Nesting carries no heading level — a level skipped in the\\nsource leaves no hole. To target a heading, use the path of keys from\\nthe top level down to it as a HeadingAddress.\\n\\nA repeated sibling heading appears once, but its children are not\\nlost: they merge into that one key, because a heading is addressed by\\nits whole path rather than its name. Given `## Log / ### Monday`\\nfollowed by `## Log / ### Tuesday`, the tree is\\n`{\\\"Log\\\": {\\\"Monday\\\": {}, \\\"Tuesday\\\": {}}}` and both are separately\\naddressable. Only sections that share an entire path are one address,\\nand that address resolves to the first in document order. The tree\\ntherefore lists exactly the headings you can target.\\n\",\"example\":{\"Appendix\":{},\"Overview\":{\"Details\":{}}},\"type\":\"object\"},\"version\":{\"description\":\"Content-hash token for the file; pass it back as a PATCH `ifMatch` to make an edit conditional on the file being unchanged.\",\"example\":\"a1b2c3\",\"type\":\"string\"}},\"type\":\"object\"}},\"application/vnd.olrapi.note+json\":{\"schema\":{\"properties\":{\"backlinks\":{\"description\":\"Vault-relative paths of files that link to this file.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"content\":{\"type\":\"string\"},\"frontmatter\":{\"type\":\"object\"},\"links\":{\"description\":\"Vault-relative paths of files this file links to.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"path\":{\"type\":\"string\"},\"stat\":{\"properties\":{\"ctime\":{\"type\":\"number\"},\"mtime\":{\"type\":\"number\"},\"size\":{\"type\":\"number\"}},\"required\":[\"ctime\",\"mtime\",\"size\"],\"type\":\"object\"},\"tags\":{\"items\":{\"type\":\"string\"},\"type\":\"array\"},\"unresolvedLinks\":{\"description\":\"Link text found in this file that does not resolve to an existing vault file.\",\"items\":{\"type\":\"string\"},\"type\":\"array\"}},\"required\":[\"tags\",\"frontmatter\",\"stat\",\"path\",\"content\",\"links\",\"backlinks\",\"unresolvedLinks\"],\"type\":\"object\"}},\"text/html\":{\"description\":\"Returned when `Accept: text/html` is specified. The note (or, if `Target-Type`/`Target` are specified with `heading` or `block`, just that section) rendered to HTML via Obsidian's Markdown renderer (embeds, callouts, etc. included). `Target-Type: frontmatter` is not supported for this Accept type and returns a 400 error.\\n\",\"schema\":{\"example\":\"<h1>This is my document</h1>\\n<p>something else here</p>\\n\",\"type\":\"string\"}},\"text/markdown\":{\"schema\":{\"example\":\"# This is my document\\n\\nsomething else here\\n\",\"type\":\"string\"}}},\"description\":\"Success\"},\"400\":{\"content\":{\"application/json\":{\"schema\":{\"properties\":{\"errorCode\":{\"description\":\"A 5-digit error code uniquely identifying this particular type of error.\\n\",\"example\":40149,\"type\":\"number\"},\"message\":{\"description\":\"Message describing the error.\",\"example\":\"A brief description of the error.\",\"type\":\"string\"}},\"type\":\"object\"}}},\"description\":\"The `Markdown-Patch-Version` header was invalid (not `1` or `2`), the deprecated `Target-Type`/`Target` headers were invalid, the `Target-Scope` header was not a readable scope (`content`, `marker`, `markerAndContent`), or a frontmatter target was combined with `Accept: text/html` (frontmatter has no HTML rendering).\\n\"},\"404\":{\"description\":\"File or target section does not exist\"}},\"security\":[{\"apiKeyAuth\":[]}],\"securitySchemes\":{\"apiKeyAuth\":{\"description\":\"Find your API Key in your Obsidian settings\\nin the \\\"Local REST API\\\" section under \\\"Plugins\\\".\\n\",\"scheme\":\"bearer\",\"type\":\"http\"}},\"securitySource\":\"definition\"}",
+                    "source": "openapi3",
+                    "version": 1
+                  },
+                  "kind": "http",
+                  "method": "GET",
+                  "orig": "/vault/{filename}",
+                  "rename": {
+                    "param": {
+                      "filename": "id"
+                    }
+                  },
+                  "segments": [
+                    {
+                      "lit": "vault"
+                    },
+                    {
+                      "var": "id"
+                    }
+                  ],
+                  "select": {
+                    "exist": [
+                      "id",
+                      "markdown_patch_version",
+                      "target_scope"
+                    ]
+                  },
+                  "transform": {
+                    "req": "`reqdata`",
+                    "res": "`body`"
+                  }
+                },
+                {
+                  "active": true,
+                  "args": {
+                    "params": [
+                      {
+                        "active": true,
+                        "kind": "param",
+                        "name": "id",
+                        "orig": "path_to_directory",
+                        "reqd": true,
+                        "type": "`$STRING`"
+                      }
+                    ]
+                  },
+                  "contract": {
+                    "id": "GET /vault/{pathToDirectory}/",
+                    "json": "{\"parameters\":[{\"description\":\"Path to list files from (relative to your vault root).  Note that empty directories will not be returned.\\n\\nNote: this particular interactive tool requires that you provide an argument for this field, but the API itself will allow you to list the root folder of your vault. If you would like to try listing content in the root of your vault using this interactive tool, use the above \\\"List files that exist in the root of your vault\\\" form above.\\n\",\"in\":\"path\",\"name\":\"pathToDirectory\",\"required\":true,\"schema\":{\"format\":\"path\",\"type\":\"string\"}}],\"protocol\":\"http\",\"responses\":{\"200\":{\"content\":{\"application/json\":{\"example\":{\"files\":[\"mydocument.md\",\"somedirectory/\"]},\"schema\":{\"properties\":{\"files\":{\"items\":{\"type\":\"string\"},\"type\":\"array\"}},\"type\":\"object\"}}},\"description\":\"Success\"},\"404\":{\"content\":{\"application/json\":{\"schema\":{\"properties\":{\"errorCode\":{\"description\":\"A 5-digit error code uniquely identifying this particular type of error.\\n\",\"example\":40149,\"type\":\"number\"},\"message\":{\"description\":\"Message describing the error.\",\"example\":\"A brief description of the error.\",\"type\":\"string\"}},\"type\":\"object\"}}},\"description\":\"Directory does not exist\"}},\"security\":[{\"apiKeyAuth\":[]}],\"securitySchemes\":{\"apiKeyAuth\":{\"description\":\"Find your API Key in your Obsidian settings\\nin the \\\"Local REST API\\\" section under \\\"Plugins\\\".\\n\",\"scheme\":\"bearer\",\"type\":\"http\"}},\"securitySource\":\"definition\"}",
+                    "source": "openapi3",
+                    "version": 1
+                  },
+                  "kind": "http",
+                  "method": "GET",
+                  "orig": "/vault/{pathToDirectory}/",
+                  "rename": {
+                    "param": {
+                      "pathToDirectory": "id"
+                    }
+                  },
+                  "segments": [
+                    {
+                      "lit": "vault"
+                    },
+                    {
+                      "var": "id"
+                    }
+                  ],
+                  "select": {
+                    "exist": [
+                      "id"
+                    ]
+                  },
+                  "transform": {
+                    "req": "`reqdata`",
+                    "res": "`body`"
+                  }
+                }
+              ]
+            },
+            "patch": {
+              "input": "data",
+              "name": "patch",
+              "points": [
+                {
+                  "active": true,
+                  "args": {
+                    "header": [
+                      {
+                        "active": true,
+                        "example": "false",
+                        "kind": "header",
+                        "name": "create_target_if_missing",
+                        "orig": "create_target_if_missing",
+                        "reqd": false,
+                        "type": "`$STRING`"
+                      },
+                      {
+                        "active": true,
+                        "kind": "header",
+                        "name": "destination",
+                        "orig": "destination",
+                        "reqd": false,
+                        "type": "`$STRING`"
+                      },
+                      {
+                        "active": true,
+                        "kind": "header",
+                        "name": "if_match",
+                        "orig": "if_match",
+                        "reqd": false,
+                        "type": "`$STRING`"
+                      },
+                      {
+                        "active": true,
+                        "example": "2",
+                        "kind": "header",
+                        "name": "markdown_patch_version",
+                        "orig": "markdown_patch_version",
+                        "reqd": false,
+                        "type": "`$STRING`"
+                      },
+                      {
+                        "active": true,
+                        "kind": "header",
+                        "name": "operation",
+                        "orig": "operation",
+                        "reqd": false,
+                        "type": "`$STRING`"
+                      },
+                      {
+                        "active": true,
+                        "example": "false",
+                        "kind": "header",
+                        "name": "reject_if_content_preexist",
+                        "orig": "reject_if_content_preexist",
+                        "reqd": false,
+                        "type": "`$STRING`"
+                      },
+                      {
+                        "active": true,
+                        "kind": "header",
+                        "name": "target",
+                        "orig": "target",
+                        "reqd": false,
+                        "type": "`$STRING`"
+                      },
+                      {
+                        "active": true,
+                        "example": "content",
+                        "kind": "header",
+                        "name": "target_scope",
+                        "orig": "target_scope",
+                        "reqd": false,
+                        "type": "`$STRING`"
+                      },
+                      {
+                        "active": true,
+                        "kind": "header",
+                        "name": "target_type",
+                        "orig": "target_type",
+                        "reqd": false,
+                        "type": "`$STRING`"
+                      },
+                      {
+                        "active": true,
+                        "kind": "header",
+                        "name": "within",
+                        "orig": "within",
+                        "reqd": false,
+                        "type": "`$STRING`"
+                      }
+                    ],
+                    "params": [
+                      {
+                        "active": true,
+                        "kind": "param",
+                        "name": "id",
+                        "orig": "filename",
+                        "reqd": true,
+                        "type": "`$STRING`"
+                      }
+                    ]
+                  },
+                  "contract": {
+                    "id": "PATCH /vault/{filename}",
+                    "json": "{\"parameters\":[{\"description\":\"Path to the relevant file (relative to your vault root).\\n Optionally, you may include a reference to target a sub-part of the document; see \\\"Targeting a Sub-part of your Document\\\" for details.\",\"in\":\"path\",\"name\":\"filename\",\"required\":true,\"schema\":{\"format\":\"path\",\"type\":\"string\"}},{\"description\":\"Selects which markdown-patch format governs this request. You do not normally\\nneed to send this header. By default (2.0), a PATCH carries its whole instruction\\nin the JSON request body, the document map returns a nested heading tree plus a\\n`version` token, and a sub-part of a document is targeted with URL path elements\\n(e.g. `.../heading/My%20Section`). Set it to `1` to opt into the deprecated 1.x\\nbehavior: the header-driven PATCH format, header-based targeting\\n(`Target-Type`/`Target`/`Target-Delimiter`/`Target-Scope`) on GET/PUT/POST, and\\nthe `::`-joined document map. Responses served by 1.x carry a\\n`Deprecation: true; sunset-version=\\\"6.0\\\"` header. Any value other than `1` or `2`\\nreturns `400 InvalidPatchVersionHeader`.\\n\\nOne place an *explicit* `2` matters: PATCH's raw-content mode with header-based\\ntargeting. Because `Target-Type`/`Target` headers on a PATCH are ambiguous between\\nthe 1.x format and raw-content mode, a PATCH carrying them without this header is\\nrejected with `400 PatchHeaderTargetingRequiresExplicitVersion` — send `1` for the\\ndeprecated engine or `2` for raw-content mode. On GET/PUT/POST, supplying those\\ntargeting headers without `1` is rejected with `400 HeaderTargetingRequiresVersion1`\\n(use URL path elements instead), and PATCH URL-element targeting likewise needs no\\nversion header.\\n\",\"in\":\"header\",\"name\":\"Markdown-Patch-Version\",\"required\":false,\"schema\":{\"default\":\"2\",\"enum\":[\"1\",\"2\"],\"type\":\"string\"}},{\"description\":\"Raw-content mode: the type of node the instruction targets (`heading`,\\n`block`, or `frontmatter`). Must be used together with the `Target`\\nheader and an explicit `Markdown-Patch-Version: 2`; alternatively, put\\nthe target in the URL path (`.../heading/A/B`) and omit both headers.\\nSupplying both is rejected with `422 ConflictingTargetSpecification`.\\n\",\"in\":\"header\",\"name\":\"Target-Type\",\"required\":false,\"schema\":{\"enum\":[\"heading\",\"block\",\"frontmatter\"],\"type\":\"string\"}},{\"description\":\"Raw-content mode: the node the instruction targets. The encoding is\\ntype-dependent, mirroring the instruction's `target` field. For a\\n`heading`, the value is JSON — an array of heading texts from the top\\nlevel down, or `null` for the document root — then percent-encoded:\\n`[\\\"A\\\",\\\"B\\\"]` is sent as `%5B%22A%22%2C%22B%22%5D`. For a `block` or\\n`frontmatter` target, the value is the plain id/key, percent-encoded if\\nit contains non-ASCII characters. A heading value that does not decode\\nto JSON (e.g. a bare 1.x-style `A::B` path) is rejected with\\n`400 InvalidTargetHeader`.\\n\",\"in\":\"header\",\"name\":\"Target\",\"required\":false,\"schema\":{\"type\":\"string\"}},{\"description\":\"Raw-content mode: the instruction's `within` — a single integer (e.g.\\n`-1`) refining a heading target to one of the section's direct-body\\ntop-level blocks (0-based document order, negative counting from the\\nend; isolated `^id` lines are not counted). With the default `content`\\nscope the body is spliced literally into that block — an `append`\\n*continues* it — and a bodiless `delete` removes it; with\\n`Target-Scope: markerAndContent`, `prepend`/`append` insert the body as\\na new block beside it. Heading targets only; cannot be combined with\\n`Create-Target-If-Missing`.\\n\",\"in\":\"header\",\"name\":\"Within\",\"required\":false,\"schema\":{\"type\":\"string\"}},{\"description\":\"Raw-content mode: the instruction's operation. Required whenever the\\ntarget rides in the URL path or the `Target-Type`/`Target` headers.\\n\",\"in\":\"header\",\"name\":\"Operation\",\"required\":false,\"schema\":{\"enum\":[\"replace\",\"prepend\",\"append\",\"delete\"],\"type\":\"string\"}},{\"description\":\"Raw-content mode: the instruction's `scope` — `content` (default),\\n`marker`, `markerAndContent`, or `parent` (a move; carries its\\ndestination in the `Destination` header). See the instruction-body\\ndocumentation for what each scope addresses.\\n\",\"in\":\"header\",\"name\":\"Target-Scope\",\"required\":false,\"schema\":{\"default\":\"content\",\"enum\":[\"content\",\"marker\",\"markerAndContent\",\"parent\"],\"type\":\"string\"}},{\"description\":\"Raw-content mode: where a moved heading lands (`Target-Scope: parent`).\\nThe instruction's `destination` object as JSON, then percent-encoded:\\n`{\\\"parent\\\":[\\\"Appendix\\\"],\\\"place\\\":\\\"last\\\"}` is sent as\\n`%7B%22parent%22%3A%5B%22Appendix%22%5D%2C%22place%22%3A%22last%22%7D`.\\nA move carries no body.\\n\",\"in\":\"header\",\"name\":\"Destination\",\"required\":false,\"schema\":{\"type\":\"string\"}},{\"description\":\"Raw-content mode: the instruction's `ifMatch` optimistic-concurrency\\ntoken — the `version` from a document map, bare or wrapped in one pair\\nof double quotes (RFC 9110 ETag style). A mismatch fails with `412` and\\nleaves the file untouched.\\n\",\"in\":\"header\",\"name\":\"If-Match\",\"required\":false,\"schema\":{\"type\":\"string\"}},{\"description\":\"If the specified Target does not exist, create it?\",\"in\":\"header\",\"name\":\"Create-Target-If-Missing\",\"required\":false,\"schema\":{\"default\":\"false\",\"enum\":[\"true\",\"false\"],\"type\":\"string\"}},{\"description\":\"If patch data already exists in Target, reject the patch?\",\"in\":\"header\",\"name\":\"Reject-If-Content-Preexists\",\"required\":false,\"schema\":{\"default\":\"false\",\"enum\":[\"true\",\"false\"],\"type\":\"string\"}}],\"protocol\":\"http\",\"requestBody\":{\"content\":{\"application/json\":{\"examples\":{\"addTag\":{\"summary\":\"Add a tag (merge into the tags list, creating it if absent)\",\"value\":{\"createTargetIfMissing\":true,\"operation\":\"append\",\"target\":\"tags\",\"targetType\":\"frontmatter\",\"value\":[\"project/active\"]}},\"appendToBlock\":{\"summary\":\"Append text to a block addressed by its reference id\",\"value\":{\"content\":\"More detail for this block.\",\"operation\":\"append\",\"target\":\"2c7cfa\",\"targetType\":\"block\"}},\"appendUnderHeading\":{\"summary\":\"Append text below a heading\",\"value\":{\"content\":\"Hello\",\"operation\":\"append\",\"target\":[\"Heading 1\",\"Subheading 1:1:1\"],\"targetType\":\"heading\"}},\"continueList\":{\"summary\":\"Continue an existing list in place (within: positional block edit)\",\"value\":{\"content\":\"\\n- new item\",\"operation\":\"append\",\"target\":[\"Log\"],\"targetType\":\"heading\",\"within\":-1}},\"moveSection\":{\"summary\":\"Move a heading section under a new parent\",\"value\":{\"destination\":{\"parent\":[\"Appendix\"],\"place\":\"last\"},\"operation\":\"replace\",\"scope\":\"parent\",\"target\":[\"Overview\",\"Details\"],\"targetType\":\"heading\"}},\"setFrontmatter\":{\"summary\":\"Set a frontmatter field to a JSON value\",\"value\":{\"operation\":\"replace\",\"target\":\"alpha\",\"targetType\":\"frontmatter\",\"value\":2}}},\"schema\":{\"additionalProperties\":false,\"description\":\"A single edit expressed as one operation applied to a scope of a target node. The payload rides in exactly one of `content`, `value`, or `destination`, chosen by what it is. Not every operation×scope×targetType combination is valid; invalid ones are rejected.\",\"properties\":{\"content\":{\"description\":\"String payload: a heading/block body or label, a new block id for a block `marker` rename (letters, numbers, hyphens, and underscores only), or a new frontmatter key name for a frontmatter `marker` rename. Heading levels are relative to the edited span (a leading `#` becomes a direct child). For heading writes, whitespace is library-owned: leading/trailing blank lines here are ignored, and the engine supplies the blank line that keeps inserted content a separate block — never add newlines to control spacing. (Block-target `content` is the exception: it is spliced literally for inline edits.) A heading `marker` rename may not contain a line break. Provide exactly one of `content`, `value`, or `destination`.\",\"type\":\"string\"},\"createTargetIfMissing\":{\"default\":false,\"description\":\"Create the target (heading path, block id, or frontmatter key) if it does not already exist.\",\"type\":\"boolean\"},\"destination\":{\"additionalProperties\":false,\"description\":\"For a heading move (operation `replace`, scope `parent`): where the section is re-parented. Provide exactly one of `content`, `value`, or `destination`.\",\"properties\":{\"parent\":{\"anyOf\":[{\"items\":{\"type\":\"string\"},\"type\":\"array\"}],\"description\":\"The section's new parent heading address, or null/[] for the document root.\",\"nullable\":true},\"place\":{\"anyOf\":[{\"enum\":[\"first\",\"last\"],\"type\":\"string\"},{\"additionalProperties\":false,\"properties\":{\"before\":{\"anyOf\":[{\"items\":{\"type\":\"string\"},\"type\":\"array\"}],\"description\":\"A heading's containment path: the ancestor heading texts from the top level down (e.g. [\\\"Overview\\\",\\\"Details\\\"]), or null/[] for the document root.\",\"nullable\":true}},\"required\":[\"before\"],\"type\":\"object\"},{\"additionalProperties\":false,\"properties\":{\"after\":{\"anyOf\":[{\"items\":{\"type\":\"string\"},\"type\":\"array\"}],\"description\":\"A heading's containment path: the ancestor heading texts from the top level down (e.g. [\\\"Overview\\\",\\\"Details\\\"]), or null/[] for the document root.\",\"nullable\":true}},\"required\":[\"after\"],\"type\":\"object\"}],\"description\":\"Position among the new parent's children: \\\"first\\\", \\\"last\\\", or { before } / { after } a sibling heading address.\"}},\"required\":[\"parent\",\"place\"],\"type\":\"object\"},\"ifMatch\":{\"description\":\"Optimistic-concurrency token (the `version` from a prior document map). If set and the document has changed since, the patch fails with a precondition error without modifying the file.\",\"type\":\"string\"},\"operation\":{\"description\":\"What happens to the scoped span: replace it, insert before (`prepend`) or after (`append`), or `delete` it.\",\"enum\":[\"replace\",\"prepend\",\"append\",\"delete\"],\"type\":\"string\"},\"rejectIfContentPreexists\":{\"default\":false,\"description\":\"Fail a `prepend`/`append` when the string content already appears in the target span (makes those operations idempotent on retry).\",\"type\":\"boolean\"},\"scope\":{\"default\":\"content\",\"description\":\"Which part of the target the operation acts on (default `content`). `content`: the node body — for a heading, its whole subtree below the heading line. `marker`: the label only — a heading line, a block `^id`, or a frontmatter key (`replace` renames it). `markerAndContent`: the whole node/subtree (`prepend`/`append` insert a sibling). `parent`: a heading's place in the tree — only with operation `replace`, carrying a `destination` (a move).\",\"enum\":[\"content\",\"marker\",\"markerAndContent\",\"parent\"],\"type\":\"string\"},\"target\":{\"anyOf\":[{\"items\":{\"type\":\"string\"},\"type\":\"array\"},{\"type\":\"string\"}],\"description\":\"The node to edit. For a heading: an array of heading texts from the top level down to the target (e.g. [\\\"Overview\\\",\\\"Details\\\"]), or null/[] for the document root. If a heading is a duplicate of an earlier sibling under the same parent, its address carries an extra non-printable marker suffix appended by the server — copy that address verbatim from wherever the document's heading structure was discovered, never retype or reconstruct it. For a block: the bare block id, without the leading `^` (letters, numbers, hyphens, and underscores only) — a duplicate block id's later occurrence carries the same kind of marker suffix, copied verbatim the same way. For a frontmatter field: the key.\",\"nullable\":true},\"targetType\":{\"description\":\"The kind of node to edit.\",\"enum\":[\"heading\",\"block\",\"frontmatter\"],\"type\":\"string\"},\"value\":{\"description\":\"Structured JSON payload: a frontmatter value (any JSON — string, number, boolean, array, object, null; for `prepend`/`append` this merges: list concat, dict merge, string concat), or table rows on a `block` target's `content` cell (a 2-D array of strings, one row per entry — `replace` swaps the body rows, `prepend`/`append` insert before/after the existing ones; each row's length must match the table's column count). Table cells are content, not table source: a `|` is escaped for you, and a cell containing a line break is rejected, since a row is a single line. Provide exactly one of `content`, `value`, or `destination`.\"},\"within\":{\"description\":\"Refines a heading target to one of the section's direct-body top-level blocks (a paragraph, list, table, code fence, blockquote, …): 0 is the first block in document order, and a negative index counts from the end (-1 = last). Isolated `^id` lines are not counted, so indices match the rendered blocks. With scope `content`, the edit is a literal splice into that block — you own the joint, so `append` *continues* the block (e.g. content `\\\\n- item` extends a list) — and `delete` removes the block. With scope `markerAndContent`, `prepend`/`append` insert a new block immediately before/after it, with library-owned blank-line separators. Heading targets only; cannot be combined with `createTargetIfMissing`.\",\"type\":\"integer\"}},\"required\":[\"targetType\",\"target\",\"operation\"],\"type\":\"object\"}},\"application/vnd.olrapi.patch-instruction+json\":{\"schema\":{\"additionalProperties\":false,\"description\":\"A single edit expressed as one operation applied to a scope of a target node. The payload rides in exactly one of `content`, `value`, or `destination`, chosen by what it is. Not every operation×scope×targetType combination is valid; invalid ones are rejected.\",\"properties\":{\"content\":{\"description\":\"String payload: a heading/block body or label, a new block id for a block `marker` rename (letters, numbers, hyphens, and underscores only), or a new frontmatter key name for a frontmatter `marker` rename. Heading levels are relative to the edited span (a leading `#` becomes a direct child). For heading writes, whitespace is library-owned: leading/trailing blank lines here are ignored, and the engine supplies the blank line that keeps inserted content a separate block — never add newlines to control spacing. (Block-target `content` is the exception: it is spliced literally for inline edits.) A heading `marker` rename may not contain a line break. Provide exactly one of `content`, `value`, or `destination`.\",\"type\":\"string\"},\"createTargetIfMissing\":{\"default\":false,\"description\":\"Create the target (heading path, block id, or frontmatter key) if it does not already exist.\",\"type\":\"boolean\"},\"destination\":{\"additionalProperties\":false,\"description\":\"For a heading move (operation `replace`, scope `parent`): where the section is re-parented. Provide exactly one of `content`, `value`, or `destination`.\",\"properties\":{\"parent\":{\"anyOf\":[{\"items\":{\"type\":\"string\"},\"type\":\"array\"}],\"description\":\"The section's new parent heading address, or null/[] for the document root.\",\"nullable\":true},\"place\":{\"anyOf\":[{\"enum\":[\"first\",\"last\"],\"type\":\"string\"},{\"additionalProperties\":false,\"properties\":{\"before\":{\"anyOf\":[{\"items\":{\"type\":\"string\"},\"type\":\"array\"}],\"description\":\"A heading's containment path: the ancestor heading texts from the top level down (e.g. [\\\"Overview\\\",\\\"Details\\\"]), or null/[] for the document root.\",\"nullable\":true}},\"required\":[\"before\"],\"type\":\"object\"},{\"additionalProperties\":false,\"properties\":{\"after\":{\"anyOf\":[{\"items\":{\"type\":\"string\"},\"type\":\"array\"}],\"description\":\"A heading's containment path: the ancestor heading texts from the top level down (e.g. [\\\"Overview\\\",\\\"Details\\\"]), or null/[] for the document root.\",\"nullable\":true}},\"required\":[\"after\"],\"type\":\"object\"}],\"description\":\"Position among the new parent's children: \\\"first\\\", \\\"last\\\", or { before } / { after } a sibling heading address.\"}},\"required\":[\"parent\",\"place\"],\"type\":\"object\"},\"ifMatch\":{\"description\":\"Optimistic-concurrency token (the `version` from a prior document map). If set and the document has changed since, the patch fails with a precondition error without modifying the file.\",\"type\":\"string\"},\"operation\":{\"description\":\"What happens to the scoped span: replace it, insert before (`prepend`) or after (`append`), or `delete` it.\",\"enum\":[\"replace\",\"prepend\",\"append\",\"delete\"],\"type\":\"string\"},\"rejectIfContentPreexists\":{\"default\":false,\"description\":\"Fail a `prepend`/`append` when the string content already appears in the target span (makes those operations idempotent on retry).\",\"type\":\"boolean\"},\"scope\":{\"default\":\"content\",\"description\":\"Which part of the target the operation acts on (default `content`). `content`: the node body — for a heading, its whole subtree below the heading line. `marker`: the label only — a heading line, a block `^id`, or a frontmatter key (`replace` renames it). `markerAndContent`: the whole node/subtree (`prepend`/`append` insert a sibling). `parent`: a heading's place in the tree — only with operation `replace`, carrying a `destination` (a move).\",\"enum\":[\"content\",\"marker\",\"markerAndContent\",\"parent\"],\"type\":\"string\"},\"target\":{\"anyOf\":[{\"items\":{\"type\":\"string\"},\"type\":\"array\"},{\"type\":\"string\"}],\"description\":\"The node to edit. For a heading: an array of heading texts from the top level down to the target (e.g. [\\\"Overview\\\",\\\"Details\\\"]), or null/[] for the document root. If a heading is a duplicate of an earlier sibling under the same parent, its address carries an extra non-printable marker suffix appended by the server — copy that address verbatim from wherever the document's heading structure was discovered, never retype or reconstruct it. For a block: the bare block id, without the leading `^` (letters, numbers, hyphens, and underscores only) — a duplicate block id's later occurrence carries the same kind of marker suffix, copied verbatim the same way. For a frontmatter field: the key.\",\"nullable\":true},\"targetType\":{\"description\":\"The kind of node to edit.\",\"enum\":[\"heading\",\"block\",\"frontmatter\"],\"type\":\"string\"},\"value\":{\"description\":\"Structured JSON payload: a frontmatter value (any JSON — string, number, boolean, array, object, null; for `prepend`/`append` this merges: list concat, dict merge, string concat), or table rows on a `block` target's `content` cell (a 2-D array of strings, one row per entry — `replace` swaps the body rows, `prepend`/`append` insert before/after the existing ones; each row's length must match the table's column count). Table cells are content, not table source: a `|` is escaped for you, and a cell containing a line break is rejected, since a row is a single line. Provide exactly one of `content`, `value`, or `destination`.\"},\"within\":{\"description\":\"Refines a heading target to one of the section's direct-body top-level blocks (a paragraph, list, table, code fence, blockquote, …): 0 is the first block in document order, and a negative index counts from the end (-1 = last). Isolated `^id` lines are not counted, so indices match the rendered blocks. With scope `content`, the edit is a literal splice into that block — you own the joint, so `append` *continues* the block (e.g. content `\\\\n- item` extends a list) — and `delete` removes the block. With scope `markerAndContent`, `prepend`/`append` insert a new block immediately before/after it, with library-owned blank-line separators. Heading targets only; cannot be combined with `createTargetIfMissing`.\",\"type\":\"integer\"}},\"required\":[\"targetType\",\"target\",\"operation\"],\"type\":\"object\"}},\"text/markdown\":{\"schema\":{\"example\":\"- A raw markdown line: no JSON escaping needed.\\n\",\"type\":\"string\"}}},\"description\":\"Instruction mode: a single patch instruction as JSON (`application/json`, or\\n`application/vnd.olrapi.patch-instruction+json` to declare it explicitly).\\nRaw-content mode: the raw payload — a `text/markdown` body is the instruction's\\n`content` carrier, an `application/json` body its `value` carrier, and no body at\\nall carries nothing (a delete, or a move via the `Destination` header). An empty\\nraw-mode body never clears content: a `replace` without a payload is rejected as a\\nmissing carrier, so an accidentally-empty template cannot wipe a section (use an\\ninstruction body with `\\\"content\\\": \\\"\\\"` to clear deliberately).\\n\",\"required\":false},\"responses\":{\"200\":{\"description\":\"Success. The body is the patched document. Any advisory warnings (e.g. a heading rebased past level 6) are JSON-encoded, then percent-encoded, in the `Markdown-Patch-Warnings` response header.\",\"headers\":{\"Markdown-Patch-Warnings\":{\"description\":\"Present only when the patch produced warnings: a percent-encoded JSON array of `{ code, message }` objects (percent-encoded because a warning message embeds document text verbatim, which may contain non-ASCII characters that are not valid in a raw header value). Decode with `decodeURIComponent` before parsing as JSON.\",\"schema\":{\"type\":\"string\"}}}},\"400\":{\"content\":{\"application/json\":{\"schema\":{\"properties\":{\"errorCode\":{\"description\":\"A 5-digit error code uniquely identifying this particular type of error.\\n\",\"example\":40149,\"type\":\"number\"},\"message\":{\"description\":\"Message describing the error.\",\"example\":\"A brief description of the error.\",\"type\":\"string\"}},\"type\":\"object\"}}},\"description\":\"Bad Request; the instruction was malformed, the operation×scope×targetType combination is not part of the algebra, the `Markdown-Patch-Version` header was invalid, an instruction-mode request had a non-object body, or a raw-content-mode header could not be decoded (a heading `Target` that is not percent-encoded JSON, a malformed `Destination`, an unsupported body content type). Header-based targeting without an explicit `Markdown-Patch-Version` returns `PatchHeaderTargetingRequiresExplicitVersion` here. See response message for details.\"},\"404\":{\"content\":{\"application/json\":{\"schema\":{\"properties\":{\"errorCode\":{\"description\":\"A 5-digit error code uniquely identifying this particular type of error.\\n\",\"example\":40149,\"type\":\"number\"},\"message\":{\"description\":\"Message describing the error.\",\"example\":\"A brief description of the error.\",\"type\":\"string\"}},\"type\":\"object\"}}},\"description\":\"The file, or the addressed target within it, does not exist (and `createTargetIfMissing` was not set).\"},\"405\":{\"content\":{\"application/json\":{\"schema\":{\"properties\":{\"errorCode\":{\"description\":\"A 5-digit error code uniquely identifying this particular type of error.\\n\",\"example\":40149,\"type\":\"number\"},\"message\":{\"description\":\"Message describing the error.\",\"example\":\"A brief description of the error.\",\"type\":\"string\"}},\"type\":\"object\"}}},\"description\":\"Your path references a directory instead of a file; this request method is valid only for updating files.\\n\"},\"409\":{\"content\":{\"application/json\":{\"schema\":{\"properties\":{\"errorCode\":{\"description\":\"A 5-digit error code uniquely identifying this particular type of error.\\n\",\"example\":40149,\"type\":\"number\"},\"message\":{\"description\":\"Message describing the error.\",\"example\":\"A brief description of the error.\",\"type\":\"string\"}},\"type\":\"object\"}}},\"description\":\"`rejectIfContentPreexists` was set and the content already appears in the target span.\"},\"412\":{\"content\":{\"application/json\":{\"schema\":{\"properties\":{\"errorCode\":{\"description\":\"A 5-digit error code uniquely identifying this particular type of error.\\n\",\"example\":40149,\"type\":\"number\"},\"message\":{\"description\":\"Message describing the error.\",\"example\":\"A brief description of the error.\",\"type\":\"string\"}},\"type\":\"object\"}}},\"description\":\"Precondition Failed: the `ifMatch` token did not match the current document version; the file was not modified.\"},\"422\":{\"content\":{\"application/json\":{\"schema\":{\"properties\":{\"errorCode\":{\"description\":\"A 5-digit error code uniquely identifying this particular type of error.\\n\",\"example\":40149,\"type\":\"number\"},\"message\":{\"description\":\"Message describing the error.\",\"example\":\"A brief description of the error.\",\"type\":\"string\"}},\"type\":\"object\"}}},\"description\":\"Conflicting target specifications: more than one of URL path elements, `Target-Type`/`Target` headers, and an `application/vnd.olrapi.patch-instruction+json` instruction body was supplied.\"}},\"security\":[{\"apiKeyAuth\":[]}],\"securitySchemes\":{\"apiKeyAuth\":{\"description\":\"Find your API Key in your Obsidian settings\\nin the \\\"Local REST API\\\" section under \\\"Plugins\\\".\\n\",\"scheme\":\"bearer\",\"type\":\"http\"}},\"securitySource\":\"definition\"}",
+                    "source": "openapi3",
+                    "version": 1
+                  },
+                  "kind": "http",
+                  "method": "PATCH",
+                  "orig": "/vault/{filename}",
+                  "rename": {
+                    "param": {
+                      "filename": "id"
+                    }
+                  },
+                  "segments": [
+                    {
+                      "lit": "vault"
+                    },
+                    {
+                      "var": "id"
+                    }
+                  ],
+                  "select": {
+                    "exist": [
+                      "create_target_if_missing",
+                      "destination",
+                      "id",
+                      "if_match",
+                      "markdown_patch_version",
+                      "operation",
+                      "reject_if_content_preexist",
+                      "target",
+                      "target_scope",
+                      "target_type",
+                      "within"
+                    ]
+                  },
+                  "transform": {
+                    "req": {
+                      "content": "`reqdata.content`",
+                      "createTargetIfMissing": "`reqdata.create_target_if_missing`",
+                      "destination": "`reqdata.destination`",
+                      "ifMatch": "`reqdata.if_match`",
+                      "operation": "`reqdata.operation`",
+                      "rejectIfContentPreexists": "`reqdata.reject_if_content_preexist`",
+                      "scope": "`reqdata.scope`",
+                      "target": "`reqdata.target`",
+                      "targetType": "`reqdata.target_type`",
+                      "value": "`reqdata.value`",
+                      "within": "`reqdata.within`"
+                    },
+                    "res": "`body`"
+                  }
+                }
+              ]
+            },
+            "remove": {
+              "input": "data",
+              "name": "remove",
+              "points": [
+                {
+                  "active": true,
+                  "args": {
+                    "params": [
+                      {
+                        "active": true,
+                        "kind": "param",
+                        "name": "id",
+                        "orig": "filename",
+                        "reqd": true,
+                        "type": "`$STRING`"
+                      }
+                    ],
+                    "query": [
+                      {
+                        "active": true,
+                        "example": "false",
+                        "kind": "query",
+                        "name": "permanent",
+                        "orig": "permanent",
+                        "reqd": false,
+                        "type": "`$STRING`"
+                      }
+                    ]
+                  },
+                  "contract": {
+                    "id": "DELETE /vault/{filename}",
+                    "json": "{\"parameters\":[{\"description\":\"If \\\"true\\\", the file is permanently deleted instead of being moved to trash. Defaults to \\\"false\\\", which moves the file to trash following the user's Obsidian \\\"Deleted files\\\" preference (either the \\\".trash\\\" folder or the system trash).\\n\",\"in\":\"query\",\"name\":\"permanent\",\"required\":false,\"schema\":{\"default\":\"false\",\"enum\":[\"true\",\"false\"],\"type\":\"string\"}},{\"description\":\"Path to the relevant file (relative to your vault root).\\n Optionally, you may include a reference to target a sub-part of the document; see \\\"Targeting a Sub-part of your Document\\\" for details.\",\"in\":\"path\",\"name\":\"filename\",\"required\":true,\"schema\":{\"format\":\"path\",\"type\":\"string\"}}],\"protocol\":\"http\",\"responses\":{\"204\":{\"description\":\"Success\"},\"404\":{\"content\":{\"application/json\":{\"schema\":{\"properties\":{\"errorCode\":{\"description\":\"A 5-digit error code uniquely identifying this particular type of error.\\n\",\"example\":40149,\"type\":\"number\"},\"message\":{\"description\":\"Message describing the error.\",\"example\":\"A brief description of the error.\",\"type\":\"string\"}},\"type\":\"object\"}}},\"description\":\"File does not exist.\"},\"405\":{\"content\":{\"application/json\":{\"schema\":{\"properties\":{\"errorCode\":{\"description\":\"A 5-digit error code uniquely identifying this particular type of error.\\n\",\"example\":40149,\"type\":\"number\"},\"message\":{\"description\":\"Message describing the error.\",\"example\":\"A brief description of the error.\",\"type\":\"string\"}},\"type\":\"object\"}}},\"description\":\"Your path references a directory instead of a file; this request method is valid only for updating files.\\n\"}},\"security\":[{\"apiKeyAuth\":[]}],\"securitySchemes\":{\"apiKeyAuth\":{\"description\":\"Find your API Key in your Obsidian settings\\nin the \\\"Local REST API\\\" section under \\\"Plugins\\\".\\n\",\"scheme\":\"bearer\",\"type\":\"http\"}},\"securitySource\":\"definition\"}",
+                    "source": "openapi3",
+                    "version": 1
+                  },
+                  "kind": "http",
+                  "method": "DELETE",
+                  "orig": "/vault/{filename}",
+                  "rename": {
+                    "param": {
+                      "filename": "id"
+                    }
+                  },
+                  "segments": [
+                    {
+                      "lit": "vault"
+                    },
+                    {
+                      "var": "id"
+                    }
+                  ],
+                  "select": {
+                    "exist": [
+                      "id",
+                      "permanent"
+                    ]
+                  },
+                  "transform": {
+                    "req": "`reqdata`",
+                    "res": "`body`"
+                  }
+                }
+              ]
+            },
+            "update": {
+              "input": "data",
+              "name": "update",
+              "points": [
+                {
+                  "active": true,
+                  "args": {
+                    "header": [
+                      {
+                        "active": true,
+                        "example": "2",
+                        "kind": "header",
+                        "name": "markdown_patch_version",
+                        "orig": "markdown_patch_version",
+                        "reqd": false,
+                        "type": "`$STRING`"
+                      },
+                      {
+                        "active": true,
+                        "example": "false",
+                        "kind": "header",
+                        "name": "reject_if_content_preexist",
+                        "orig": "reject_if_content_preexist",
+                        "reqd": false,
+                        "type": "`$STRING`"
+                      }
+                    ],
+                    "params": [
+                      {
+                        "active": true,
+                        "kind": "param",
+                        "name": "id",
+                        "orig": "filename",
+                        "reqd": true,
+                        "type": "`$STRING`"
+                      }
+                    ]
+                  },
+                  "contract": {
+                    "id": "PUT /vault/{filename}",
+                    "json": "{\"parameters\":[{\"description\":\"Path to the relevant file (relative to your vault root).\\n Optionally, you may include a reference to target a sub-part of the document; see \\\"Targeting a Sub-part of your Document\\\" for details.\",\"in\":\"path\",\"name\":\"filename\",\"required\":true,\"schema\":{\"format\":\"path\",\"type\":\"string\"}},{\"description\":\"Selects which markdown-patch format governs this request. You do not normally\\nneed to send this header. By default (2.0), a PATCH carries its whole instruction\\nin the JSON request body, the document map returns a nested heading tree plus a\\n`version` token, and a sub-part of a document is targeted with URL path elements\\n(e.g. `.../heading/My%20Section`). Set it to `1` to opt into the deprecated 1.x\\nbehavior: the header-driven PATCH format, header-based targeting\\n(`Target-Type`/`Target`/`Target-Delimiter`/`Target-Scope`) on GET/PUT/POST, and\\nthe `::`-joined document map. Responses served by 1.x carry a\\n`Deprecation: true; sunset-version=\\\"6.0\\\"` header. Any value other than `1` or `2`\\nreturns `400 InvalidPatchVersionHeader`.\\n\\nOne place an *explicit* `2` matters: PATCH's raw-content mode with header-based\\ntargeting. Because `Target-Type`/`Target` headers on a PATCH are ambiguous between\\nthe 1.x format and raw-content mode, a PATCH carrying them without this header is\\nrejected with `400 PatchHeaderTargetingRequiresExplicitVersion` — send `1` for the\\ndeprecated engine or `2` for raw-content mode. On GET/PUT/POST, supplying those\\ntargeting headers without `1` is rejected with `400 HeaderTargetingRequiresVersion1`\\n(use URL path elements instead), and PATCH URL-element targeting likewise needs no\\nversion header.\\n\",\"in\":\"header\",\"name\":\"Markdown-Patch-Version\",\"required\":false,\"schema\":{\"default\":\"2\",\"enum\":[\"1\",\"2\"],\"type\":\"string\"}},{\"description\":\"If patch data already exists in Target, reject the patch?\",\"in\":\"header\",\"name\":\"Reject-If-Content-Preexists\",\"required\":false,\"schema\":{\"default\":\"false\",\"enum\":[\"true\",\"false\"],\"type\":\"string\"}}],\"protocol\":\"http\",\"requestBody\":{\"content\":{\"*/*\":{\"schema\":{\"type\":\"string\"}},\"text/markdown\":{\"schema\":{\"example\":\"# This is my document\\n\\nsomething else here\\n\",\"type\":\"string\"}}},\"description\":\"Content of the file you would like to upload.\",\"required\":true},\"responses\":{\"200\":{\"content\":{\"text/markdown\":{\"schema\":{\"type\":\"string\"}}},\"description\":\"Success; targeted section replaced (via URL path elements). The full updated file content is returned. Any advisory warnings (e.g. a heading rebased past level 6) are JSON-encoded, then percent-encoded, in the `Markdown-Patch-Warnings` response header.\",\"headers\":{\"Markdown-Patch-Warnings\":{\"description\":\"Present only when the write produced warnings: a percent-encoded JSON array of `{ code, message }` objects. Decode with `decodeURIComponent` before parsing as JSON.\",\"schema\":{\"type\":\"string\"}}}},\"204\":{\"description\":\"Success; entire file replaced.\"},\"400\":{\"content\":{\"application/json\":{\"schema\":{\"properties\":{\"errorCode\":{\"description\":\"A 5-digit error code uniquely identifying this particular type of error.\\n\",\"example\":40149,\"type\":\"number\"},\"message\":{\"description\":\"Message describing the error.\",\"example\":\"A brief description of the error.\",\"type\":\"string\"}},\"type\":\"object\"}}},\"description\":\"Incoming file could not be processed.  Make sure you have specified a reasonable file name, and make sure you have set a reasonable 'Content-Type' header; if you are uploading a note, 'text/markdown' is likely the right choice.\\n\"},\"405\":{\"content\":{\"application/json\":{\"schema\":{\"properties\":{\"errorCode\":{\"description\":\"A 5-digit error code uniquely identifying this particular type of error.\\n\",\"example\":40149,\"type\":\"number\"},\"message\":{\"description\":\"Message describing the error.\",\"example\":\"A brief description of the error.\",\"type\":\"string\"}},\"type\":\"object\"}}},\"description\":\"Your path references a directory instead of a file; this request method is valid only for updating files.\\n\"},\"409\":{\"content\":{\"application/json\":{\"schema\":{\"properties\":{\"errorCode\":{\"description\":\"A 5-digit error code uniquely identifying this particular type of error.\\n\",\"example\":40149,\"type\":\"number\"},\"message\":{\"description\":\"Message describing the error.\",\"example\":\"A brief description of the error.\",\"type\":\"string\"}},\"type\":\"object\"}}},\"description\":\"`Reject-If-Content-Preexists` was set and the content already appears in the targeted section.\"}},\"security\":[{\"apiKeyAuth\":[]}],\"securitySchemes\":{\"apiKeyAuth\":{\"description\":\"Find your API Key in your Obsidian settings\\nin the \\\"Local REST API\\\" section under \\\"Plugins\\\".\\n\",\"scheme\":\"bearer\",\"type\":\"http\"}},\"securitySource\":\"definition\"}",
+                    "source": "openapi3",
+                    "version": 1
+                  },
+                  "kind": "http",
+                  "method": "PUT",
+                  "orig": "/vault/{filename}",
+                  "rename": {
+                    "param": {
+                      "filename": "id"
+                    }
+                  },
+                  "segments": [
+                    {
+                      "lit": "vault"
+                    },
+                    {
+                      "var": "id"
+                    }
+                  ],
+                  "select": {
+                    "exist": [
+                      "id",
+                      "markdown_patch_version",
+                      "reject_if_content_preexist"
+                    ]
+                  },
+                  "transform": {
+                    "req": "`reqdata`",
+                    "res": "`body`"
+                  }
+                }
+              ]
+            }
+          },
+          "relations": {
+            "ancestors": []
+          }
+        }
+      },
+      "feature": {
+        "debug": {
+          "active": true,
+          "base": "node_modules/@voxgig/sdkgen/project/.sdk",
+          "config": {
+            "options": {
+              "active": false,
+              "max": 100,
+              "redact": [
+                "authorization",
+                "cookie",
+                "set-cookie",
+                "api-key",
+                "apikey",
+                "x-api-key",
+                "idempotency-key"
+              ]
+            },
+            "optspec": {
+              "now": "`$FUNCTION`",
+              "onEntry": "`$FUNCTION`"
+            },
+            "strict": false
+          },
+          "hook": {
+            "GetData": {
+              "active": false,
+              "await": false
+            },
+            "GetMatch": {
+              "active": false,
+              "await": false
+            },
+            "PostConstruct": {
+              "active": false,
+              "await": false
+            },
+            "PostConstructEntity": {
+              "active": false,
+              "await": false
+            },
+            "PostOperation": {
+              "active": false,
+              "await": false
+            },
+            "PreDone": {
+              "active": true,
+              "await": false
+            },
+            "PreRequest": {
+              "active": true,
+              "await": false
+            },
+            "PreResponse": {
+              "active": true,
+              "await": false
+            },
+            "PreResult": {
+              "active": false,
+              "await": false
+            },
+            "PreSpec": {
+              "active": false,
+              "await": false
+            },
+            "PreTarget": {
+              "active": false,
+              "await": false
+            },
+            "PreUnexpected": {
+              "active": true,
+              "await": false
+            },
+            "SetData": {
+              "active": false,
+              "await": false
+            }
+          },
+          "name": "debug",
+          "needs": {},
+          "origname": "",
+          "package": "@voxgig/sdkgen",
+          "plugin": {},
+          "spec": {},
+          "target": {
+            "go": {
+              "deps": {}
+            },
+            "go-cli": {
+              "deps": {}
+            },
+            "go-mcp": {
+              "deps": {}
+            },
+            "lua": {
+              "deps": {}
+            },
+            "php": {
+              "deps": {}
+            },
+            "py": {
+              "deps": {}
+            },
+            "rb": {
+              "deps": {}
+            },
+            "ts": {
+              "deps": {}
+            }
+          },
+          "title": "Request/response capture ring buffer for debugging",
+          "transport": "none",
+          "version": "0.0.1"
+        },
+        "idempotency": {
+          "active": true,
+          "base": "node_modules/@voxgig/sdkgen/project/.sdk",
+          "config": {
+            "options": {
+              "active": false,
+              "header": "Idempotency-Key",
+              "methods": [
+                "POST",
+                "PUT",
+                "PATCH",
+                "DELETE"
+              ],
+              "ops": [
+                "create",
+                "update",
+                "remove"
+              ]
+            },
+            "optspec": {
+              "keygen": "`$FUNCTION`"
+            },
+            "strict": false
+          },
+          "hook": {
+            "GetData": {
+              "active": false,
+              "await": false
+            },
+            "GetMatch": {
+              "active": false,
+              "await": false
+            },
+            "PostConstruct": {
+              "active": false,
+              "await": false
+            },
+            "PostConstructEntity": {
+              "active": false,
+              "await": false
+            },
+            "PostOperation": {
+              "active": false,
+              "await": false
+            },
+            "PreRequest": {
+              "active": true,
+              "await": false
+            },
+            "PreResponse": {
+              "active": false,
+              "await": false
+            },
+            "PreResult": {
+              "active": false,
+              "await": false
+            },
+            "PreSpec": {
+              "active": false,
+              "await": false
+            },
+            "PreTarget": {
+              "active": false,
+              "await": false
+            },
+            "SetData": {
+              "active": false,
+              "await": false
+            }
+          },
+          "name": "idempotency",
+          "needs": {},
+          "origname": "",
+          "package": "@voxgig/sdkgen",
+          "plugin": {},
+          "spec": {},
+          "target": {
+            "go": {
+              "deps": {}
+            },
+            "go-cli": {
+              "deps": {}
+            },
+            "go-mcp": {
+              "deps": {}
+            },
+            "lua": {
+              "deps": {}
+            },
+            "php": {
+              "deps": {}
+            },
+            "py": {
+              "deps": {}
+            },
+            "rb": {
+              "deps": {}
+            },
+            "ts": {
+              "deps": {}
+            }
+          },
+          "title": "Idempotency keys for safe retries of mutating operations",
+          "transport": "none",
+          "version": "0.0.1"
+        },
+        "metrics": {
+          "active": true,
+          "base": "node_modules/@voxgig/sdkgen/project/.sdk",
+          "config": {
+            "options": {
+              "active": false
+            },
+            "optspec": {
+              "now": "`$FUNCTION`"
+            },
+            "strict": false
+          },
+          "hook": {
+            "GetData": {
+              "active": false,
+              "await": false
+            },
+            "GetMatch": {
+              "active": false,
+              "await": false
+            },
+            "PostConstruct": {
+              "active": false,
+              "await": false
+            },
+            "PostConstructEntity": {
+              "active": false,
+              "await": false
+            },
+            "PostOperation": {
+              "active": false,
+              "await": false
+            },
+            "PreDone": {
+              "active": true,
+              "await": false
+            },
+            "PrePoint": {
+              "active": true,
+              "await": false
+            },
+            "PreRequest": {
+              "active": false,
+              "await": false
+            },
+            "PreResponse": {
+              "active": false,
+              "await": false
+            },
+            "PreResult": {
+              "active": false,
+              "await": false
+            },
+            "PreSpec": {
+              "active": false,
+              "await": false
+            },
+            "PreTarget": {
+              "active": false,
+              "await": false
+            },
+            "PreUnexpected": {
+              "active": true,
+              "await": false
+            },
+            "SetData": {
+              "active": false,
+              "await": false
+            }
+          },
+          "name": "metrics",
+          "needs": {},
+          "origname": "",
+          "package": "@voxgig/sdkgen",
+          "plugin": {},
+          "spec": {},
+          "target": {
+            "go": {
+              "deps": {}
+            },
+            "go-cli": {
+              "deps": {}
+            },
+            "go-mcp": {
+              "deps": {}
+            },
+            "lua": {
+              "deps": {}
+            },
+            "php": {
+              "deps": {}
+            },
+            "py": {
+              "deps": {}
+            },
+            "rb": {
+              "deps": {}
+            },
+            "ts": {
+              "deps": {}
+            }
+          },
+          "title": "Statistics capture: per-operation counters and latency",
+          "transport": "none",
+          "version": "0.0.1"
+        },
+        "paging": {
+          "active": true,
+          "base": "node_modules/@voxgig/sdkgen/project/.sdk",
+          "config": {
+            "options": {
+              "active": false,
+              "afterVar": "after",
+              "cursorParam": "cursor",
+              "firstVar": "first",
+              "limitParam": "limit",
+              "pageParam": "page",
+              "startPage": 1
+            },
+            "optspec": {
+              "limit": "`$NUMBER`",
+              "ops": "`$LIST`"
+            },
+            "strict": false
+          },
+          "hook": {
+            "GetData": {
+              "active": false,
+              "await": false
+            },
+            "GetMatch": {
+              "active": false,
+              "await": false
+            },
+            "PostConstruct": {
+              "active": false,
+              "await": false
+            },
+            "PostConstructEntity": {
+              "active": false,
+              "await": false
+            },
+            "PostOperation": {
+              "active": false,
+              "await": false
+            },
+            "PreRequest": {
+              "active": true,
+              "await": false
+            },
+            "PreResponse": {
+              "active": false,
+              "await": false
+            },
+            "PreResult": {
+              "active": true,
+              "await": false
+            },
+            "PreSpec": {
+              "active": false,
+              "await": false
+            },
+            "PreTarget": {
+              "active": false,
+              "await": false
+            },
+            "SetData": {
+              "active": false,
+              "await": false
+            }
+          },
+          "name": "paging",
+          "needs": {},
+          "origname": "",
+          "package": "@voxgig/sdkgen",
+          "plugin": {},
+          "spec": {},
+          "target": {
+            "go": {
+              "deps": {}
+            },
+            "go-cli": {
+              "deps": {}
+            },
+            "go-mcp": {
+              "deps": {}
+            },
+            "lua": {
+              "deps": {}
+            },
+            "php": {
+              "deps": {}
+            },
+            "py": {
+              "deps": {}
+            },
+            "rb": {
+              "deps": {}
+            },
+            "ts": {
+              "deps": {}
+            }
+          },
+          "title": "Pagination signals for list operations",
+          "transport": "none",
+          "version": "0.0.1"
+        },
+        "ratelimit": {
+          "active": true,
+          "base": "node_modules/@voxgig/sdkgen/project/.sdk",
+          "config": {
+            "options": {
+              "active": false,
+              "burst": 5,
+              "rate": 5
+            },
+            "optspec": {
+              "now": "`$FUNCTION`",
+              "sleep": "`$FUNCTION`"
+            },
+            "strict": false
+          },
+          "hook": {
+            "GetData": {
+              "active": false,
+              "await": false
+            },
+            "GetMatch": {
+              "active": false,
+              "await": false
+            },
+            "PostConstruct": {
+              "active": false,
+              "await": false
+            },
+            "PostConstructEntity": {
+              "active": false,
+              "await": false
+            },
+            "PostOperation": {
+              "active": false,
+              "await": false
+            },
+            "PreRequest": {
+              "active": false,
+              "await": false
+            },
+            "PreResponse": {
+              "active": false,
+              "await": false
+            },
+            "PreResult": {
+              "active": false,
+              "await": false
+            },
+            "PreSpec": {
+              "active": false,
+              "await": false
+            },
+            "PreTarget": {
+              "active": false,
+              "await": false
+            },
+            "SetData": {
+              "active": false,
+              "await": false
+            }
+          },
+          "name": "ratelimit",
+          "needs": {},
+          "origname": "",
+          "package": "@voxgig/sdkgen",
+          "plugin": {},
+          "spec": {},
+          "target": {
+            "go": {
+              "deps": {}
+            },
+            "go-cli": {
+              "deps": {}
+            },
+            "go-mcp": {
+              "deps": {}
+            },
+            "lua": {
+              "deps": {}
+            },
+            "php": {
+              "deps": {}
+            },
+            "py": {
+              "deps": {}
+            },
+            "rb": {
+              "deps": {}
+            },
+            "ts": {
+              "deps": {}
+            }
+          },
+          "title": "Client-side rate limiting via a token bucket",
+          "transport": "wrap",
+          "version": "0.0.1"
+        },
+        "retry": {
+          "active": true,
+          "base": "node_modules/@voxgig/sdkgen/project/.sdk",
+          "config": {
+            "options": {
+              "active": false,
+              "factor": 2,
+              "maxDelay": 2000,
+              "minDelay": 50,
+              "retries": 2,
+              "statuses": [
+                408,
+                425,
+                429,
+                500,
+                502,
+                503,
+                504
+              ]
+            },
+            "optspec": {
+              "jitter": "`$BOOLEAN`",
+              "sleep": "`$FUNCTION`"
+            },
+            "strict": false
+          },
+          "hook": {
+            "GetData": {
+              "active": false,
+              "await": false
+            },
+            "GetMatch": {
+              "active": false,
+              "await": false
+            },
+            "PostConstruct": {
+              "active": false,
+              "await": false
+            },
+            "PostConstructEntity": {
+              "active": false,
+              "await": false
+            },
+            "PostOperation": {
+              "active": false,
+              "await": false
+            },
+            "PreRequest": {
+              "active": false,
+              "await": false
+            },
+            "PreResponse": {
+              "active": false,
+              "await": false
+            },
+            "PreResult": {
+              "active": false,
+              "await": false
+            },
+            "PreSpec": {
+              "active": false,
+              "await": false
+            },
+            "PreTarget": {
+              "active": false,
+              "await": false
+            },
+            "SetData": {
+              "active": false,
+              "await": false
+            }
+          },
+          "name": "retry",
+          "needs": {},
+          "origname": "",
+          "package": "@voxgig/sdkgen",
+          "plugin": {},
+          "spec": {},
+          "target": {
+            "go": {
+              "deps": {}
+            },
+            "go-cli": {
+              "deps": {}
+            },
+            "go-mcp": {
+              "deps": {}
+            },
+            "lua": {
+              "deps": {}
+            },
+            "php": {
+              "deps": {}
+            },
+            "py": {
+              "deps": {}
+            },
+            "rb": {
+              "deps": {}
+            },
+            "ts": {
+              "deps": {}
+            }
+          },
+          "title": "Automatic retry of transient failures with exponential backoff",
+          "transport": "wrap",
+          "version": "0.0.1"
+        },
+        "test": {
+          "active": true,
+          "base": "node_modules/@voxgig/sdkgen/project/.sdk",
+          "config": {
+            "options": {
+              "active": false
+            },
+            "optspec": {
+              "entity": "`$MAP`",
+              "net": "`$MAP`"
+            },
+            "strict": false
+          },
+          "hook": {
+            "GetData": {
+              "active": true,
+              "await": false
+            },
+            "GetMatch": {
+              "active": true,
+              "await": false
+            },
+            "PostConstruct": {
+              "active": true,
+              "await": false
+            },
+            "PostConstructEntity": {
+              "active": true,
+              "await": false
+            },
+            "PostOperation": {
+              "active": false,
+              "await": false
+            },
+            "PrePoint": {
+              "active": true,
+              "await": false
+            },
+            "PreRequest": {
+              "active": true,
+              "await": false
+            },
+            "PreResponse": {
+              "active": true,
+              "await": false
+            },
+            "PreResult": {
+              "active": true,
+              "await": false
+            },
+            "PreSpec": {
+              "active": true,
+              "await": false
+            },
+            "PreTarget": {
+              "active": false,
+              "await": false
+            },
+            "SetData": {
+              "active": true,
+              "await": false
+            },
+            "SetMatch": {
+              "active": true,
+              "await": false
+            }
+          },
+          "name": "test",
+          "needs": {},
+          "origname": "",
+          "package": "@voxgig/sdkgen",
+          "plugin": {},
+          "spec": {},
+          "target": {
+            "go": {
+              "deps": {}
+            },
+            "go-cli": {
+              "deps": {}
+            },
+            "go-mcp": {
+              "deps": {}
+            },
+            "lua": {
+              "deps": {}
+            },
+            "php": {
+              "deps": {}
+            },
+            "py": {
+              "deps": {}
+            },
+            "rb": {
+              "deps": {}
+            },
+            "ts": {
+              "deps": {}
+            }
+          },
+          "title": "In-memory mock transport for testing without a live server",
+          "transport": "base",
+          "version": "0.0.1"
+        },
+        "timeout": {
+          "active": true,
+          "base": "node_modules/@voxgig/sdkgen/project/.sdk",
+          "config": {
+            "options": {
+              "active": false,
+              "ms": 30000
+            },
+            "optspec": {
+              "clearTimer": "`$FUNCTION`",
+              "setTimer": "`$FUNCTION`"
+            },
+            "strict": false
+          },
+          "hook": {
+            "GetData": {
+              "active": false,
+              "await": false
+            },
+            "GetMatch": {
+              "active": false,
+              "await": false
+            },
+            "PostConstruct": {
+              "active": false,
+              "await": false
+            },
+            "PostConstructEntity": {
+              "active": false,
+              "await": false
+            },
+            "PostOperation": {
+              "active": false,
+              "await": false
+            },
+            "PreRequest": {
+              "active": false,
+              "await": false
+            },
+            "PreResponse": {
+              "active": false,
+              "await": false
+            },
+            "PreResult": {
+              "active": false,
+              "await": false
+            },
+            "PreSpec": {
+              "active": false,
+              "await": false
+            },
+            "PreTarget": {
+              "active": false,
+              "await": false
+            },
+            "SetData": {
+              "active": false,
+              "await": false
+            }
+          },
+          "name": "timeout",
+          "needs": {},
+          "origname": "",
+          "package": "@voxgig/sdkgen",
+          "plugin": {},
+          "spec": {},
+          "target": {
+            "go": {
+              "deps": {}
+            },
+            "go-cli": {
+              "deps": {}
+            },
+            "go-mcp": {
+              "deps": {}
+            },
+            "lua": {
+              "deps": {}
+            },
+            "php": {
+              "deps": {}
+            },
+            "py": {
+              "deps": {}
+            },
+            "rb": {
+              "deps": {}
+            },
+            "ts": {
+              "deps": {}
+            }
+          },
+          "title": "Per-request timeout with transport abort",
+          "transport": "wrap",
+          "version": "0.0.1"
+        }
+      },
+      "flow": {
+        "BasicTagFlow": {
+          "active": true,
+          "entity": "tag",
+          "key$": "BasicTagFlow",
+          "kind": "basic",
+          "name": "BasicTagFlow",
+          "param": {},
+          "step": [
+            {
+              "active": true,
+              "data": {},
+              "input": {},
+              "match": {},
+              "op": "list",
+              "spec": [],
+              "valid": [
+                {
+                  "apply": "ItemExists",
+                  "def": {
+                    "ref": "tag_ref01"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "BasicVaultFlow": {
+          "active": true,
+          "entity": "vault",
+          "key$": "BasicVaultFlow",
+          "kind": "basic",
+          "name": "BasicVaultFlow",
+          "param": {},
+          "step": [
+            {
+              "active": true,
+              "data": {},
+              "input": {
+                "ref": "vault_ref01"
+              },
+              "match": {
+                "filename": "filename01"
+              },
+              "op": "create",
+              "spec": [],
+              "valid": []
+            },
+            {
+              "active": true,
+              "data": {},
+              "input": {},
+              "match": {},
+              "op": "list",
+              "spec": [],
+              "valid": [
+                {
+                  "apply": "ItemExists",
+                  "def": {
+                    "ref": "vault_ref01"
+                  }
+                }
+              ]
+            },
+            {
+              "active": true,
+              "data": {},
+              "input": {
+                "ref": "vault_ref01",
+                "srcdatavar": "vault_ref01_data",
+                "suffix": "_up0",
+                "textfield": "content"
+              },
+              "match": {},
+              "op": "update",
+              "spec": [
+                {
+                  "apply": "TextFieldMark",
+                  "def": {
+                    "mark": "Mark01-vault_ref01"
+                  }
+                }
+              ],
+              "valid": []
+            },
+            {
+              "active": true,
+              "data": {},
+              "input": {
+                "ref": "vault_ref01",
+                "srcdatavar": "vault_ref01_data",
+                "suffix": "_dt0"
+              },
+              "match": {
+                "id": "vault01"
+              },
+              "op": "load",
+              "spec": [],
+              "valid": [
+                {
+                  "apply": "TextFieldMark",
+                  "def": {
+                    "mark": "Mark01-vault_ref01"
+                  }
+                }
+              ]
+            },
+            {
+              "active": true,
+              "data": {},
+              "input": {
+                "ref": "vault_ref01",
+                "suffix": "_rm0"
+              },
+              "match": {
+                "id": "vault01"
+              },
+              "op": "remove",
+              "spec": [],
+              "valid": []
+            },
+            {
+              "active": true,
+              "data": {},
+              "input": {
+                "suffix": "_rt0"
+              },
+              "match": {},
+              "op": "list",
+              "spec": [],
+              "valid": [
+                {
+                  "apply": "ItemNotExists",
+                  "def": {
+                    "ref": "vault_ref01"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "info": {
+        "description": "The Local REST API plugin for Obsidian, which serves the open vault over HTTP on\nthe machine Obsidian is running on. Scoped here to the vault itself: list the\nvault, read, create, replace, append to and delete a file, and list the tags in\nuse.\n\nUpstream specification by the plugin authors, reduced by Voxgig. Not an official\nObsidian document, and not an API Obsidian ships: the plugin must be installed\nand its API key configured.",
+        "security": {
+          "in": "header",
+          "name": "Authorization",
+          "prefix": "Bearer",
+          "scheme": "apiKeyAuth",
+          "type": "http"
+        },
+        "servers": [
+          {
+            "description": "The Local REST API plugin, enabled inside Obsidian. HTTPS runs on 27124 with a self-signed certificate.",
+            "url": "http://127.0.0.1:27123"
+          }
+        ],
+        "summary": "The Local REST API plugin for Obsidian, which serves the open vault over HTTP on the machine Obsidian is running on.",
+        "title": "Obsidian Local REST API",
+        "version": "1.0",
+        "website": "http://127.0.0.1"
+      },
+      "option": {},
+      "optspec": {
+        "allow": {
+          "method": "GET,PUT,POST,PATCH,DELETE,OPTIONS",
+          "op": "create,update,load,list,remove,command,direct,graphql"
+        },
+        "apikey": "",
+        "auth": {
+          "basic": false,
+          "prefix": ""
+        },
+        "base": "http://localhost:8000",
+        "clean": {
+          "keys": "key,token,id"
+        },
+        "entity": {
+          "`$CHILD`": {
+            "`$OPEN`": true,
+            "active": false,
+            "alias": {}
+          }
+        },
+        "extend": "`$ANY`",
+        "headers": {
+          "`$CHILD`": "`$STRING`"
+        },
+        "prefix": "",
+        "secret": "",
+        "server": {
+          "`$CHILD`": ""
+        },
+        "suffix": "",
+        "system": {
+          "fetch": "`$ANY`"
+        },
+        "test": {
+          "active": false,
+          "entity": {
+            "`$OPEN`": true
+          }
+        },
+        "utility": {}
+      },
+      "repo": {
+        "host": "github.com",
+        "path": ""
+      },
+      "target": {
+        "go": {
+          "active": true,
+          "author": {
+            "name": "",
+            "url": ""
+          },
+          "base": "node_modules/@voxgig/sdkgen/project/.sdk",
+          "comment": {
+            "line": "//"
+          },
+          "deps": {},
+          "ext": "go",
+          "feature": {
+            "fullset": [
+              "test/feature_test.go"
+            ],
+            "trim": true
+          },
+          "module": {
+            "goversion": "",
+            "name": "obsidian",
+            "package": "",
+            "path": ""
+          },
+          "name": "go",
+          "origname": "",
+          "output": {
+            "adopt": false,
+            "create": true,
+            "path": "",
+            "repo": "",
+            "sdkrel": ""
+          },
+          "package": "@voxgig/sdkgen",
+          "provides": {
+            "sekreto": true
+          },
+          "publish": {
+            "registry": {
+              "active": false,
+              "name": "",
+              "package": "",
+              "state": "pending",
+              "url": "",
+              "vault": {
+                "alias": "",
+                "env": "",
+                "recipe": ""
+              }
+            },
+            "tag": {
+              "active": true,
+              "prefix": "",
+              "vault": {
+                "alias": "github",
+                "recipe": "github"
+              },
+              "via": "port"
+            },
+            "version": "0.0.1"
+          },
+          "srcfeature": false,
+          "superseded": [
+            "test/runner_test.go",
+            "test/struct_runner_test.go"
+          ],
+          "title": "Golang"
+        },
+        "go-cli": {
+          "active": true,
+          "author": {
+            "name": "",
+            "url": ""
+          },
+          "base": "node_modules/@voxgig/sdkgen/project/.sdk",
+          "comment": {
+            "line": "//"
+          },
+          "deps": {},
+          "ext": "go",
+          "feature": {
+            "fullset": [],
+            "trim": true
+          },
+          "module": {
+            "goversion": "",
+            "name": "obsidian",
+            "package": "",
+            "path": ""
+          },
+          "name": "go-cli",
+          "origname": "",
+          "output": {
+            "adopt": false,
+            "create": true,
+            "path": "",
+            "repo": "",
+            "sdkrel": ""
+          },
+          "package": "@voxgig/sdkgen",
+          "phase": {
+            "agentguide": {
+              "active": false
+            },
+            "entity": {
+              "active": false
+            },
+            "feature": {
+              "active": false
+            },
+            "readme": {
+              "active": false
+            },
+            "test": {
+              "active": false
+            }
+          },
+          "provides": {},
+          "publish": {
+            "registry": {
+              "active": false,
+              "name": "",
+              "package": "",
+              "state": "pending",
+              "url": "",
+              "vault": {
+                "alias": "",
+                "env": "",
+                "recipe": ""
+              }
+            },
+            "tag": {
+              "active": true,
+              "prefix": "",
+              "vault": {
+                "alias": "github",
+                "recipe": "github"
+              },
+              "via": "root"
+            },
+            "version": "0.0.1"
+          },
+          "superseded": [],
+          "title": "Go CLI"
+        },
+        "go-mcp": {
+          "active": true,
+          "author": {
+            "name": "",
+            "url": ""
+          },
+          "base": "node_modules/@voxgig/sdkgen/project/.sdk",
+          "comment": {
+            "line": "//"
+          },
+          "deps": {},
+          "ext": "go",
+          "feature": {
+            "fullset": [],
+            "trim": true
+          },
+          "module": {
+            "goversion": "",
+            "name": "obsidian",
+            "package": "",
+            "path": ""
+          },
+          "name": "go-mcp",
+          "origname": "",
+          "output": {
+            "adopt": false,
+            "create": true,
+            "path": "",
+            "repo": "",
+            "sdkrel": ""
+          },
+          "package": "@voxgig/sdkgen",
+          "phase": {
+            "agentguide": {
+              "active": false
+            },
+            "entity": {
+              "active": false
+            },
+            "feature": {
+              "active": false
+            },
+            "readme": {
+              "active": false
+            },
+            "test": {
+              "active": false
+            }
+          },
+          "provides": {},
+          "publish": {
+            "registry": {
+              "active": false,
+              "name": "",
+              "package": "",
+              "state": "pending",
+              "url": "",
+              "vault": {
+                "alias": "",
+                "env": "",
+                "recipe": ""
+              }
+            },
+            "tag": {
+              "active": true,
+              "prefix": "",
+              "vault": {
+                "alias": "github",
+                "recipe": "github"
+              },
+              "via": "root"
+            },
+            "version": "0.0.1"
+          },
+          "superseded": [],
+          "title": "Go MCP server"
+        },
+        "lua": {
+          "active": true,
+          "author": {
+            "name": "",
+            "url": ""
+          },
+          "base": "node_modules/@voxgig/sdkgen/project/.sdk",
+          "comment": {
+            "line": "--"
+          },
+          "deps": {
+            "dkjson": {
+              "active": true,
+              "kind": "prod",
+              "version": "2.5"
+            }
+          },
+          "ext": "lua",
+          "feature": {
+            "fullset": [],
+            "trim": true
+          },
+          "module": {
+            "goversion": "",
+            "name": "obsidian",
+            "package": "",
+            "path": ""
+          },
+          "name": "lua",
+          "origname": "",
+          "output": {
+            "adopt": false,
+            "create": true,
+            "path": "",
+            "repo": "",
+            "sdkrel": ""
+          },
+          "package": "@voxgig/sdkgen",
+          "provides": {
+            "sekreto": true
+          },
+          "publish": {
+            "registry": {
+              "active": false,
+              "name": "luarocks",
+              "package": "",
+              "state": "pending",
+              "url": "https://luarocks.org",
+              "vault": {
+                "alias": "luarocks",
+                "env": "LUAROCKS_API_KEY",
+                "recipe": ""
+              }
+            },
+            "tag": {
+              "active": true,
+              "prefix": "",
+              "vault": {
+                "alias": "github",
+                "recipe": "github"
+              },
+              "via": "port"
+            },
+            "version": "0.0.1"
+          },
+          "srcfeature": false,
+          "superseded": [
+            "test/struct_runner.lua"
+          ],
+          "title": "Lua"
+        },
+        "php": {
+          "active": true,
+          "author": {
+            "name": "",
+            "url": ""
+          },
+          "base": "node_modules/@voxgig/sdkgen/project/.sdk",
+          "comment": {
+            "line": "//"
+          },
+          "deps": {},
+          "ext": "php",
+          "feature": {
+            "fullset": [],
+            "trim": true
+          },
+          "module": {
+            "goversion": "",
+            "name": "obsidian",
+            "package": "",
+            "path": ""
+          },
+          "name": "php",
+          "origname": "",
+          "output": {
+            "adopt": false,
+            "create": true,
+            "path": "",
+            "repo": "",
+            "sdkrel": ""
+          },
+          "package": "@voxgig/sdkgen",
+          "provides": {
+            "sekreto": true
+          },
+          "publish": {
+            "registry": {
+              "active": false,
+              "name": "packagist",
+              "package": "",
+              "state": "pending",
+              "url": "https://packagist.org",
+              "vault": {
+                "alias": "packagist",
+                "env": "PACKAGIST_API_TOKEN",
+                "recipe": ""
+              }
+            },
+            "tag": {
+              "active": true,
+              "prefix": "",
+              "vault": {
+                "alias": "github",
+                "recipe": "github"
+              },
+              "via": "port"
+            },
+            "version": "0.0.1"
+          },
+          "srcfeature": false,
+          "superseded": [
+            "test/StructRunner.php"
+          ],
+          "title": "PHP"
+        },
+        "py": {
+          "active": true,
+          "author": {
+            "name": "",
+            "url": ""
+          },
+          "base": "node_modules/@voxgig/sdkgen/project/.sdk",
+          "comment": {
+            "line": "#"
+          },
+          "deps": {
+            "requests": {
+              "active": true,
+              "kind": "prod",
+              "version": "2.33"
+            }
+          },
+          "ext": "py",
+          "feature": {
+            "fullset": [],
+            "trim": true
+          },
+          "module": {
+            "goversion": "",
+            "name": "obsidian",
+            "package": "",
+            "path": ""
+          },
+          "name": "py",
+          "origname": "",
+          "output": {
+            "adopt": false,
+            "create": true,
+            "path": "",
+            "repo": "",
+            "sdkrel": ""
+          },
+          "package": "@voxgig/sdkgen",
+          "provides": {
+            "sekreto": true
+          },
+          "publish": {
+            "registry": {
+              "active": false,
+              "name": "pypi",
+              "package": "",
+              "state": "pending",
+              "url": "https://pypi.org",
+              "vault": {
+                "alias": "pypi",
+                "env": "",
+                "recipe": "pypi"
+              }
+            },
+            "tag": {
+              "active": true,
+              "prefix": "",
+              "vault": {
+                "alias": "github",
+                "recipe": "github"
+              },
+              "via": "port"
+            },
+            "version": "0.0.1"
+          },
+          "srcfeature": false,
+          "superseded": [
+            "test/struct_runner.py"
+          ],
+          "title": "Python"
+        },
+        "rb": {
+          "active": true,
+          "author": {
+            "name": "",
+            "url": ""
+          },
+          "base": "node_modules/@voxgig/sdkgen/project/.sdk",
+          "comment": {
+            "line": "#"
+          },
+          "deps": {
+            "json": {
+              "active": true,
+              "kind": "prod",
+              "version": "0"
+            },
+            "voxgig-struct": {
+              "active": true,
+              "kind": "prod",
+              "version": "0.0.10"
+            }
+          },
+          "ext": "rb",
+          "feature": {
+            "fullset": [],
+            "trim": true
+          },
+          "module": {
+            "goversion": "",
+            "name": "obsidian",
+            "package": "",
+            "path": ""
+          },
+          "name": "rb",
+          "origname": "",
+          "output": {
+            "adopt": false,
+            "create": true,
+            "path": "",
+            "repo": "",
+            "sdkrel": ""
+          },
+          "package": "@voxgig/sdkgen",
+          "provides": {
+            "sekreto": true
+          },
+          "publish": {
+            "registry": {
+              "active": false,
+              "name": "rubygems",
+              "package": "",
+              "state": "pending",
+              "url": "https://rubygems.org",
+              "vault": {
+                "alias": "gem",
+                "env": "",
+                "recipe": "gem"
+              }
+            },
+            "tag": {
+              "active": true,
+              "prefix": "",
+              "vault": {
+                "alias": "github",
+                "recipe": "github"
+              },
+              "via": "port"
+            },
+            "version": "0.0.1"
+          },
+          "srcfeature": false,
+          "superseded": [
+            "test/struct_runner.rb"
+          ],
+          "title": "Ruby"
+        },
+        "ts": {
+          "active": true,
+          "author": {
+            "name": "",
+            "url": ""
+          },
+          "base": "node_modules/@voxgig/sdkgen/project/.sdk",
+          "comment": {
+            "line": "//"
+          },
+          "deps": {
+            "@types/node": {
+              "active": true,
+              "kind": "dev",
+              "version": "^25.6.0"
+            },
+            "typescript": {
+              "active": true,
+              "kind": "dev",
+              "version": "^5.9.3"
+            }
+          },
+          "ext": "ts",
+          "feature": {
+            "fullset": [],
+            "trim": true
+          },
+          "module": {
+            "goversion": "",
+            "name": "obsidian",
+            "package": "",
+            "path": ""
+          },
+          "name": "ts",
+          "origname": "",
+          "output": {
+            "adopt": false,
+            "create": true,
+            "path": "",
+            "repo": "",
+            "sdkrel": ""
+          },
+          "package": "@voxgig/sdkgen",
+          "provides": {
+            "schema": true,
+            "sekreto": true
+          },
+          "publish": {
+            "registry": {
+              "active": false,
+              "name": "npm",
+              "package": "",
+              "state": "pending",
+              "url": "https://registry.npmjs.org",
+              "vault": {
+                "alias": "npm",
+                "env": "",
+                "recipe": "npm"
+              }
+            },
+            "tag": {
+              "active": true,
+              "prefix": "",
+              "vault": {
+                "alias": "github",
+                "recipe": "github"
+              },
+              "via": "port"
+            },
+            "version": "0.0.1"
+          },
+          "superseded": [
+            "test/runner.ts",
+            "test/vendor/omni/compat.ts",
+            "src/feature/secrets/sekreto/Providers.ts",
+            "src/feature/secrets/sekreto/Sigv4.ts",
+            "src/feature/secrets/sekreto/provider/Registry.ts",
+            "src/feature/secrets/sekreto/provider/http.ts"
+          ],
+          "title": "TypeScript"
+        }
+      },
+      "test": {
+        "live": {
+          "app": false,
+          "base": "",
+          "strict": true
+        }
+      }
+    }
+  },
+  "name": "obsidian",
+  "name-": "obsidian",
+  "name_": "obsidian",
+  "name__orig": "obsidian",
+  "origin": "voxgig-sdk"
+}
