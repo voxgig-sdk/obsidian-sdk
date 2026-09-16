@@ -267,6 +267,8 @@ initialiser
 [Vv]ectorise
 
 [Oo][Bb][Ss][Ii][Dd][Ii][Aa][Nn]
+[Cc]
+[Cc]
 [Gg][Oo]
 [Gg][Oo][Ll][Aa][Nn][Gg]
 [Gg][Oo]-[Cc][Ll][Ii]

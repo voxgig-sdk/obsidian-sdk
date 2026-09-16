@@ -1,4 +1,4 @@
 # Entity Models
 
-@"tag.aon"
-@"vault.aon"
+@"./tag.aon"
+@"./vault.aon"

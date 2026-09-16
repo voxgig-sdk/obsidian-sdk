@@ -1,4 +1,4 @@
 # Flows
 
-@"BasicTagFlow.aon"
-@"BasicVaultFlow.aon"
+@"./BasicTagFlow.aon"
+@"./BasicVaultFlow.aon"
