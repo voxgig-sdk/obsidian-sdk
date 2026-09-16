@@ -1,0 +1,1430 @@
+{
+  "components": {
+    "schemas": {
+      "Error": {
+        "properties": {
+          "errorCode": {
+            "description": "A 5-digit error code uniquely identifying this particular type of error.\n",
+            "example": 40149,
+            "type": "number"
+          },
+          "message": {
+            "description": "Message describing the error.",
+            "example": "A brief description of the error.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "HeadingAddress": {
+        "description": "A heading address: the path of heading texts from the top level down\nto the target. Use `null` or `[]` for the document root.\n",
+        "oneOf": [
+          {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "HeadingTree": {
+        "additionalProperties": {
+          "$ref": "#/components/schemas/HeadingTree"
+        },
+        "description": "The document's headings nested by containment: each heading's text\nmaps to a HeadingTree of its child headings, and a leaf heading maps\nto `{}`. Nesting carries no heading level \u2014 a level skipped in the\nsource leaves no hole. To target a heading, use the path of keys from\nthe top level down to it as a HeadingAddress.\n\nA repeated sibling heading appears once, but its children are not\nlost: they merge into that one key, because a heading is addressed by\nits whole path rather than its name. Given `## Log / ### Monday`\nfollowed by `## Log / ### Tuesday`, the tree is\n`{\"Log\": {\"Monday\": {}, \"Tuesday\": {}}}` and both are separately\naddressable. Only sections that share an entire path are one address,\nand that address resolves to the first in document order. The tree\ntherefore lists exactly the headings you can target.\n",
+        "example": {
+          "Appendix": {},
+          "Overview": {
+            "Details": {}
+          }
+        },
+        "type": "object"
+      },
+      "NoteJson": {
+        "properties": {
+          "backlinks": {
+            "description": "Vault-relative paths of files that link to this file.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "content": {
+            "type": "string"
+          },
+          "frontmatter": {
+            "type": "object"
+          },
+          "links": {
+            "description": "Vault-relative paths of files this file links to.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "path": {
+            "type": "string"
+          },
+          "stat": {
+            "properties": {
+              "ctime": {
+                "type": "number"
+              },
+              "mtime": {
+                "type": "number"
+              },
+              "size": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "ctime",
+              "mtime",
+              "size"
+            ],
+            "type": "object"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "unresolvedLinks": {
+            "description": "Link text found in this file that does not resolve to an existing vault file.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "tags",
+          "frontmatter",
+          "stat",
+          "path",
+          "content",
+          "links",
+          "backlinks",
+          "unresolvedLinks"
+        ],
+        "type": "object"
+      },
+      "PatchInstruction": {
+        "additionalProperties": false,
+        "description": "A single edit expressed as one operation applied to a scope of a target node. The payload rides in exactly one of `content`, `value`, or `destination`, chosen by what it is. Not every operation\u00d7scope\u00d7targetType combination is valid; invalid ones are rejected.",
+        "properties": {
+          "content": {
+            "description": "String payload: a heading/block body or label, a new block id for a block `marker` rename (letters, numbers, hyphens, and underscores only), or a new frontmatter key name for a frontmatter `marker` rename. Heading levels are relative to the edited span (a leading `#` becomes a direct child). For heading writes, whitespace is library-owned: leading/trailing blank lines here are ignored, and the engine supplies the blank line that keeps inserted content a separate block \u2014 never add newlines to control spacing. (Block-target `content` is the exception: it is spliced literally for inline edits.) A heading `marker` rename may not contain a line break. Provide exactly one of `content`, `value`, or `destination`.",
+            "type": "string"
+          },
+          "createTargetIfMissing": {
+            "default": false,
+            "description": "Create the target (heading path, block id, or frontmatter key) if it does not already exist.",
+            "type": "boolean"
+          },
+          "destination": {
+            "additionalProperties": false,
+            "description": "For a heading move (operation `replace`, scope `parent`): where the section is re-parented. Provide exactly one of `content`, `value`, or `destination`.",
+            "properties": {
+              "parent": {
+                "anyOf": [
+                  {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  }
+                ],
+                "description": "The section's new parent heading address, or null/[] for the document root.",
+                "nullable": true
+              },
+              "place": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "first",
+                      "last"
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "before": {
+                        "anyOf": [
+                          {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          }
+                        ],
+                        "description": "A heading's containment path: the ancestor heading texts from the top level down (e.g. [\"Overview\",\"Details\"]), or null/[] for the document root.",
+                        "nullable": true
+                      }
+                    },
+                    "required": [
+                      "before"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "after": {
+                        "anyOf": [
+                          {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          }
+                        ],
+                        "description": "A heading's containment path: the ancestor heading texts from the top level down (e.g. [\"Overview\",\"Details\"]), or null/[] for the document root.",
+                        "nullable": true
+                      }
+                    },
+                    "required": [
+                      "after"
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "description": "Position among the new parent's children: \"first\", \"last\", or { before } / { after } a sibling heading address."
+              }
+            },
+            "required": [
+              "parent",
+              "place"
+            ],
+            "type": "object"
+          },
+          "ifMatch": {
+            "description": "Optimistic-concurrency token (the `version` from a prior document map). If set and the document has changed since, the patch fails with a precondition error without modifying the file.",
+            "type": "string"
+          },
+          "operation": {
+            "description": "What happens to the scoped span: replace it, insert before (`prepend`) or after (`append`), or `delete` it.",
+            "enum": [
+              "replace",
+              "prepend",
+              "append",
+              "delete"
+            ],
+            "type": "string"
+          },
+          "rejectIfContentPreexists": {
+            "default": false,
+            "description": "Fail a `prepend`/`append` when the string content already appears in the target span (makes those operations idempotent on retry).",
+            "type": "boolean"
+          },
+          "scope": {
+            "default": "content",
+            "description": "Which part of the target the operation acts on (default `content`). `content`: the node body \u2014 for a heading, its whole subtree below the heading line. `marker`: the label only \u2014 a heading line, a block `^id`, or a frontmatter key (`replace` renames it). `markerAndContent`: the whole node/subtree (`prepend`/`append` insert a sibling). `parent`: a heading's place in the tree \u2014 only with operation `replace`, carrying a `destination` (a move).",
+            "enum": [
+              "content",
+              "marker",
+              "markerAndContent",
+              "parent"
+            ],
+            "type": "string"
+          },
+          "target": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "The node to edit. For a heading: an array of heading texts from the top level down to the target (e.g. [\"Overview\",\"Details\"]), or null/[] for the document root. If a heading is a duplicate of an earlier sibling under the same parent, its address carries an extra non-printable marker suffix appended by the server \u2014 copy that address verbatim from wherever the document's heading structure was discovered, never retype or reconstruct it. For a block: the bare block id, without the leading `^` (letters, numbers, hyphens, and underscores only) \u2014 a duplicate block id's later occurrence carries the same kind of marker suffix, copied verbatim the same way. For a frontmatter field: the key.",
+            "nullable": true
+          },
+          "targetType": {
+            "description": "The kind of node to edit.",
+            "enum": [
+              "heading",
+              "block",
+              "frontmatter"
+            ],
+            "type": "string"
+          },
+          "value": {
+            "description": "Structured JSON payload: a frontmatter value (any JSON \u2014 string, number, boolean, array, object, null; for `prepend`/`append` this merges: list concat, dict merge, string concat), or table rows on a `block` target's `content` cell (a 2-D array of strings, one row per entry \u2014 `replace` swaps the body rows, `prepend`/`append` insert before/after the existing ones; each row's length must match the table's column count). Table cells are content, not table source: a `|` is escaped for you, and a cell containing a line break is rejected, since a row is a single line. Provide exactly one of `content`, `value`, or `destination`."
+          },
+          "within": {
+            "description": "Refines a heading target to one of the section's direct-body top-level blocks (a paragraph, list, table, code fence, blockquote, \u2026): 0 is the first block in document order, and a negative index counts from the end (-1 = last). Isolated `^id` lines are not counted, so indices match the rendered blocks. With scope `content`, the edit is a literal splice into that block \u2014 you own the joint, so `append` *continues* the block (e.g. content `\\n- item` extends a list) \u2014 and `delete` removes the block. With scope `markerAndContent`, `prepend`/`append` insert a new block immediately before/after it, with library-owned blank-line separators. Heading targets only; cannot be combined with `createTargetIfMissing`.",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "targetType",
+          "target",
+          "operation"
+        ],
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "apiKeyAuth": {
+        "description": "Find your API Key in your Obsidian settings\nin the \"Local REST API\" section under \"Plugins\".\n",
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "description": "The Local REST API plugin for Obsidian, which serves the open vault over HTTP on\nthe machine Obsidian is running on. Scoped here to the vault itself: list the\nvault, read, create, replace, append to and delete a file, and list the tags in\nuse.\n\nUpstream specification by the plugin authors, reduced by Voxgig. Not an official\nObsidian document, and not an API Obsidian ships: the plugin must be installed\nand its API key configured.",
+    "title": "Obsidian Local REST API",
+    "version": "1.0"
+  },
+  "openapi": "3.2.0",
+  "paths": {
+    "/tags/": {
+      "get": {
+        "description": "Returns all tags found across all files in the vault, drawn from both inline (`#tag`) and frontmatter tag syntax. Each tag is returned without the `#` prefix. Hierarchical tags (e.g. `work/tasks`) also contribute a count to every parent prefix (e.g. `work`), mirroring how Obsidian displays tag counts in its sidebar.\n",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "tags": [
+                    {
+                      "count": 3,
+                      "name": "project"
+                    },
+                    {
+                      "count": 1,
+                      "name": "important"
+                    },
+                    {
+                      "count": 2,
+                      "name": "work"
+                    },
+                    {
+                      "count": 2,
+                      "name": "work/tasks"
+                    }
+                  ]
+                },
+                "schema": {
+                  "properties": {
+                    "tags": {
+                      "items": {
+                        "properties": {
+                          "count": {
+                            "description": "Number of times this tag is used across the vault.",
+                            "type": "number"
+                          },
+                          "name": {
+                            "description": "Tag name without the leading `#`.",
+                            "type": "string"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "A list of tags with their usage counts."
+          }
+        },
+        "summary": "Get a list of all tags with metadata.\n",
+        "tags": [
+          "Tags"
+        ]
+      }
+    },
+    "/vault/": {
+      "get": {
+        "description": "Lists files in the root directory of your vault.\n\nNote: that this is exactly the same API endpoint as the below \"List files that exist in the specified directory.\" and exists here only due to a quirk of this particular interactive tool.\n",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "files": [
+                    "mydocument.md",
+                    "somedirectory/"
+                  ]
+                },
+                "schema": {
+                  "properties": {
+                    "files": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Directory does not exist"
+          }
+        },
+        "summary": "List files that exist in the root of your vault.\n",
+        "tags": [
+          "Vault Directories"
+        ]
+      }
+    },
+    "/vault/{filename}": {
+      "additionalOperations": {
+        "copy": {
+          "description": "Copies a file from its current location to a new location specified in the Destination header, leaving the source file in place.\n",
+          "parameters": [
+            {
+              "description": "The new path for the copy, relative to your vault root. The path must not escape the vault root (relative segments like `..` are permitted as long as the resolved path remains inside the vault). Absolute paths (starting with `/`) are rejected. If the path ends with a trailing slash, the source filename is preserved and the copy is placed in that directory (e.g. \"archive/\" copies \"notes/todo.md\" to \"archive/todo.md\"). If the path contains non-ASCII characters (e.g. accented letters), percent-encode the value (e.g. `r%C3%A9sum%C3%A9.md` for `r\u00e9sum\u00e9.md`).\n",
+              "in": "header",
+              "name": "Destination",
+              "required": true,
+              "schema": {
+                "format": "path",
+                "type": "string"
+              }
+            },
+            {
+              "description": "If \"true\", the copy proceeds even when a file already exists at the destination. Defaults to \"false\", which returns a 409 if the destination exists.\n",
+              "in": "header",
+              "name": "Allow-Overwrite",
+              "required": false,
+              "schema": {
+                "default": "false",
+                "enum": [
+                  "true",
+                  "false"
+                ],
+                "type": "string"
+              }
+            },
+            {
+              "description": "Path to the relevant file (relative to your vault root).\n Optionally, you may include a reference to target a sub-part of the document; see \"Targeting a Sub-part of your Document\" for details.",
+              "in": "path",
+              "name": "filename",
+              "required": true,
+              "schema": {
+                "format": "path",
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "File successfully copied.",
+              "headers": {
+                "Content-Location": {
+                  "description": "The vault-relative path of the newly-created copy (e.g. `archive/file.md`). Non-ASCII characters are percent-encoded.",
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "400": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              },
+              "description": "Bad request - Missing Destination header, malformed percent-encoding, or path escapes the vault root (e.g. starts with \"/\").\n"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              },
+              "description": "Source file does not exist."
+            },
+            "405": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              },
+              "description": "Your path references a directory instead of a file; this request method is valid only for files.\n"
+            },
+            "409": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              },
+              "description": "Destination file already exists."
+            }
+          },
+          "summary": "Copy a file to a new location in your vault.\n",
+          "tags": [
+            "Vault Files"
+          ]
+        },
+        "move": {
+          "description": "Moves a file from its current location to a new location specified in the Destination header. This operation preserves file history and updates internal links.\n",
+          "parameters": [
+            {
+              "description": "The new path for the file, relative to your vault root. The path must not escape the vault root (relative segments like `..` are permitted as long as the resolved path remains inside the vault). Absolute paths (starting with `/`) are rejected. If the path ends with a trailing slash, the source filename is preserved and the file is placed in that directory (e.g. \"archive/\" moves \"notes/todo.md\" to \"archive/todo.md\"). If the path contains non-ASCII characters (e.g. accented letters), percent-encode the value (e.g. `r%C3%A9sum%C3%A9.md` for `r\u00e9sum\u00e9.md`).\n",
+              "in": "header",
+              "name": "Destination",
+              "required": true,
+              "schema": {
+                "format": "path",
+                "type": "string"
+              }
+            },
+            {
+              "description": "If \"true\", the move proceeds even when a file already exists at the destination. Defaults to \"false\", which returns a 409 if the destination exists.\n",
+              "in": "header",
+              "name": "Allow-Overwrite",
+              "required": false,
+              "schema": {
+                "default": "false",
+                "enum": [
+                  "true",
+                  "false"
+                ],
+                "type": "string"
+              }
+            },
+            {
+              "description": "Path to the relevant file (relative to your vault root).\n Optionally, you may include a reference to target a sub-part of the document; see \"Targeting a Sub-part of your Document\" for details.",
+              "in": "path",
+              "name": "filename",
+              "required": true,
+              "schema": {
+                "format": "path",
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "File successfully moved.",
+              "headers": {
+                "Content-Location": {
+                  "description": "The vault-relative path of the file at its new location (e.g. `archive/file.md`). Non-ASCII characters are percent-encoded.",
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "400": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              },
+              "description": "Bad request - Missing Destination header, malformed percent-encoding, or path escapes the vault root (e.g. starts with \"/\").\n"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              },
+              "description": "Source file does not exist."
+            },
+            "405": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              },
+              "description": "Your path references a directory instead of a file; this request method is valid only for files.\n"
+            },
+            "409": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              },
+              "description": "Destination file already exists."
+            }
+          },
+          "summary": "Move a file to a new location in your vault.\n",
+          "tags": [
+            "Vault Files"
+          ]
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "description": "If \"true\", the file is permanently deleted instead of being moved to trash. Defaults to \"false\", which moves the file to trash following the user's Obsidian \"Deleted files\" preference (either the \".trash\" folder or the system trash).\n",
+            "in": "query",
+            "name": "permanent",
+            "required": false,
+            "schema": {
+              "default": "false",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "Path to the relevant file (relative to your vault root).\n Optionally, you may include a reference to target a sub-part of the document; see \"Targeting a Sub-part of your Document\" for details.",
+            "in": "path",
+            "name": "filename",
+            "required": true,
+            "schema": {
+              "format": "path",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Success"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "File does not exist."
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Your path references a directory instead of a file; this request method is valid only for updating files.\n"
+          }
+        },
+        "summary": "Delete a particular file in your vault.\n",
+        "tags": [
+          "Vault Files"
+        ]
+      },
+      "get": {
+        "description": "Returns the content of the file at the specified path in your vault should the file exist.\n\nBinary files are served as raw bytes, with a `Content-Type` derived from the file extension, so this endpoint reads attachments \u2014 images, PDFs, audio \u2014 as well as notes. There is no size limit on the response.\n\n# Targeting a Sub-part of your Document\n\nYou can operate on a specific section of a note instead of the whole file by embedding a target in the URL path, immediately after the note identifier. The first segment after the note is the target type, and the remaining segments address the target:\n\n- `.../heading/My%20Section` targets the section beneath the `My Section` heading \u2014 the body content below the heading line.\n- For a nested heading, add one path segment per level: `.../heading/My%20Section/Subsection` targets `Subsection` under `My Section`. Because each level is its own segment, a heading whose text contains `::` (or any other delimiter) needs no escaping.\n- `.../block/abc123` targets the block with reference ID `abc123`.\n- `.../frontmatter/fieldName` targets the `fieldName` frontmatter field.\n\nPercent-encode any segment that contains non-ASCII characters or a literal `/` (e.g. `H%C3%A9llo` for `H\u00e9llo`, or `TODO%2FDONE` for a heading named `TODO/DONE`). Each URL path segment is decoded on its own, so an encoded `%2F` stays a literal slash *inside* that one segment rather than acting as a separator \u2014 that is what lets a heading name contain a slash. The same rule applies to the note path itself: because a file or folder name can never contain a slash, the note must be addressed with real `/` separators between its path components (`/vault/folder/note.md`), not with the separators encoded (`/vault/folder%2Fnote.md`), which no longer resolves.\n\nIf a document has a duplicate sibling heading (the same text repeated under the same parent) or a duplicate block reference ID, only the first occurrence is addressable by its plain text/id. Each later occurrence gets its own address with a non-printable marker suffix appended by the server \u2014 fetch the document map (`Accept: application/vnd.olrapi.document-map+json`) and copy that occurrence's key verbatim; don't try to type or reconstruct the marker yourself.\n\n`GET` returns just the addressed section. By default that is the target's `content` scope; add a `Target-Scope` header to read the `marker` (the label \u2014 a heading's raw text, a block's bare id, a frontmatter key) or `markerAndContent` (the whole node, in exactly the shape a PATCH `replace` at that scope consumes \u2014 a heading subtree comes back with its own line as `# Title`, levels relative to its parent, so a read-modify-write never counts `#`s). `PUT` replaces the section and `POST` appends to it, with heading levels normalized and separator whitespace managed for you. `PATCH` also accepts a URL target \u2014 its raw-content mode \u2014 with the operation and other instruction fields in headers (`Operation`, `Target-Scope`, \u2026) and the raw payload as the body. For the full instruction algebra (renames, moves, deletes, typed frontmatter values), see the PATCH documentation.\n\nOn `PUT` and `POST`, the `Content-Type` of your request body selects how the payload is interpreted, and not every target accepts both:\n\n- A `text/markdown` body is literal markdown. Valid for `heading` and `block` targets. On a `frontmatter` target it is stored as the field's plain string value.\n- An `application/json` body is structured data. On a `block` target that addresses a table, it is a 2-D array of row cells (`[[\"Chicago\", \"16\"]]`). On a `frontmatter` target it is the field's typed value (a list, dictionary, number, or string). A `heading` target has no structured form \u2014 its body is markdown text \u2014 so a JSON body there is rejected with `400 InvalidPatchInstruction` rather than being stringified into your note.\n\n## Deprecated: header-based targeting\n\nEarlier releases addressed a sub-part with `Target-Type`, `Target`, and `Target-Delimiter` request headers (plus `Target-Scope` and `Trim-Target-Whitespace`) rather than URL path segments. **That form is deprecated and will be removed in 6.0.** It is only processed when you also send `Markdown-Patch-Version: 1`, and responses served that way carry a `Deprecation: true; sunset-version=\"6.0\"` header. On GET/PUT/POST, supplying those targeting headers without that version is rejected with `400 HeaderTargetingRequiresVersion1` \u2014 reach the sub-part with URL path segments instead. (On PATCH, `Target-Type`/`Target` headers also have a *non-deprecated* meaning under an explicit `Markdown-Patch-Version: 2` \u2014 raw-content mode, with a different `Target` encoding; see the PATCH documentation.) Supplying both URL-path targeting and the header form in one request fails with `422 ConflictingTargetSpecification`.\n\n# Retrieving Document Metadata\n\n## Metadata\n\nIf you specify the header `Accept: application/vnd.olrapi.note+json`, will return a JSON representation of your note including parsed tag and frontmatter data as well as filesystem metadata.\n\n## Document Map\n\nIf you specify the header `Accept: application/vnd.olrapi.document-map+json`, will return a JSON object outlining what PATCH targets exist. See \"responses\" below for details.\n\n## Rendered HTML\n\nIf you specify the header `Accept: text/html`, will return the note rendered to HTML using Obsidian's own Markdown renderer \u2014 the same rendering used in Obsidian's preview mode, including embeds, callouts, and other Obsidian-flavored Markdown extensions. If `Target-Type`/`Target` are specified with `heading` or `block`, only that section is rendered. `Target-Type: frontmatter` is not supported for this Accept type and returns a 400 error, since frontmatter has no HTML rendering.\n",
+        "parameters": [
+          {
+            "description": "Path to the relevant file (relative to your vault root).\n Optionally, you may include a reference to target a sub-part of the document; see \"Targeting a Sub-part of your Document\" for details.",
+            "in": "path",
+            "name": "filename",
+            "required": true,
+            "schema": {
+              "format": "path",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Selects which markdown-patch format governs this request. You do not normally\nneed to send this header. By default (2.0), a PATCH carries its whole instruction\nin the JSON request body, the document map returns a nested heading tree plus a\n`version` token, and a sub-part of a document is targeted with URL path elements\n(e.g. `.../heading/My%20Section`). Set it to `1` to opt into the deprecated 1.x\nbehavior: the header-driven PATCH format, header-based targeting\n(`Target-Type`/`Target`/`Target-Delimiter`/`Target-Scope`) on GET/PUT/POST, and\nthe `::`-joined document map. Responses served by 1.x carry a\n`Deprecation: true; sunset-version=\"6.0\"` header. Any value other than `1` or `2`\nreturns `400 InvalidPatchVersionHeader`.\n\nOne place an *explicit* `2` matters: PATCH's raw-content mode with header-based\ntargeting. Because `Target-Type`/`Target` headers on a PATCH are ambiguous between\nthe 1.x format and raw-content mode, a PATCH carrying them without this header is\nrejected with `400 PatchHeaderTargetingRequiresExplicitVersion` \u2014 send `1` for the\ndeprecated engine or `2` for raw-content mode. On GET/PUT/POST, supplying those\ntargeting headers without `1` is rejected with `400 HeaderTargetingRequiresVersion1`\n(use URL path elements instead), and PATCH URL-element targeting likewise needs no\nversion header.\n",
+            "in": "header",
+            "name": "Markdown-Patch-Version",
+            "required": false,
+            "schema": {
+              "default": "2",
+              "enum": [
+                "1",
+                "2"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "For a URL-path-targeted read: which part of the target to return\n(default `content`), mirroring PATCH's scopes with a round-trip\nguarantee \u2014 what a scope returns is exactly what a `replace` at that\nscope consumes.\n\n- `content` (default): the node's body \u2014 a heading's body with its\n  levels made relative to the target, a block's text, a frontmatter\n  value.\n- `marker`: the label \u2014 a heading's raw text (no `#`s, and without the\n  duplicate-marker suffix its map key may carry), a block's bare id, a\n  frontmatter key.\n- `markerAndContent`: the whole node \u2014 a heading's subtree with its own\n  line as `# Title` (levels relative to its parent), a block's full\n  span including its `^id`, or a frontmatter entry as a `{key: value}`\n  JSON object.\n\n`parent` places a section but carries no readable value, and returns\n`400 InvalidTargetScopeHeader`. Only meaningful when the URL path\naddresses a sub-part of the note.\n",
+            "in": "header",
+            "name": "Target-Scope",
+            "required": false,
+            "schema": {
+              "default": "content",
+              "enum": [
+                "content",
+                "marker",
+                "markerAndContent"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "description": "Returned when the URL path targets a frontmatter field (`.../frontmatter/fieldName`); the JSON value of that field.",
+                "schema": {}
+              },
+              "application/vnd.olrapi.document-map+json": {
+                "schema": {
+                  "description": "The document map. To receive the deprecated 1.x shape \u2014 heading paths as\n`::`-joined strings, block ids prefixed with `^`, and no `version` \u2014\nsend `Markdown-Patch-Version: 1`.\n",
+                  "properties": {
+                    "blocks": {
+                      "description": "Block reference ids, bare (no leading `^`), in document order.",
+                      "example": [
+                        "blockref1",
+                        "anotherBlockRef"
+                      ],
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "frontmatterFields": {
+                      "example": [
+                        "title",
+                        "tags",
+                        "dateCreated"
+                      ],
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "headings": {
+                      "$ref": "#/components/schemas/HeadingTree"
+                    },
+                    "version": {
+                      "description": "Content-hash token for the file; pass it back as a PATCH `ifMatch` to make an edit conditional on the file being unchanged.",
+                      "example": "a1b2c3",
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              },
+              "application/vnd.olrapi.note+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NoteJson"
+                }
+              },
+              "text/html": {
+                "description": "Returned when `Accept: text/html` is specified. The note (or, if `Target-Type`/`Target` are specified with `heading` or `block`, just that section) rendered to HTML via Obsidian's Markdown renderer (embeds, callouts, etc. included). `Target-Type: frontmatter` is not supported for this Accept type and returns a 400 error.\n",
+                "schema": {
+                  "example": "<h1>This is my document</h1>\n<p>something else here</p>\n",
+                  "type": "string"
+                }
+              },
+              "text/markdown": {
+                "schema": {
+                  "example": "# This is my document\n\nsomething else here\n",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The `Markdown-Patch-Version` header was invalid (not `1` or `2`), the deprecated `Target-Type`/`Target` headers were invalid, the `Target-Scope` header was not a readable scope (`content`, `marker`, `markerAndContent`), or a frontmatter target was combined with `Accept: text/html` (frontmatter has no HTML rendering).\n"
+          },
+          "404": {
+            "description": "File or target section does not exist"
+          }
+        },
+        "summary": "Return the content of a single file in your vault.\n",
+        "tags": [
+          "Vault Files"
+        ]
+      },
+      "patch": {
+        "description": "Modifies an existing note with a single structured instruction: an operation applied to a scope of a target \u2014 a heading, block reference, or frontmatter field within that document.\n\nEdit a document with a single structured instruction \u2014 an **operation** applied to a **scope** of a **target** node (a heading, block reference, or frontmatter field). By default the whole instruction travels as a JSON request body; [raw-content mode](#raw-content-mode-templating-friendly) instead carries the instruction's fields in URL path elements/headers with the raw payload as the body.\n\n> **Migrating from the header-driven format?** See [Deprecated: the 1.x header-driven format](#deprecated-the-1x-header-driven-format) at the end.\n\n# The algebra\n\n- **operation** \u2014 `replace`, `prepend`, `append`, or `delete`.\n- **scope** (optional, default `content`):\n  - `content` \u2014 the node's body. For a heading, that's its whole subtree *below* the heading line.\n  - `marker` \u2014 the label only: a heading line, a block `^id`, or a frontmatter key. `replace` renames it.\n  - `markerAndContent` \u2014 the marker *and* the body together: for a heading, its heading line plus everything beneath it. Unlike `content`, the heading line is inside the edited span, so a `replace` here rewrites the heading itself. `prepend`/`append` insert a *sibling* before/after it.\n  - `parent` \u2014 a heading's place in the tree. Valid only with `replace`, and carries a `destination` (a **move**).\n- **target** \u2014 for a heading, an array of heading texts from the top level down (`[\"Overview\",\"Details\"]`), or `null`/`[]` for the document root; for a block, the bare id without `^`; for a frontmatter field, the key.\n- **within** (optional, heading targets only) \u2014 a positional refinement: an index picking one of the section's direct-body top-level blocks (a paragraph, list, table, code fence, \u2026), 0-based in document order, negative counting from the end (`-1` = last; isolated `^id` lines are not counted). The instruction then edits *that block*: with `content` scope, `replace`/`prepend`/`append` splice literally into it \u2014 you own the joint, so `append` with `\\n- item` *continues* a list \u2014 and `delete` removes it; with `markerAndContent` scope, `prepend`/`append` insert a new block immediately before/after it. Not combinable with `createTargetIfMissing`.\n- **payload** \u2014 carried in exactly one field, chosen by what it is:\n  - `content` \u2014 a markdown/text string (heading & block bodies/labels, or a frontmatter key rename).\n  - `value` \u2014 arbitrary JSON (frontmatter values).\n  - `destination` \u2014 where a moved heading lands.\n\nNot every combination is meaningful; invalid ones are rejected with a `400`.\n\n**Relative heading levels.** Heading `#`-counts inside a `content` string are *relative* to the edited span, so you never count `#`s: under `content` scope a leading `#` becomes a direct child of the target; under `markerAndContent` (or a sibling insert) it lands at the target's own level. Nesting inside your content is preserved as you wrote it \u2014 replacing a `##` section with `# New\\n\\n## Child` yields `## New` and `### Child`. A level rebased past `######` (h6) is still written, but the response carries a `heading-depth-overflow` entry in the `Markdown-Patch-Warnings` header \u2014 percent-encoded JSON, since a warning message embeds document text verbatim and header values must be ASCII; run it through `decodeURIComponent` before parsing.\n\n> **Note:** because the heading line is part of the `markerAndContent` span, a `replace` whose content has *no* heading removes it \u2014 the section is dissolved into a plain paragraph. Include a leading `#` (at any depth; it is rebased for you) to keep it a heading.\n\n# How to Use & Examples\n\nAll of the below examples assume you have a document that looks like this:\n\n```markdown\n---\nalpha: 1\nbeta: test\ndelta:\nzeta: 1\nyotta: 1\ngamma:\n- one\n- two\n---\n\n# Heading 1\n\nThis is the content for heading one\n\nAlso references some [[#^484ef2]]\n\n## Subheading 1:1\nContent for Subheading 1:1\n\n### Subsubheading 1:1:1\n\n### Subsubheading 1:1:2\n\nTesting how block references work for a table.[[#^2c7cfa]]\nSome content for Subsubheading 1:1:2\n\nMore random text.\n\n^2d9b4a\n\n## Subheading 1:2\n\nContent for Subheading 1:2.\n\nsome content with a block reference ^484ef2\n\n## Subheading 1:3\n| City         | Population |\n| ------------ | ---------- |\n| Seattle, WA  | 8          |\n| Portland, OR | 4          |\n\n^2c7cfa\n```\n\n## Append, prepend, or replace content below a heading\n\nTo append the content \"Hello\" below \"Subsubheading 1:1:1\" under \"Heading 1\":\n\n```json\n{\n  \"targetType\": \"heading\",\n  \"target\": [\"Heading 1\", \"Subheading 1:1\", \"Subsubheading 1:1:1\"],\n  \"operation\": \"append\",\n  \"content\": \"Hello\"\n}\n```\n\n`prepend` and `replace` work the same way, with different results. Because `target` is an array, a heading whose text contains `::` needs no escaping.\n\n> **Note:** the heading line itself is not part of the `content` scope. When you `replace` a heading's content, supply only the body \u2014 do not include the heading line, or it will be duplicated. To rename the heading, see below.\n\n## Renaming a heading\n\nGive the new text. That's all \u2014 no `#` characters, and nothing to look up:\n\n```json\n{\n  \"targetType\": \"heading\",\n  \"target\": [\"Heading 1\", \"Subheading 1:1\"],\n  \"operation\": \"replace\",\n  \"scope\": \"marker\",\n  \"content\": \"New Name\"\n}\n```\n\n`marker` scope addresses the label rather than the line, so the heading keeps whatever level it had and the body underneath is untouched. You never need to know the heading's depth to rename it.\n\n> **Do not include `#` characters here.** They are not stripped \u2014 they become part of the heading text, so `\"## New Name\"` renames the heading to `## New Name` and renders as `## ## New Name`. (This is the reverse of the deprecated 1.x format, where the `#`s were required. If you are migrating, drop them.)\n\nThe same instruction shape renames a block id (`targetType: \"block\"`, new id without `^`) or a frontmatter key (`targetType: \"frontmatter\"`, new key name in `content`).\n\n## Whitespace is library-owned\n\nYour `content` crosses the API in trimmed, canonical form: leading and trailing blank lines are stripped, and a non-empty write always ends with exactly one newline. `\"X\"`, `\"X\\n\"`, `\"\\nX\\n\"`, and `\"X\\n\\n\"` all produce the same document \u2014 newlines at the edges of your content are not a channel for controlling layout, so there is nothing to get wrong.\n\nBlank-line separators are the API's job. At any joint where your content faces body text, the engine supplies the blank line that keeps it a separate block. Given a document containing:\n\n```markdown\n# One\n\nbody of one\n```\n\n- `append` becomes a new block after the body \u2192 `# One\\n\\nbody of one\\n\\nX\\n`\n- `prepend` becomes a new block before the body \u2192 `# One\\n\\nX\\n\\nbody of one\\n`\n- `replace` swaps the body \u2192 `# One\\n\\nX\\n`\n\nWhere no separator is owed, none is added \u2014 a heading line is self-delimiting, and existing blank lines, gaps between sections, and document edges are preserved rather than rewritten:\n\n- The blank line between a heading and its body is kept in place: `replace` swaps the body beneath it and `prepend` inserts below it. A document written flush (`# One\\nbody of one\\n`) keeps its flush style \u2014 `replace` gives `# One\\nX\\n` \u2014 and replacing a body with its own text is byte-identity in either style.\n- Writing into an empty section lands flush under its heading (`# E\\nX\\n`), with the section's existing trailing gap serving as the separator below.\n\nOne consequence worth knowing: a `content`-scope `append`/`prepend` always begins a new block \u2014 it can never continue an existing paragraph or list. To edit inline within an existing block, address the block itself, which puts you on the literal-splice path where content lands exactly as given and you own the joint. Two ways to do that: target the block via its reference (`^id`) if it has one, or add `within: <index>` to a heading instruction to pick one of the section's body blocks by position \u2014 no `^id` required. For example, to extend the last list of a section:\n\n```json\n{ \"targetType\": \"heading\", \"target\": [\"Log\"], \"within\": -1, \"operation\": \"append\", \"content\": \"\\n- new item\" }\n```\n\nBecause a `within` edit is literal, the leading `\\n` is yours to write \u2014 without it the text continues the block's last line. Indices are positional, so read the document map or section first, and pair the edit with `ifMatch` from that read so a concurrent change fails the patch rather than landing on the wrong block.\n\n## Append, prepend, or replace content of a block reference\n\nTo append \"Hello\" below the block referenced by `2d9b4a`:\n\n```json\n{ \"targetType\": \"block\", \"target\": \"2d9b4a\", \"operation\": \"append\", \"content\": \"Hello\" }\n```\n\n## Append, prepend, or replace table rows via a block reference\n\nTo add a new city/population pair to the table referenced by `2c7cfa`, pass the row(s) as a 2-D JSON array in `value`:\n\n```json\n{ \"targetType\": \"block\", \"target\": \"2c7cfa\", \"operation\": \"append\", \"value\": [[\"Chicago, IL\", \"16\"]] }\n```\n\n`prepend` puts the new row first (right below the heading row); `replace` swaps all body rows for the ones you supply. Each row must have exactly as many cells as the table has columns; a mismatched row, or targeting a block that isn't a table, is rejected.\n\nCells are content, not table source, so you don't format them: a `|` in a cell is escaped for you and stays in the cell it belongs to. A cell containing a line break is rejected, since a table row is a single line \u2014 if you need a visual break inside a cell, send `<br>` yourself.\n\n## Setting a frontmatter field\n\nFrontmatter values are JSON, so they ride in `value` (not `content`). To set `alpha` to `2`:\n\n```json\n{ \"targetType\": \"frontmatter\", \"target\": \"alpha\", \"operation\": \"replace\", \"value\": 2 }\n```\n\nAdd `\"createTargetIfMissing\": true` to create a field that might not exist yet. For `append`/`prepend`, `value` is merged into the existing value (list concat, dict merge, string concat).\n\n## Adding and removing tags\n\nObsidian stores frontmatter tags in the `tags` field. To add `project/active`, merging into the list and creating it if absent:\n\n```json\n{ \"targetType\": \"frontmatter\", \"target\": \"tags\", \"operation\": \"append\", \"value\": [\"project/active\"], \"createTargetIfMissing\": true }\n```\n\nThere is no direct \"remove item\" operation. To remove a tag, read the current list (GET, or `vault_read` in the MCP API), filter it client-side, and replace the whole field:\n\n```json\n{ \"targetType\": \"frontmatter\", \"target\": \"tags\", \"operation\": \"replace\", \"value\": [\"remaining-tag-1\", \"remaining-tag-2\"] }\n```\n\n## Moving a heading section\n\n`scope: \"parent\"` with `operation: \"replace\"` re-parents (and re-levels) a section. To move \"Details\" under \"Appendix\" as its last child:\n\n```json\n{\n  \"targetType\": \"heading\",\n  \"target\": [\"Overview\", \"Details\"],\n  \"operation\": \"replace\",\n  \"scope\": \"parent\",\n  \"destination\": { \"parent\": [\"Appendix\"], \"place\": \"last\" }\n}\n```\n\n`place` may be `\"first\"`, `\"last\"`, `{ \"before\": <heading path> }`, or `{ \"after\": <heading path> }`. Use `\"parent\": null` to move to the document root.\n\n## Deleting\n\n`operation: \"delete\"` empties the `content` scope, removes the whole subtree (`markerAndContent`), or dissolves just the heading line (`marker`):\n\n```json\n{ \"targetType\": \"heading\", \"target\": [\"Heading 1\", \"Subheading 1:2\"], \"operation\": \"delete\", \"scope\": \"markerAndContent\" }\n```\n\n## Optimistic concurrency\n\nPass `ifMatch` with the `version` token from a document map (see below). If the file changed since, the patch fails with `412` and the file is untouched \u2014 refetch and retry.\n\n## Identifying patch targets in a file\n\nIssue a GET request to `/vault/{path}` with an `Accept` header of `application/vnd.olrapi.document-map+json` to get the headings, block references, and frontmatter fields present in the file (and its `version` token). If a heading has a duplicate sibling (same text, same parent) or a block reference ID repeats, only the first occurrence keeps its plain-text/id key \u2014 each later occurrence's key carries a non-printable marker suffix; copy it verbatim from the map into `target` rather than typing it by hand. See \"Targeting a Sub-part of your Document\" for details.\n\n# Raw-content mode (templating-friendly)\n\nPutting the whole instruction in a JSON body has one sharp edge: the `content` string must be JSON-escaped, which tools that *template* markdown into an HTTP body (Shortcuts, Tasker, curl with `--data` from a template) often cannot do reliably. Raw-content mode removes that requirement: the instruction's fields travel **outside** the body, and the body is the raw payload \u2014 no JSON escaping required.\n\nThe target can ride in either of two places (never both \u2014 that's a `422`):\n\n- **URL path elements**, exactly as GET/PUT/POST use them: `PATCH /vault/note.md/heading/A/B`. No version header needed.\n- **`Target-Type` / `Target` headers**, together with an explicit `Markdown-Patch-Version: 2`. The `Target` encoding is type-dependent, mirroring the instruction's `target` field: a heading Target is **JSON, percent-encoded** \u2014 `[\"A\",\"B\"]` sent as `%5B%22A%22%2C%22B%22%5D`, or `null` for the document root \u2014 while block and frontmatter Targets are the plain id/key (percent-encoded if non-ASCII). Because `Target` headers on a PATCH are ambiguous with the deprecated 1.x format, omitting the version header fails loudly with `400 PatchHeaderTargetingRequiresExplicitVersion` rather than guessing.\n\nThe remaining fields map to headers: `Operation` (required), `Target-Scope` (all four scopes, including `parent`), `Within` (the instruction's `within` index as a plain integer, e.g. `-1` \u2014 splice into one of the section's body blocks instead of adding a new one), `Create-Target-If-Missing`, `Reject-If-Content-Preexists`, `If-Match` (the document-map `version` token, bare or ETag-quoted), and `Destination` (a move's destination object as percent-encoded JSON). The 1.x-only `Target-Delimiter` and `Trim-Target-Whitespace` headers are rejected.\n\nThe body is the payload carrier, chosen by its content type:\n\n| Body | Instruction field |\n| --- | --- |\n| `text/markdown` (any `text/*`) | `content` |\n| `application/json` | `value` |\n| *(no body)* | none \u2014 a `delete`, or a move via `Destination` |\n\nAn empty body deliberately maps to *no* carrier: a `replace` with an accidentally-empty template fails as a missing carrier instead of clearing the section. To clear content on purpose, use an instruction body with `\"content\": \"\"`.\n\n```sh\n# Append a templated line under a heading \u2014 no JSON escaping anywhere\ncurl -k -X PATCH \\\n  -H \"Authorization: Bearer $API_KEY\" \\\n  -H \"Operation: append\" \\\n  -H \"Content-Type: text/markdown\" \\\n  --data \"- $TEMPLATED_CONTENT\" \\\n  \"https://127.0.0.1:27124/vault/notes/daily.md/heading/Log\"\n\n# Extend the section's last list *in place* (not a new block below it):\n# Within picks the block, and the leading newline in the body makes the\n# spliced text a new item of that list\ncurl -k -X PATCH \\\n  -H \"Authorization: Bearer $API_KEY\" \\\n  -H \"Operation: append\" \\\n  -H \"Within: -1\" \\\n  -H \"Content-Type: text/markdown\" \\\n  --data $'\\n- '\"$TEMPLATED_CONTENT\" \\\n  \"https://127.0.0.1:27124/vault/notes/daily.md/heading/Log\"\n\n# The same edit with header targeting (note the explicit version and JSON Target)\ncurl -k -X PATCH \\\n  -H \"Authorization: Bearer $API_KEY\" \\\n  -H \"Markdown-Patch-Version: 2\" \\\n  -H \"Target-Type: heading\" \\\n  -H \"Target: %5B%22Log%22%5D\" \\\n  -H \"Operation: append\" \\\n  -H \"Content-Type: text/markdown\" \\\n  --data \"- $TEMPLATED_CONTENT\" \\\n  \"https://127.0.0.1:27124/vault/notes/daily.md\"\n```\n\nEverything downstream is identical to instruction mode: the same validation, the same warnings header, the same error mapping. A raw-mode request may also send `application/vnd.olrapi.patch-instruction+json` \u2014 but only as a *whole-instruction body* with no targeting elsewhere; combining it with URL or header targeting is a `422 ConflictingTargetSpecification`.\n\n> **Note:** on `/active/` endpoints, a URL suffix (e.g. `/active/heading/Log`) previously had no effect on PATCH \u2014 it was ignored and the whole file was patched. It now targets the addressed section, matching PUT/POST.\n\n# Deprecated: the 1.x header-driven format\n\nThe earlier PATCH format spread the instruction across `Operation`, `Target-Type`, `Target`, `Target-Delimiter`, `Target-Scope`, `Create-Target-If-Missing`, `Reject-If-Content-Preexists`, and `Trim-Target-Whitespace` headers, with the payload in a `text/markdown` (or JSON-string) body. **It is deprecated and will be removed in 6.0.** Requests that use it still work, but every response carries a `Deprecation: true; sunset-version=\"6.0\"` header.\n\nThe JSON-instruction format described above is the default. To use the deprecated format, send `Markdown-Patch-Version: 1`; the header also selects the 1.x document map (`::`-joined heading paths, no `version`) on GET. Without any version header, a non-object body with no targeting is rejected with `400 InvalidPatchInstruction`, and `Target-Type`/`Target` headers are rejected with `400 PatchHeaderTargetingRequiresExplicitVersion` \u2014 those same header names are also raw-content mode's (with different `Target` encoding), so the request must explicitly pick `1` or `2`. To upgrade, drop the version header and either move each 1.x header into the JSON body as below, or switch to [raw-content mode](#raw-content-mode-templating-friendly) and keep your body as-is:\n\n| 1.x header | Instruction field |\n| --- | --- |\n| `Operation: append` | `\"operation\": \"append\"` (now also `\"delete\"`) |\n| `Target-Type: heading` | `\"targetType\": \"heading\"` |\n| `Target: A::B` (+ `Target-Delimiter`) | `\"target\": [\"A\", \"B\"]` (a real array \u2014 no delimiter) |\n| `Target-Scope: content` | `\"scope\": \"content\"` (adds `\"parent\"` for moves) |\n| body (`text/markdown`) | `\"content\": \"...\"` |\n| body (`application/json` value) | `\"value\": <json>` |\n| `Create-Target-If-Missing: true` | `\"createTargetIfMissing\": true` |\n| `Reject-If-Content-Preexists: true` | `\"rejectIfContentPreexists\": true` |\n| `Trim-Target-Whitespace` | *(dropped; the engine owns boundary whitespace)* |\n",
+        "parameters": [
+          {
+            "description": "Path to the relevant file (relative to your vault root).\n Optionally, you may include a reference to target a sub-part of the document; see \"Targeting a Sub-part of your Document\" for details.",
+            "in": "path",
+            "name": "filename",
+            "required": true,
+            "schema": {
+              "format": "path",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Selects which markdown-patch format governs this request. You do not normally\nneed to send this header. By default (2.0), a PATCH carries its whole instruction\nin the JSON request body, the document map returns a nested heading tree plus a\n`version` token, and a sub-part of a document is targeted with URL path elements\n(e.g. `.../heading/My%20Section`). Set it to `1` to opt into the deprecated 1.x\nbehavior: the header-driven PATCH format, header-based targeting\n(`Target-Type`/`Target`/`Target-Delimiter`/`Target-Scope`) on GET/PUT/POST, and\nthe `::`-joined document map. Responses served by 1.x carry a\n`Deprecation: true; sunset-version=\"6.0\"` header. Any value other than `1` or `2`\nreturns `400 InvalidPatchVersionHeader`.\n\nOne place an *explicit* `2` matters: PATCH's raw-content mode with header-based\ntargeting. Because `Target-Type`/`Target` headers on a PATCH are ambiguous between\nthe 1.x format and raw-content mode, a PATCH carrying them without this header is\nrejected with `400 PatchHeaderTargetingRequiresExplicitVersion` \u2014 send `1` for the\ndeprecated engine or `2` for raw-content mode. On GET/PUT/POST, supplying those\ntargeting headers without `1` is rejected with `400 HeaderTargetingRequiresVersion1`\n(use URL path elements instead), and PATCH URL-element targeting likewise needs no\nversion header.\n",
+            "in": "header",
+            "name": "Markdown-Patch-Version",
+            "required": false,
+            "schema": {
+              "default": "2",
+              "enum": [
+                "1",
+                "2"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "Raw-content mode: the type of node the instruction targets (`heading`,\n`block`, or `frontmatter`). Must be used together with the `Target`\nheader and an explicit `Markdown-Patch-Version: 2`; alternatively, put\nthe target in the URL path (`.../heading/A/B`) and omit both headers.\nSupplying both is rejected with `422 ConflictingTargetSpecification`.\n",
+            "in": "header",
+            "name": "Target-Type",
+            "required": false,
+            "schema": {
+              "enum": [
+                "heading",
+                "block",
+                "frontmatter"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "Raw-content mode: the node the instruction targets. The encoding is\ntype-dependent, mirroring the instruction's `target` field. For a\n`heading`, the value is JSON \u2014 an array of heading texts from the top\nlevel down, or `null` for the document root \u2014 then percent-encoded:\n`[\"A\",\"B\"]` is sent as `%5B%22A%22%2C%22B%22%5D`. For a `block` or\n`frontmatter` target, the value is the plain id/key, percent-encoded if\nit contains non-ASCII characters. A heading value that does not decode\nto JSON (e.g. a bare 1.x-style `A::B` path) is rejected with\n`400 InvalidTargetHeader`.\n",
+            "in": "header",
+            "name": "Target",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Raw-content mode: the instruction's `within` \u2014 a single integer (e.g.\n`-1`) refining a heading target to one of the section's direct-body\ntop-level blocks (0-based document order, negative counting from the\nend; isolated `^id` lines are not counted). With the default `content`\nscope the body is spliced literally into that block \u2014 an `append`\n*continues* it \u2014 and a bodiless `delete` removes it; with\n`Target-Scope: markerAndContent`, `prepend`/`append` insert the body as\na new block beside it. Heading targets only; cannot be combined with\n`Create-Target-If-Missing`.\n",
+            "in": "header",
+            "name": "Within",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Raw-content mode: the instruction's operation. Required whenever the\ntarget rides in the URL path or the `Target-Type`/`Target` headers.\n",
+            "in": "header",
+            "name": "Operation",
+            "required": false,
+            "schema": {
+              "enum": [
+                "replace",
+                "prepend",
+                "append",
+                "delete"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "Raw-content mode: the instruction's `scope` \u2014 `content` (default),\n`marker`, `markerAndContent`, or `parent` (a move; carries its\ndestination in the `Destination` header). See the instruction-body\ndocumentation for what each scope addresses.\n",
+            "in": "header",
+            "name": "Target-Scope",
+            "required": false,
+            "schema": {
+              "default": "content",
+              "enum": [
+                "content",
+                "marker",
+                "markerAndContent",
+                "parent"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "Raw-content mode: where a moved heading lands (`Target-Scope: parent`).\nThe instruction's `destination` object as JSON, then percent-encoded:\n`{\"parent\":[\"Appendix\"],\"place\":\"last\"}` is sent as\n`%7B%22parent%22%3A%5B%22Appendix%22%5D%2C%22place%22%3A%22last%22%7D`.\nA move carries no body.\n",
+            "in": "header",
+            "name": "Destination",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Raw-content mode: the instruction's `ifMatch` optimistic-concurrency\ntoken \u2014 the `version` from a document map, bare or wrapped in one pair\nof double quotes (RFC 9110 ETag style). A mismatch fails with `412` and\nleaves the file untouched.\n",
+            "in": "header",
+            "name": "If-Match",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "If the specified Target does not exist, create it?",
+            "in": "header",
+            "name": "Create-Target-If-Missing",
+            "required": false,
+            "schema": {
+              "default": "false",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "If patch data already exists in Target, reject the patch?",
+            "in": "header",
+            "name": "Reject-If-Content-Preexists",
+            "required": false,
+            "schema": {
+              "default": "false",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "addTag": {
+                  "summary": "Add a tag (merge into the tags list, creating it if absent)",
+                  "value": {
+                    "createTargetIfMissing": true,
+                    "operation": "append",
+                    "target": "tags",
+                    "targetType": "frontmatter",
+                    "value": [
+                      "project/active"
+                    ]
+                  }
+                },
+                "appendToBlock": {
+                  "summary": "Append text to a block addressed by its reference id",
+                  "value": {
+                    "content": "More detail for this block.",
+                    "operation": "append",
+                    "target": "2c7cfa",
+                    "targetType": "block"
+                  }
+                },
+                "appendUnderHeading": {
+                  "summary": "Append text below a heading",
+                  "value": {
+                    "content": "Hello",
+                    "operation": "append",
+                    "target": [
+                      "Heading 1",
+                      "Subheading 1:1:1"
+                    ],
+                    "targetType": "heading"
+                  }
+                },
+                "continueList": {
+                  "summary": "Continue an existing list in place (within: positional block edit)",
+                  "value": {
+                    "content": "\n- new item",
+                    "operation": "append",
+                    "target": [
+                      "Log"
+                    ],
+                    "targetType": "heading",
+                    "within": -1
+                  }
+                },
+                "moveSection": {
+                  "summary": "Move a heading section under a new parent",
+                  "value": {
+                    "destination": {
+                      "parent": [
+                        "Appendix"
+                      ],
+                      "place": "last"
+                    },
+                    "operation": "replace",
+                    "scope": "parent",
+                    "target": [
+                      "Overview",
+                      "Details"
+                    ],
+                    "targetType": "heading"
+                  }
+                },
+                "setFrontmatter": {
+                  "summary": "Set a frontmatter field to a JSON value",
+                  "value": {
+                    "operation": "replace",
+                    "target": "alpha",
+                    "targetType": "frontmatter",
+                    "value": 2
+                  }
+                }
+              },
+              "schema": {
+                "$ref": "#/components/schemas/PatchInstruction"
+              }
+            },
+            "application/vnd.olrapi.patch-instruction+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchInstruction"
+              }
+            },
+            "text/markdown": {
+              "schema": {
+                "example": "- A raw markdown line: no JSON escaping needed.\n",
+                "type": "string"
+              }
+            }
+          },
+          "description": "Instruction mode: a single patch instruction as JSON (`application/json`, or\n`application/vnd.olrapi.patch-instruction+json` to declare it explicitly).\nRaw-content mode: the raw payload \u2014 a `text/markdown` body is the instruction's\n`content` carrier, an `application/json` body its `value` carrier, and no body at\nall carries nothing (a delete, or a move via the `Destination` header). An empty\nraw-mode body never clears content: a `replace` without a payload is rejected as a\nmissing carrier, so an accidentally-empty template cannot wipe a section (use an\ninstruction body with `\"content\": \"\"` to clear deliberately).\n",
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "Success. The body is the patched document. Any advisory warnings (e.g. a heading rebased past level 6) are JSON-encoded, then percent-encoded, in the `Markdown-Patch-Warnings` response header.",
+            "headers": {
+              "Markdown-Patch-Warnings": {
+                "description": "Present only when the patch produced warnings: a percent-encoded JSON array of `{ code, message }` objects (percent-encoded because a warning message embeds document text verbatim, which may contain non-ASCII characters that are not valid in a raw header value). Decode with `decodeURIComponent` before parsing as JSON.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Bad Request; the instruction was malformed, the operation\u00d7scope\u00d7targetType combination is not part of the algebra, the `Markdown-Patch-Version` header was invalid, an instruction-mode request had a non-object body, or a raw-content-mode header could not be decoded (a heading `Target` that is not percent-encoded JSON, a malformed `Destination`, an unsupported body content type). Header-based targeting without an explicit `Markdown-Patch-Version` returns `PatchHeaderTargetingRequiresExplicitVersion` here. See response message for details."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The file, or the addressed target within it, does not exist (and `createTargetIfMissing` was not set)."
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Your path references a directory instead of a file; this request method is valid only for updating files.\n"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "`rejectIfContentPreexists` was set and the content already appears in the target span."
+          },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Precondition Failed: the `ifMatch` token did not match the current document version; the file was not modified."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflicting target specifications: more than one of URL path elements, `Target-Type`/`Target` headers, and an `application/vnd.olrapi.patch-instruction+json` instruction body was supplied."
+          }
+        },
+        "summary": "Partially update content in an existing note.\n",
+        "tags": [
+          "Vault Files"
+        ]
+      },
+      "post": {
+        "description": "Appends content to the end of an existing note. If the specified file does not yet exist, it will be created as an empty file.\n\n# Targeting a Sub-part of your Document\n\nYou can operate on a specific section of a note instead of the whole file by embedding a target in the URL path, immediately after the note identifier. The first segment after the note is the target type, and the remaining segments address the target:\n\n- `.../heading/My%20Section` targets the section beneath the `My Section` heading \u2014 the body content below the heading line.\n- For a nested heading, add one path segment per level: `.../heading/My%20Section/Subsection` targets `Subsection` under `My Section`. Because each level is its own segment, a heading whose text contains `::` (or any other delimiter) needs no escaping.\n- `.../block/abc123` targets the block with reference ID `abc123`.\n- `.../frontmatter/fieldName` targets the `fieldName` frontmatter field.\n\nPercent-encode any segment that contains non-ASCII characters or a literal `/` (e.g. `H%C3%A9llo` for `H\u00e9llo`, or `TODO%2FDONE` for a heading named `TODO/DONE`). Each URL path segment is decoded on its own, so an encoded `%2F` stays a literal slash *inside* that one segment rather than acting as a separator \u2014 that is what lets a heading name contain a slash. The same rule applies to the note path itself: because a file or folder name can never contain a slash, the note must be addressed with real `/` separators between its path components (`/vault/folder/note.md`), not with the separators encoded (`/vault/folder%2Fnote.md`), which no longer resolves.\n\nIf a document has a duplicate sibling heading (the same text repeated under the same parent) or a duplicate block reference ID, only the first occurrence is addressable by its plain text/id. Each later occurrence gets its own address with a non-printable marker suffix appended by the server \u2014 fetch the document map (`Accept: application/vnd.olrapi.document-map+json`) and copy that occurrence's key verbatim; don't try to type or reconstruct the marker yourself.\n\n`GET` returns just the addressed section. By default that is the target's `content` scope; add a `Target-Scope` header to read the `marker` (the label \u2014 a heading's raw text, a block's bare id, a frontmatter key) or `markerAndContent` (the whole node, in exactly the shape a PATCH `replace` at that scope consumes \u2014 a heading subtree comes back with its own line as `# Title`, levels relative to its parent, so a read-modify-write never counts `#`s). `PUT` replaces the section and `POST` appends to it, with heading levels normalized and separator whitespace managed for you. `PATCH` also accepts a URL target \u2014 its raw-content mode \u2014 with the operation and other instruction fields in headers (`Operation`, `Target-Scope`, \u2026) and the raw payload as the body. For the full instruction algebra (renames, moves, deletes, typed frontmatter values), see the PATCH documentation.\n\nOn `PUT` and `POST`, the `Content-Type` of your request body selects how the payload is interpreted, and not every target accepts both:\n\n- A `text/markdown` body is literal markdown. Valid for `heading` and `block` targets. On a `frontmatter` target it is stored as the field's plain string value.\n- An `application/json` body is structured data. On a `block` target that addresses a table, it is a 2-D array of row cells (`[[\"Chicago\", \"16\"]]`). On a `frontmatter` target it is the field's typed value (a list, dictionary, number, or string). A `heading` target has no structured form \u2014 its body is markdown text \u2014 so a JSON body there is rejected with `400 InvalidPatchInstruction` rather than being stringified into your note.\n\n## Deprecated: header-based targeting\n\nEarlier releases addressed a sub-part with `Target-Type`, `Target`, and `Target-Delimiter` request headers (plus `Target-Scope` and `Trim-Target-Whitespace`) rather than URL path segments. **That form is deprecated and will be removed in 6.0.** It is only processed when you also send `Markdown-Patch-Version: 1`, and responses served that way carry a `Deprecation: true; sunset-version=\"6.0\"` header. On GET/PUT/POST, supplying those targeting headers without that version is rejected with `400 HeaderTargetingRequiresVersion1` \u2014 reach the sub-part with URL path segments instead. (On PATCH, `Target-Type`/`Target` headers also have a *non-deprecated* meaning under an explicit `Markdown-Patch-Version: 2` \u2014 raw-content mode, with a different `Target` encoding; see the PATCH documentation.) Supplying both URL-path targeting and the header form in one request fails with `422 ConflictingTargetSpecification`.\n\nWhen a target is specified the content is appended within that section and the full updated file content is returned with a `200` status. Without a target, the content is appended to the end of the file and a `204` status is returned.\n\nIf you need `prepend` or `replace` operations, use `PATCH` instead.\n",
+        "parameters": [
+          {
+            "description": "Path to the relevant file (relative to your vault root).\n Optionally, you may include a reference to target a sub-part of the document; see \"Targeting a Sub-part of your Document\" for details.",
+            "in": "path",
+            "name": "filename",
+            "required": true,
+            "schema": {
+              "format": "path",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Selects which markdown-patch format governs this request. You do not normally\nneed to send this header. By default (2.0), a PATCH carries its whole instruction\nin the JSON request body, the document map returns a nested heading tree plus a\n`version` token, and a sub-part of a document is targeted with URL path elements\n(e.g. `.../heading/My%20Section`). Set it to `1` to opt into the deprecated 1.x\nbehavior: the header-driven PATCH format, header-based targeting\n(`Target-Type`/`Target`/`Target-Delimiter`/`Target-Scope`) on GET/PUT/POST, and\nthe `::`-joined document map. Responses served by 1.x carry a\n`Deprecation: true; sunset-version=\"6.0\"` header. Any value other than `1` or `2`\nreturns `400 InvalidPatchVersionHeader`.\n\nOne place an *explicit* `2` matters: PATCH's raw-content mode with header-based\ntargeting. Because `Target-Type`/`Target` headers on a PATCH are ambiguous between\nthe 1.x format and raw-content mode, a PATCH carrying them without this header is\nrejected with `400 PatchHeaderTargetingRequiresExplicitVersion` \u2014 send `1` for the\ndeprecated engine or `2` for raw-content mode. On GET/PUT/POST, supplying those\ntargeting headers without `1` is rejected with `400 HeaderTargetingRequiresVersion1`\n(use URL path elements instead), and PATCH URL-element targeting likewise needs no\nversion header.\n",
+            "in": "header",
+            "name": "Markdown-Patch-Version",
+            "required": false,
+            "schema": {
+              "default": "2",
+              "enum": [
+                "1",
+                "2"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "If the specified Target does not exist, create it?",
+            "in": "header",
+            "name": "Create-Target-If-Missing",
+            "required": false,
+            "schema": {
+              "default": "false",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "If patch data already exists in Target, reject the patch?",
+            "in": "header",
+            "name": "Reject-If-Content-Preexists",
+            "required": false,
+            "schema": {
+              "default": "false",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "text/markdown": {
+              "schema": {
+                "example": "# This is my document\n\nsomething else here\n",
+                "type": "string"
+              }
+            }
+          },
+          "description": "Content you would like to append.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/markdown": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Success; content appended to the targeted section (via URL path elements). The full updated file content is returned. Any advisory warnings (e.g. a heading rebased past level 6) are JSON-encoded, then percent-encoded, in the `Markdown-Patch-Warnings` response header.",
+            "headers": {
+              "Markdown-Patch-Warnings": {
+                "description": "Present only when the write produced warnings: a percent-encoded JSON array of `{ code, message }` objects. Decode with `decodeURIComponent` before parsing as JSON.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Success; content appended to end of file."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Your path references a directory instead of a file; this request method is valid only for updating files.\n"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "`Reject-If-Content-Preexists` was set and the content already appears in the targeted section."
+          }
+        },
+        "summary": "Append content to a new or existing file.\n",
+        "tags": [
+          "Vault Files"
+        ]
+      },
+      "put": {
+        "description": "Creates a new file in your vault or updates the content of an existing one if the specified file already exists.\n\nAny content type is accepted: a request body that is not text or JSON is stored as raw bytes, so attachments -- images, PDFs, audio -- can be uploaded here as well as notes. There is no size limit beyond the request-size cap.\n\n# Targeting a Sub-part of your Document\n\nYou can operate on a specific section of a note instead of the whole file by embedding a target in the URL path, immediately after the note identifier. The first segment after the note is the target type, and the remaining segments address the target:\n\n- `.../heading/My%20Section` targets the section beneath the `My Section` heading \u2014 the body content below the heading line.\n- For a nested heading, add one path segment per level: `.../heading/My%20Section/Subsection` targets `Subsection` under `My Section`. Because each level is its own segment, a heading whose text contains `::` (or any other delimiter) needs no escaping.\n- `.../block/abc123` targets the block with reference ID `abc123`.\n- `.../frontmatter/fieldName` targets the `fieldName` frontmatter field.\n\nPercent-encode any segment that contains non-ASCII characters or a literal `/` (e.g. `H%C3%A9llo` for `H\u00e9llo`, or `TODO%2FDONE` for a heading named `TODO/DONE`). Each URL path segment is decoded on its own, so an encoded `%2F` stays a literal slash *inside* that one segment rather than acting as a separator \u2014 that is what lets a heading name contain a slash. The same rule applies to the note path itself: because a file or folder name can never contain a slash, the note must be addressed with real `/` separators between its path components (`/vault/folder/note.md`), not with the separators encoded (`/vault/folder%2Fnote.md`), which no longer resolves.\n\nIf a document has a duplicate sibling heading (the same text repeated under the same parent) or a duplicate block reference ID, only the first occurrence is addressable by its plain text/id. Each later occurrence gets its own address with a non-printable marker suffix appended by the server \u2014 fetch the document map (`Accept: application/vnd.olrapi.document-map+json`) and copy that occurrence's key verbatim; don't try to type or reconstruct the marker yourself.\n\n`GET` returns just the addressed section. By default that is the target's `content` scope; add a `Target-Scope` header to read the `marker` (the label \u2014 a heading's raw text, a block's bare id, a frontmatter key) or `markerAndContent` (the whole node, in exactly the shape a PATCH `replace` at that scope consumes \u2014 a heading subtree comes back with its own line as `# Title`, levels relative to its parent, so a read-modify-write never counts `#`s). `PUT` replaces the section and `POST` appends to it, with heading levels normalized and separator whitespace managed for you. `PATCH` also accepts a URL target \u2014 its raw-content mode \u2014 with the operation and other instruction fields in headers (`Operation`, `Target-Scope`, \u2026) and the raw payload as the body. For the full instruction algebra (renames, moves, deletes, typed frontmatter values), see the PATCH documentation.\n\nOn `PUT` and `POST`, the `Content-Type` of your request body selects how the payload is interpreted, and not every target accepts both:\n\n- A `text/markdown` body is literal markdown. Valid for `heading` and `block` targets. On a `frontmatter` target it is stored as the field's plain string value.\n- An `application/json` body is structured data. On a `block` target that addresses a table, it is a 2-D array of row cells (`[[\"Chicago\", \"16\"]]`). On a `frontmatter` target it is the field's typed value (a list, dictionary, number, or string). A `heading` target has no structured form \u2014 its body is markdown text \u2014 so a JSON body there is rejected with `400 InvalidPatchInstruction` rather than being stringified into your note.\n\n## Deprecated: header-based targeting\n\nEarlier releases addressed a sub-part with `Target-Type`, `Target`, and `Target-Delimiter` request headers (plus `Target-Scope` and `Trim-Target-Whitespace`) rather than URL path segments. **That form is deprecated and will be removed in 6.0.** It is only processed when you also send `Markdown-Patch-Version: 1`, and responses served that way carry a `Deprecation: true; sunset-version=\"6.0\"` header. On GET/PUT/POST, supplying those targeting headers without that version is rejected with `400 HeaderTargetingRequiresVersion1` \u2014 reach the sub-part with URL path segments instead. (On PATCH, `Target-Type`/`Target` headers also have a *non-deprecated* meaning under an explicit `Markdown-Patch-Version: 2` \u2014 raw-content mode, with a different `Target` encoding; see the PATCH documentation.) Supplying both URL-path targeting and the header form in one request fails with `422 ConflictingTargetSpecification`.\n\nWhen a target is specified the target section is replaced with the request body and the full updated file content is returned with a `200` status. If the target does not exist it will be created. Without a target, the entire file is replaced and a `204` status is returned.\n",
+        "parameters": [
+          {
+            "description": "Path to the relevant file (relative to your vault root).\n Optionally, you may include a reference to target a sub-part of the document; see \"Targeting a Sub-part of your Document\" for details.",
+            "in": "path",
+            "name": "filename",
+            "required": true,
+            "schema": {
+              "format": "path",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Selects which markdown-patch format governs this request. You do not normally\nneed to send this header. By default (2.0), a PATCH carries its whole instruction\nin the JSON request body, the document map returns a nested heading tree plus a\n`version` token, and a sub-part of a document is targeted with URL path elements\n(e.g. `.../heading/My%20Section`). Set it to `1` to opt into the deprecated 1.x\nbehavior: the header-driven PATCH format, header-based targeting\n(`Target-Type`/`Target`/`Target-Delimiter`/`Target-Scope`) on GET/PUT/POST, and\nthe `::`-joined document map. Responses served by 1.x carry a\n`Deprecation: true; sunset-version=\"6.0\"` header. Any value other than `1` or `2`\nreturns `400 InvalidPatchVersionHeader`.\n\nOne place an *explicit* `2` matters: PATCH's raw-content mode with header-based\ntargeting. Because `Target-Type`/`Target` headers on a PATCH are ambiguous between\nthe 1.x format and raw-content mode, a PATCH carrying them without this header is\nrejected with `400 PatchHeaderTargetingRequiresExplicitVersion` \u2014 send `1` for the\ndeprecated engine or `2` for raw-content mode. On GET/PUT/POST, supplying those\ntargeting headers without `1` is rejected with `400 HeaderTargetingRequiresVersion1`\n(use URL path elements instead), and PATCH URL-element targeting likewise needs no\nversion header.\n",
+            "in": "header",
+            "name": "Markdown-Patch-Version",
+            "required": false,
+            "schema": {
+              "default": "2",
+              "enum": [
+                "1",
+                "2"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "If patch data already exists in Target, reject the patch?",
+            "in": "header",
+            "name": "Reject-If-Content-Preexists",
+            "required": false,
+            "schema": {
+              "default": "false",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "text/markdown": {
+              "schema": {
+                "example": "# This is my document\n\nsomething else here\n",
+                "type": "string"
+              }
+            }
+          },
+          "description": "Content of the file you would like to upload.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/markdown": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Success; targeted section replaced (via URL path elements). The full updated file content is returned. Any advisory warnings (e.g. a heading rebased past level 6) are JSON-encoded, then percent-encoded, in the `Markdown-Patch-Warnings` response header.",
+            "headers": {
+              "Markdown-Patch-Warnings": {
+                "description": "Present only when the write produced warnings: a percent-encoded JSON array of `{ code, message }` objects. Decode with `decodeURIComponent` before parsing as JSON.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Success; entire file replaced."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Incoming file could not be processed.  Make sure you have specified a reasonable file name, and make sure you have set a reasonable 'Content-Type' header; if you are uploading a note, 'text/markdown' is likely the right choice.\n"
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Your path references a directory instead of a file; this request method is valid only for updating files.\n"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "`Reject-If-Content-Preexists` was set and the content already appears in the targeted section."
+          }
+        },
+        "summary": "Create a new file in your vault or update the content of an existing one.\n",
+        "tags": [
+          "Vault Files"
+        ]
+      }
+    },
+    "/vault/{pathToDirectory}/": {
+      "get": {
+        "parameters": [
+          {
+            "description": "Path to list files from (relative to your vault root).  Note that empty directories will not be returned.\n\nNote: this particular interactive tool requires that you provide an argument for this field, but the API itself will allow you to list the root folder of your vault. If you would like to try listing content in the root of your vault using this interactive tool, use the above \"List files that exist in the root of your vault\" form above.\n",
+            "in": "path",
+            "name": "pathToDirectory",
+            "required": true,
+            "schema": {
+              "format": "path",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "files": [
+                    "mydocument.md",
+                    "somedirectory/"
+                  ]
+                },
+                "schema": {
+                  "properties": {
+                    "files": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Directory does not exist"
+          }
+        },
+        "summary": "List files that exist in the specified directory.\n",
+        "tags": [
+          "Vault Directories"
+        ]
+      }
+    }
+  },
+  "security": [
+    {
+      "apiKeyAuth": []
+    }
+  ],
+  "servers": [
+    {
+      "url": "http://127.0.0.1:27123",
+      "description": "The Local REST API plugin, enabled inside Obsidian. HTTPS runs on 27124 with a self-signed certificate."
+    }
+  ],
+  "tags": [
+    {
+      "name": "Vault Files"
+    },
+    {
+      "name": "Active File"
+    },
+    {
+      "name": "Vault Directories"
+    },
+    {
+      "name": "Search"
+    },
+    {
+      "name": "Commands"
+    },
+    {
+      "name": "Open"
+    },
+    {
+      "name": "System"
+    },
+    {
+      "name": "MCP"
+    }
+  ],
+  "x-topics": [
+    {
+      "content": "# Migrating from 1.x to 2.x\n\nVersion 5.0 of this plugin upgraded its markdown-editing engine ([markdown-patch](https://github.com/coddingtonbear/markdown-patch)) from 1.x to 2.x, and the 2.x conventions are now the **default** for PATCH requests, sub-document targeting, and the document map.\n\n> **Version numbers, disambiguated:** \"1.x\" and \"2.x\" in this guide refer to the *markdown-patch format*, selected per-request with the `Markdown-Patch-Version` header. The *plugin* switched defaults in its 5.0 release and will remove the 1.x format entirely in 6.0.\n\nThe 1.x format still works \u2014 send `Markdown-Patch-Version: 1` \u2014 but it is **deprecated and will be removed in plugin 6.0**. Every response served the 1.x way carries a `Deprecation: true; sunset-version=\"6.0\"` header so you can spot lingering legacy traffic in your client logs.\n\n# Am I affected?\n\nYou are affected if you:\n\n- send **PATCH** requests that spread the instruction across `Operation`, `Target-Type`, `Target`, `Target-Delimiter`, `Target-Scope`, `Create-Target-If-Missing`, `Reject-If-Content-Preexists`, or `Trim-Target-Whitespace` headers;\n- target a heading, block, or frontmatter field on **GET, PUT, or POST** using `Target-Type` / `Target` / `Target-Delimiter` headers;\n- consume the **document map** (`Accept: application/vnd.olrapi.document-map+json`);\n- parse the **`MD-Patch-Warnings`** response header;\n- use the **MCP tools** `vault_patch`, `vault_read` (with a heading target), or `vault_get_document_map`.\n\nYou are **not** affected if you only read and write whole files, search, or use the active-file endpoints without section targeting.\n\n# Nothing fails silently\n\nOld-style requests sent without a version header are rejected loudly rather than reinterpreted:\n\n| Legacy request shape (no version header) | Result |\n| --- | --- |\n| GET/PUT/POST with `Target-Type`/`Target` headers | `400 HeaderTargetingRequiresVersion1` |\n| PATCH with `Target-Type`/`Target` headers | `400 PatchHeaderTargetingRequiresExplicitVersion` |\n| PATCH with a non-object body and no targeting | `400 InvalidPatchInstruction` |\n| Any `Markdown-Patch-Version` other than `1` or `2` | `400 InvalidPatchVersionHeader` |\n\n(The PATCH header case is ambiguous by design: `Target-Type`/`Target` on a PATCH mean the deprecated 1.x format under version `1`, but [raw-content mode](#raw-content-mode-the-low-effort-migration) under an explicit version `2` \u2014 so the server refuses to guess.)\n\n**The stopgap:** add `Markdown-Patch-Version: 1` to every affected request and everything behaves exactly as before \u2014 including the `::`-joined document map on GET. That buys you until plugin 6.0, no other changes required.\n\n# Migrating PATCH requests\n\nThe 2.x PATCH carries the whole instruction as one JSON body instead of scattering it across headers.\n\n**Before (1.x):**\n\n```sh\ncurl -k -X PATCH \\\n  -H \"Authorization: Bearer $API_KEY\" \\\n  -H \"Operation: append\" \\\n  -H \"Target-Type: heading\" \\\n  -H \"Target: Heading 1::Subheading 1:1\" \\\n  -H \"Content-Type: text/markdown\" \\\n  --data \"Hello\" \\\n  \"https://127.0.0.1:27124/vault/note.md\"\n```\n\n**After (2.x):**\n\n```sh\ncurl -k -X PATCH \\\n  -H \"Authorization: Bearer $API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  --data '{\"targetType\": \"heading\", \"target\": [\"Heading 1\", \"Subheading 1:1\"], \"operation\": \"append\", \"content\": \"Hello\"}' \\\n  \"https://127.0.0.1:27124/vault/note.md\"\n```\n\nField-by-field:\n\n| 1.x header | 2.x instruction field |\n| --- | --- |\n| `Operation: append` | `\"operation\": \"append\"` (now also `\"delete\"`) |\n| `Target-Type: heading` | `\"targetType\": \"heading\"` |\n| `Target: A::B` (+ `Target-Delimiter`) | `\"target\": [\"A\", \"B\"]` \u2014 a real array, no delimiter |\n| `Target-Scope: content` | `\"scope\": \"content\"` (adds `\"parent\"` for moves) |\n| body (`text/markdown`) | `\"content\": \"...\"` |\n| body (`application/json` value) | `\"value\": <json>` |\n| `Create-Target-If-Missing: true` | `\"createTargetIfMissing\": true` |\n| `Reject-If-Content-Preexists: true` | `\"rejectIfContentPreexists\": true` |\n| `Trim-Target-Whitespace` | *(dropped \u2014 see below)* |\n\nThings that changed meaning along the way:\n\n- **Heading targets are arrays.** `\"target\": [\"A\", \"B\"]` replaces `A::B`. A heading whose text contains `::` (or any other would-be delimiter) needs no escaping, and `Target-Delimiter` is gone. For a block, `target` is the bare id without `^`; for frontmatter, the key name.\n- **Renaming a heading no longer takes `#` characters.** Under 1.x you supplied the full heading line (`## New Name`); under 2.x, `scope: \"marker\"` with `\"content\": \"New Name\"` renames the heading while preserving its level. The `#`s are *not* stripped anymore \u2014 if you keep sending them, they become literal text in the heading. If you are migrating, drop them.\n- **Frontmatter values are typed JSON.** Send them in `\"value\"` (a list, dict, number, or string), not as a serialized string body.\n\nSee the PATCH operation documentation for the full instruction algebra \u2014 scopes, moves (`scope: \"parent\"` with a `destination`), deletes, and table-row writes.\n\n## Raw-content mode: the low-effort migration\n\nIf your client *templates* markdown into the request body (Shortcuts, Tasker, curl from a shell variable), JSON-escaping that content is fragile. Raw-content mode keeps the 1.x posture \u2014 instruction outside the body, raw payload in it \u2014 but moves the target into URL path elements:\n\n```sh\ncurl -k -X PATCH \\\n  -H \"Authorization: Bearer $API_KEY\" \\\n  -H \"Operation: append\" \\\n  -H \"Content-Type: text/markdown\" \\\n  --data \"- $TEMPLATED_CONTENT\" \\\n  \"https://127.0.0.1:27124/vault/note.md/heading/Heading%201/Subheading%201:1\"\n```\n\nFor many 1.x clients this migration is just \"delete the `Target-Type`/`Target`/`Target-Delimiter` headers and append the target to the URL, one path segment per heading level.\" `Operation`, `Target-Scope` (all four scopes), `Create-Target-If-Missing`, and `Reject-If-Content-Preexists` headers all still work here; `Target-Delimiter` and `Trim-Target-Whitespace` are rejected. A `text/*` body carries `content`, an `application/json` body carries `value`, and no body carries nothing (a `delete`, or a move via a `Destination` header).\n\nHeader-based targeting (`Target-Type`/`Target` instead of URL elements) also exists in raw-content mode, but requires an explicit `Markdown-Patch-Version: 2` and encodes a heading `Target` as percent-encoded JSON \u2014 see the PATCH operation documentation.\n\n# Migrating targeted GET/PUT/POST requests\n\nHeader-based targeting on reads and writes is deprecated wholesale; the URL is the target now.\n\n**Before (1.x):**\n\n```sh\ncurl -k -H \"Authorization: Bearer $API_KEY\" \\\n  -H \"Target-Type: heading\" \\\n  -H \"Target: Heading 1::Subheading 1:1\" \\\n  \"https://127.0.0.1:27124/vault/note.md\"\n```\n\n**After (2.x):**\n\n```sh\ncurl -k -H \"Authorization: Bearer $API_KEY\" \\\n  \"https://127.0.0.1:27124/vault/note.md/heading/Heading%201/Subheading%201:1\"\n```\n\nEach nested heading level is its own path segment. Percent-encode any segment containing non-ASCII characters or a literal `/` (`TODO%2FDONE` for a heading named `TODO/DONE` \u2014 each segment is decoded individually, so an encoded slash stays inside its segment). `block` and `frontmatter` targets work the same way: `.../block/abc123`, `.../frontmatter/fieldName`.\n\nSending both URL-path targeting and the header form in one request fails with `422 ConflictingTargetSpecification`.\n\n# The document map changed shape\n\n`GET /vault/{path}` with `Accept: application/vnd.olrapi.document-map+json` now returns the 2.0 map.\n\n**Before (1.x):**\n\n```json\n{\n  \"headings\": [\"Heading 1\", \"Heading 1::Subheading 1:1\", \"Heading 2\"],\n  \"blocks\": [\"484ef2\"],\n  \"frontmatterFields\": [\"alpha\", \"beta\"]\n}\n```\n\n**After (2.x):**\n\n```json\n{\n  \"headings\": {\n    \"Heading 1\": { \"Subheading 1:1\": {} },\n    \"Heading 2\": {}\n  },\n  \"blocks\": [\"484ef2\"],\n  \"frontmatterFields\": [\"alpha\", \"beta\"],\n  \"version\": \"3f9a1c\"\n}\n```\n\n- **`headings` is a nested tree**, not a flat list of `::`-joined paths. Each key maps to its child headings; a path through the tree is exactly the array you send as a heading `target`.\n- **`version` is new**: a content-hash token. Pass it back as `ifMatch` in a PATCH instruction (or an `If-Match` header in raw-content mode) for optimistic concurrency \u2014 if the file changed in between, the patch fails with `412` and the file is untouched.\n- **Duplicates are now addressable.** If a heading has a duplicate sibling (same text, same parent) or a block id repeats, the first occurrence keeps its plain key and each later occurrence's key carries a non-printable marker suffix. Copy that key verbatim from the map into your `target` \u2014 don't try to type or reconstruct the marker.\n\nSending `Markdown-Patch-Version: 1` still returns the old flat map (with the `Deprecation` header) until plugin 6.0.\n\n# Behavior changes to watch for\n\n- **Whitespace is library-owned.** The 2.x engine reduces your `content` to trimmed, canonical form (leading and trailing blank lines are meaningless) and itself supplies the blank line wherever inserted content faces body text, so a naive `append` or `prepend` always lands as its own block and can never merge into an existing paragraph; `Trim-Target-Whitespace` is gone because there is nothing left for it to fix. If your 1.x client added `\\n` padding to manage spacing, it is now ignored \u2014 and a `content`-scope `append` can no longer continue an existing list or paragraph (use a `^id` block target for inline edits).\n- **Heading levels in `content` are relative.** A leading `#` becomes a direct child of the target regardless of the target's own depth \u2014 you never count `#`s. A level rebased past h6 still writes, but adds a `heading-depth-overflow` warning.\n- **The warnings header was renamed** from `MD-Patch-Warnings` to `Markdown-Patch-Warnings`, and its JSON value is now percent-encoded so warnings can embed non-ASCII document text. Run it through `decodeURIComponent` before parsing.\n- **URL targets on `/active/` PATCH now work.** Previously a suffix like `/active/heading/Log` was silently ignored on PATCH and the whole file was patched; it now targets the addressed section, matching PUT/POST.\n- **Cleaner error mapping.** Unparseable frontmatter YAML is a `400`, a frontmatter key collision is a `409`, a mismatched table row or a cell containing a line break is a `400`, and an `ifMatch`/`If-Match` mismatch is a `412` \u2014 cases that previously surfaced as generic errors or `500`s.\n\n# MCP tool changes\n\nThe MCP tools moved to 2.x with no version escape hatch:\n\n- **`vault_patch`** accepts only the 2.0 JSON instruction shape described above.\n- **`vault_read`** requires a heading target to be an array of heading texts; a bare `\"A::B\"` string is rejected rather than split on `::`.\n- **`vault_get_document_map`** returns the nested-tree map with the `version` token.\n\n# What's new that you couldn't do before\n\nMigrating unlocks more than parity:\n\n- `operation: \"delete\"` \u2014 remove a section, its body, or just its heading line, without a read-modify-write.\n- `scope: \"parent\"` \u2014 move a heading section elsewhere in the tree, with levels rebased for you.\n- Optimistic concurrency via `version`/`ifMatch` (`412` on conflict).\n- Table-row writes: pass a 2-D JSON array in `value` to a block target that addresses a table; cell content is escaped for you.\n- Duplicate headings and repeated block ids are individually addressable via the document map.\n- Headings containing `::` or `/` are targetable with no escaping gymnastics.\n\n# Timeline\n\n| Plugin version | markdown-patch 1.x format | markdown-patch 2.x format |\n| --- | --- | --- |\n| < 5.0 | default | \u2014 |\n| 5.0 | deprecated; opt in with `Markdown-Patch-Version: 1` (responses carry `Deprecation: true; sunset-version=\"6.0\"`) | **default** |\n| 6.0 | **removed** | default |\n",
+      "title": "Migrating from 1.x to 2.x"
+    }
+  ]
+}
