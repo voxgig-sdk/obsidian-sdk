@@ -7,7 +7,7 @@
 # SDK Details.
 name: 'obsidian'
 origin: 'voxgig-sdk'
-def: 'obsidian-vault-only.json'
+def: 'obsidian-local-rest-api-openapi.yaml'
 
 
 # API Information
