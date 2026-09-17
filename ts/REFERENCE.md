@@ -49,6 +49,90 @@ const client = ObsidianSDK.test()
 
 ### Instance Methods
 
+#### `Active(data?: object)`
+
+Create a new `Active` entity instance.
+
+**Parameters:**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| `data` | `object` | Initial entity data. |
+
+**Returns:** `ActiveEntity` instance.
+
+#### `Command(data?: object)`
+
+Create a new `Command` entity instance.
+
+**Parameters:**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| `data` | `object` | Initial entity data. |
+
+**Returns:** `CommandEntity` instance.
+
+#### `Entity1(data?: object)`
+
+Create a new `Entity1` entity instance.
+
+**Parameters:**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| `data` | `object` | Initial entity data. |
+
+**Returns:** `Entity1Entity` instance.
+
+#### `Mcp(data?: object)`
+
+Create a new `Mcp` entity instance.
+
+**Parameters:**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| `data` | `object` | Initial entity data. |
+
+**Returns:** `McpEntity` instance.
+
+#### `Open(data?: object)`
+
+Create a new `Open` entity instance.
+
+**Parameters:**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| `data` | `object` | Initial entity data. |
+
+**Returns:** `OpenEntity` instance.
+
+#### `Search(data?: object)`
+
+Create a new `Search` entity instance.
+
+**Parameters:**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| `data` | `object` | Initial entity data. |
+
+**Returns:** `SearchEntity` instance.
+
+#### `System(data?: object)`
+
+Create a new `System` entity instance.
+
+**Parameters:**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| `data` | `object` | Initial entity data. |
+
+**Returns:** `SystemEntity` instance.
+
 #### `Tag(data?: object)`
 
 Create a new `Tag` entity instance.
@@ -115,6 +199,434 @@ same parameters as `direct()`.
 Alias for `ObsidianSDK.test()`.
 
 **Returns:** `ObsidianSDK` instance in test mode.
+
+
+---
+
+## ActiveEntity
+
+```ts
+const active = client.Active()
+```
+
+### Fields
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `content` | `string` | No | String payload: a heading/block body or label, a new block id for a block `marker` rename (letters, numbers, hyphens, and underscores only), or a new frontmatter key name for a frontmatter `marker` rename. |
+| `createTargetIfMissing` | `boolean` | No | Create the target (heading path, block id, or frontmatter key) if it does not already exist. |
+| `destination` | `Record<string, any>` | Yes | For a heading move (operation `replace`, scope `parent`): where the section is re-parented. |
+| `ifMatch` | `string` | No | Optimistic-concurrency token (the `version` from a prior document map). |
+| `operation` | `string` | Yes | What happens to the scoped span: replace it, insert before (`prepend`) or after (`append`), or `delete` it. |
+| `rejectIfContentPreexists` | `boolean` | No | Fail a `prepend`/`append` when the string content already appears in the target span (makes those operations idempotent on retry). |
+| `scope` | `string` | No | Which part of the target the operation acts on (default `content`). |
+| `target` | `any` | Yes | The node to edit. |
+| `targetType` | `string` | Yes | The kind of node to edit. |
+| `value` | `any` | No | Structured JSON payload: a frontmatter value (any JSON — string, number, boolean, array, object, null; for `prepend`/`append` this merges: list concat, dict merge, string concat), or table rows on a `block` target's `content` cell (a 2-D a… |
+| `within` | `number` | No | Refines a heading target to one of the section's direct-body top-level blocks (a paragraph, list, table, code fence, blockquote, …): 0 is the first block in document order, and a negative index counts from the end (-1 = last). |
+
+### Operations
+
+#### `create(data: object, ctrl?: object)`
+
+Create a new entity with the given data.
+
+```ts
+const result = await client.Active().create({
+  destination: {},
+  operation: 'example_operation',
+  target: 'example_target',
+  targetType: 'example_targetType',
+})
+```
+
+#### `load(match: object, ctrl?: object)`
+
+Load a single entity matching the given criteria.
+
+```ts
+const result = await client.Active().load()
+```
+
+#### `remove(match: object, ctrl?: object)`
+
+Remove the entity matching the given criteria.
+
+```ts
+const result = await client.Active().remove()
+```
+
+#### `update(data: object, ctrl?: object)`
+
+Update an existing entity. The data must include the entity `id`.
+
+```ts
+const result = await client.Active().update({
+  // Fields to update
+})
+```
+
+### Common Methods
+
+#### `data(data?: object)`
+
+Get or set the entity data. When called with data, sets the entity's
+internal data and returns the current data. When called without
+arguments, returns a copy of the current data.
+
+#### `match(match?: object)`
+
+Get or set the entity match criteria. Works the same as `data()`.
+
+#### `make()`
+
+Create a new `ActiveEntity` instance with the same client and
+options.
+
+#### `client()`
+
+Return the parent `ObsidianSDK` instance.
+
+#### `entopts()`
+
+Return a copy of the entity options.
+
+
+---
+
+## CommandEntity
+
+```ts
+const command = client.Command()
+```
+
+### Fields
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | `string` | No |  |
+| `name` | `string` | No |  |
+
+### Operations
+
+#### `create(data: object, ctrl?: object)`
+
+Create a new entity with the given data.
+
+```ts
+const result = await client.Command().create({
+  id: 'example_id',
+})
+```
+
+#### `list(match: object, ctrl?: object)`
+
+List entities matching the given criteria. Returns an array.
+
+```ts
+const results = await client.Command().list()
+```
+
+### Common Methods
+
+#### `data(data?: object)`
+
+Get or set the entity data. When called with data, sets the entity's
+internal data and returns the current data. When called without
+arguments, returns a copy of the current data.
+
+#### `match(match?: object)`
+
+Get or set the entity match criteria. Works the same as `data()`.
+
+#### `make()`
+
+Create a new `CommandEntity` instance with the same client and
+options.
+
+#### `client()`
+
+Return the parent `ObsidianSDK` instance.
+
+#### `entopts()`
+
+Return a copy of the entity options.
+
+
+---
+
+## Entity1Entity
+
+```ts
+const entity1 = client.Entity1()
+```
+
+### Fields
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `obsidian` | `string` | No | Obsidian plugin API version |
+| `self` | `string` | No | Plugin version. |
+
+### Operations
+
+#### `load(match: object, ctrl?: object)`
+
+Load a single entity matching the given criteria.
+
+```ts
+const result = await client.Entity1().load()
+```
+
+### Common Methods
+
+#### `data(data?: object)`
+
+Get or set the entity data. When called with data, sets the entity's
+internal data and returns the current data. When called without
+arguments, returns a copy of the current data.
+
+#### `match(match?: object)`
+
+Get or set the entity match criteria. Works the same as `data()`.
+
+#### `make()`
+
+Create a new `Entity1Entity` instance with the same client and
+options.
+
+#### `client()`
+
+Return the parent `ObsidianSDK` instance.
+
+#### `entopts()`
+
+Return a copy of the entity options.
+
+
+---
+
+## McpEntity
+
+```ts
+const mcp = client.Mcp()
+```
+
+### Fields
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | `string` | No | Request identifier. |
+| `jsonrpc` | `string` | Yes | JSON-RPC version. |
+| `method` | `string` | Yes | MCP method to invoke. |
+| `params` | `Record<string, any>` | No | Method-specific parameters. |
+
+### Operations
+
+#### `create(data: object, ctrl?: object)`
+
+Create a new entity with the given data.
+
+```ts
+const result = await client.Mcp().create({
+  jsonrpc: 'example_jsonrpc',
+  method: 'example_method',
+})
+```
+
+#### `load(match: object, ctrl?: object)`
+
+Load a single entity matching the given criteria.
+
+```ts
+const result = await client.Mcp().load({ id: 'mcp_id' })
+```
+
+### Common Methods
+
+#### `data(data?: object)`
+
+Get or set the entity data. When called with data, sets the entity's
+internal data and returns the current data. When called without
+arguments, returns a copy of the current data.
+
+#### `match(match?: object)`
+
+Get or set the entity match criteria. Works the same as `data()`.
+
+#### `make()`
+
+Create a new `McpEntity` instance with the same client and
+options.
+
+#### `client()`
+
+Return the parent `ObsidianSDK` instance.
+
+#### `entopts()`
+
+Return a copy of the entity options.
+
+
+---
+
+## OpenEntity
+
+```ts
+const open = client.Open()
+```
+
+### Fields
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | `string` | No |  |
+
+### Operations
+
+#### `create(data: object, ctrl?: object)`
+
+Create a new entity with the given data.
+
+```ts
+const result = await client.Open().create({
+  id: 'example_id',
+})
+```
+
+### Common Methods
+
+#### `data(data?: object)`
+
+Get or set the entity data. When called with data, sets the entity's
+internal data and returns the current data. When called without
+arguments, returns a copy of the current data.
+
+#### `match(match?: object)`
+
+Get or set the entity match criteria. Works the same as `data()`.
+
+#### `make()`
+
+Create a new `OpenEntity` instance with the same client and
+options.
+
+#### `client()`
+
+Return the parent `ObsidianSDK` instance.
+
+#### `entopts()`
+
+Return a copy of the entity options.
+
+
+---
+
+## SearchEntity
+
+```ts
+const search = client.Search()
+```
+
+### Actions
+
+This entity exposes custom API actions in addition to the standard
+operations. Select one with `$action` in the call's argument; the
+remaining keys are sent as that action's payload.
+
+| Action | Route | Call |
+| --- | --- | --- |
+| `simple` | `/search/simple/` | `client.Search().create({ $action: 'simple', ... })` |
+
+An action returns that action's OWN response, which is not necessarily a
+Search record — check the API definition for its shape.
+
+```ts
+const result = await client.Search().create({
+  $action: 'simple',
+  /* ...the action's own arguments */
+})
+```
+
+### Operations
+
+#### `create(data: object, ctrl?: object)`
+
+Create a new entity with the given data.
+
+```ts
+const result = await client.Search().create({
+})
+```
+
+### Common Methods
+
+#### `data(data?: object)`
+
+Get or set the entity data. When called with data, sets the entity's
+internal data and returns the current data. When called without
+arguments, returns a copy of the current data.
+
+#### `match(match?: object)`
+
+Get or set the entity match criteria. Works the same as `data()`.
+
+#### `make()`
+
+Create a new `SearchEntity` instance with the same client and
+options.
+
+#### `client()`
+
+Return the parent `ObsidianSDK` instance.
+
+#### `entopts()`
+
+Return a copy of the entity options.
+
+
+---
+
+## SystemEntity
+
+```ts
+const system = client.System()
+```
+
+### Operations
+
+#### `load(match: object, ctrl?: object)`
+
+Load a single entity matching the given criteria.
+
+```ts
+const result = await client.System().load()
+```
+
+### Common Methods
+
+#### `data(data?: object)`
+
+Get or set the entity data. When called with data, sets the entity's
+internal data and returns the current data. When called without
+arguments, returns a copy of the current data.
+
+#### `match(match?: object)`
+
+Get or set the entity match criteria. Works the same as `data()`.
+
+#### `make()`
+
+Create a new `SystemEntity` instance with the same client and
+options.
+
+#### `client()`
+
+Return the parent `ObsidianSDK` instance.
+
+#### `entopts()`
+
+Return a copy of the entity options.
 
 
 ---

@@ -20,7 +20,7 @@ import (
 const prompt = "obsidian"
 
 // entitiesHelp is the space-separated entity list shown by /help.
-const entitiesHelp = "tag vault"
+const entitiesHelp = "active command entity1 mcp open search system tag vault"
 
 func main() {
 	os.Exit(run(os.Args[1:], os.Stdin, os.Stdout, os.Stderr))

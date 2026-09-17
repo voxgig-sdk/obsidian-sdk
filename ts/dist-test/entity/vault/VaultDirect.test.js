@@ -137,6 +137,8 @@ function directSetup(mockres) {
         'OBSIDIAN_TEST_VAULT_ENTID': {},
         'OBSIDIAN_TEST_LIVE': 'FALSE',
         'OBSIDIAN_APIKEY': '',
+        'OBSIDIAN_SERVER_HOST': "127.0.0.1",
+        'OBSIDIAN_SERVER_PORT': "27124",
     });
     const live = 'TRUE' === env.OBSIDIAN_TEST_LIVE;
     if (live) {
@@ -145,6 +147,10 @@ function directSetup(mockres) {
         // test.client.options adds to the live client, it does not redirect it.
         const client = new __1.ObsidianSDK(Object.assign({}, (0, utility_1.liveClientOptions)(), { system: { fetch: transport.fetch },
             apikey: env.OBSIDIAN_APIKEY,
+            server: {
+                host: env.OBSIDIAN_SERVER_HOST,
+                port: env.OBSIDIAN_SERVER_PORT,
+            },
         }));
         let idmap = env['OBSIDIAN_TEST_VAULT_ENTID'];
         if ('string' === typeof idmap && idmap.startsWith('{')) {

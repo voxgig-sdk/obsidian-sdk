@@ -1,0 +1,22 @@
+# BasicOpenFlow
+
+main: kit: flow: BasicOpenFlow:
+{
+  entity: "open",
+  kind: "basic",
+  name: "BasicOpenFlow",
+  step: [
+    {
+      input: {
+        ref: "open_ref01"
+      }
+
+      match: {
+        filename: "filename01"
+      }
+
+      op: "create"
+    }
+  ],
+  "key$": "BasicOpenFlow"
+}

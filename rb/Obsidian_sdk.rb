@@ -289,6 +289,55 @@ class ObsidianSDK
   end
 
 
+  # Canonical facade: client.Active.list / client.Active.load({ "id" => ... })
+  def Active(data = nil)
+    require_relative 'entity/active_entity'
+    ActiveEntity.new(self, data)
+  end
+
+
+  # Canonical facade: client.Command.list / client.Command.load({ "id" => ... })
+  def Command(data = nil)
+    require_relative 'entity/command_entity'
+    CommandEntity.new(self, data)
+  end
+
+
+  # Canonical facade: client.Entity1.list / client.Entity1.load({ "id" => ... })
+  def Entity1(data = nil)
+    require_relative 'entity/entity1_entity'
+    Entity1Entity.new(self, data)
+  end
+
+
+  # Canonical facade: client.Mcp.list / client.Mcp.load({ "id" => ... })
+  def Mcp(data = nil)
+    require_relative 'entity/mcp_entity'
+    McpEntity.new(self, data)
+  end
+
+
+  # Canonical facade: client.Open.list / client.Open.load({ "id" => ... })
+  def Open(data = nil)
+    require_relative 'entity/open_entity'
+    OpenEntity.new(self, data)
+  end
+
+
+  # Canonical facade: client.Search.list / client.Search.load({ "id" => ... })
+  def Search(data = nil)
+    require_relative 'entity/search_entity'
+    SearchEntity.new(self, data)
+  end
+
+
+  # Canonical facade: client.System.list / client.System.load({ "id" => ... })
+  def System(data = nil)
+    require_relative 'entity/system_entity'
+    SystemEntity.new(self, data)
+  end
+
+
   # Canonical facade: client.Tag.list / client.Tag.load({ "id" => ... })
   def Tag(data = nil)
     require_relative 'entity/tag_entity'

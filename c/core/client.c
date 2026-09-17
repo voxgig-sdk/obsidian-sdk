@@ -294,6 +294,41 @@ voxgig_value* sdk_graphql(ObsidianSDK* sdk, const char* query,
 }
 
 
+// Active entity bound to this client.
+Entity* obsidian_active(ObsidianSDK* client, voxgig_value* entopts) {
+  return active_entity_new(client, entopts);
+}
+
+// Command entity bound to this client.
+Entity* obsidian_command(ObsidianSDK* client, voxgig_value* entopts) {
+  return command_entity_new(client, entopts);
+}
+
+// Entity1 entity bound to this client.
+Entity* obsidian_entity1(ObsidianSDK* client, voxgig_value* entopts) {
+  return entity1_entity_new(client, entopts);
+}
+
+// Mcp entity bound to this client.
+Entity* obsidian_mcp(ObsidianSDK* client, voxgig_value* entopts) {
+  return mcp_entity_new(client, entopts);
+}
+
+// Open entity bound to this client.
+Entity* obsidian_open(ObsidianSDK* client, voxgig_value* entopts) {
+  return open_entity_new(client, entopts);
+}
+
+// Search entity bound to this client.
+Entity* obsidian_search(ObsidianSDK* client, voxgig_value* entopts) {
+  return search_entity_new(client, entopts);
+}
+
+// System entity bound to this client.
+Entity* obsidian_system(ObsidianSDK* client, voxgig_value* entopts) {
+  return system_entity_new(client, entopts);
+}
+
 // Tag entity bound to this client.
 Entity* obsidian_tag(ObsidianSDK* client, voxgig_value* entopts) {
   return tag_entity_new(client, entopts);

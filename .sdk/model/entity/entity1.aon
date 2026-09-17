@@ -1,0 +1,47 @@
+# Entity: entity1
+
+main: kit: entity: entity1: {
+
+  alias: field: {}
+
+  fields: [
+    {
+      name: "obsidian"
+      req: false
+      short: "Obsidian plugin API version"
+      type: "`$STRING`"
+    }
+    {
+      name: "self"
+      req: false
+      short: "Plugin version."
+      type: "`$STRING`"
+    }
+  ]
+
+  name: "entity1"
+  op: {
+    load: {
+      name: "load"
+      points: [
+        {
+          contract: {
+            id: "GET /"
+            json: "{\"parameters\":[],\"protocol\":\"http\",\"responses\":{\"200\":{\"content\":{\"application/json\":{\"schema\":{\"properties\":{\"authenticated\":{\"description\":\"Is your current request authenticated?\",\"type\":\"boolean\"},\"ok\":{\"description\":\"'OK'\",\"type\":\"string\"},\"service\":{\"description\":\"'Obsidian Local REST API'\",\"type\":\"string\"},\"versions\":{\"properties\":{\"obsidian\":{\"description\":\"Obsidian plugin API version\",\"type\":\"string\"},\"self\":{\"description\":\"Plugin version.\",\"type\":\"string\"}},\"type\":\"object\"}},\"type\":\"object\"}}},\"description\":\"Success\"}},\"security\":[{\"apiKeyAuth\":[]}],\"securitySchemes\":{\"apiKeyAuth\":{\"description\":\"Find your API Key in your Obsidian settings\\nin the \\\"Local REST API\\\" section under \\\"Plugins\\\".\\n\",\"scheme\":\"bearer\",\"type\":\"http\"}},\"securitySource\":\"definition\"}"
+            source: "openapi3"
+            version: 1
+          }
+          method: "GET"
+          orig: "/"
+          transform: {
+            req: "`reqdata`"
+            res: "`body.versions`"
+          }
+        }
+      ]
+    }
+  }
+
+
+
+}

@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Mcp | Local REST API for Obsidian</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><a class="skip" href="#content">Skip to content</a>
+<header class="site-header"><a class="site-title" href="../index.html">Local REST API for Obsidian<span>SDK documentation</span></a><div class="site-links"><a class="repo-link" href="https://github.com/voxgig-sdk/obsidian-sdk">voxgig-sdk/obsidian-sdk</a></div></header>
+<div class="site-notice" role="note"></div>
+<div class="shell"><nav class="site-nav" aria-label="Documentation"><div class="search"><label for="search">Search documentation</label><input id="search" type="search" data-base="../" placeholder="Find a guide or reference"><div id="results" aria-live="polite"></div></div><details><summary>Overview</summary><a href="../index.html">Local REST API for Obsidian</a></details>
+<details open><summary>API</summary><a href="../api/index.html">API overview</a>
+<a href="../api/active.html">Active</a>
+<a href="../api/command.html">Command</a>
+<a href="../api/entity1.html">Entity1</a>
+<a aria-current="page" href="../api/mcp.html">Mcp</a><div class="nav-sections"><a class="nav-section" href="#post-mcp">POST /mcp/</a>
+<a class="nav-section" href="#get-mcp">GET /mcp/</a></div>
+<a href="../api/open.html">Open</a>
+<a href="../api/search.html">Search</a>
+<a href="../api/system.html">System</a>
+<a href="../api/tag.html">Tag</a>
+<a href="../api/vault.html">Vault</a></details>
+<details><summary>Guides</summary><a href="../guides/authentication.html">Authentication</a>
+<a href="../guides/first-call.html">Make your first API call</a>
+<a href="../guides/errors.html">Handle errors</a>
+<a href="../guides/concepts.html">Entities, SDKs, and tools</a></details>
+<details><summary>SDKs</summary><a href="../sdks/c.html">C</a>
+<a href="../sdks/go.html">Golang</a>
+<a href="../sdks/lua.html">Lua</a>
+<a href="../sdks/php.html">PHP</a>
+<a href="../sdks/py.html">Python</a>
+<a href="../sdks/rb.html">Ruby</a>
+<a href="../sdks/ts.html">TypeScript</a></details>
+<details><summary>Tools</summary><a href="../tools/go-cli.html">Go CLI</a>
+<a href="../tools/go-mcp.html">Go MCP server</a></details>
+<details><summary>Features</summary><a href="../features/debug.html">Request/response capture ring buffer for debugging</a>
+<a href="../features/idempotency.html">Idempotency keys for safe retries of mutating operations</a>
+<a href="../features/metrics.html">Statistics capture: per-operation counters and latency</a>
+<a href="../features/paging.html">Pagination signals for list operations</a>
+<a href="../features/ratelimit.html">Client-side rate limiting via a token bucket</a>
+<a href="../features/retry.html">Automatic retry of transient failures with exponential backoff</a>
+<a href="../features/test.html">In-memory mock transport for testing without a live server</a>
+<a href="../features/timeout.html">Per-request timeout with transport abort</a></details></nav><main id="content"><div class="page-context"><span class="section-dot" aria-hidden="true"></span>API</div><h1 id="mcp">Mcp</h1>
+<h2 id="operations">Operations</h2>
+<p>Every route this entity exposes. Each route links to its own reference on this page.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Route</th>
+<th>SDK operation</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST</code></td>
+<td><a href="#post-mcp"><code>/mcp/</code></a></td>
+<td><code>create</code></td>
+<td>Message handled. Response body contains the JSON-RPC result, or may be empty for notifications. On session initialization the <code>Mcp-Session-Id</code> response header contains the new session ID</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><a href="#get-mcp"><code>/mcp/</code></a></td>
+<td><code>load</code></td>
+<td>SSE stream opened. The server pushes JSON-RPC messages as server-sent events</td>
+</tr>
+</tbody>
+</table>
+<h2 id="fields">Fields</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Request identifier.</td>
+</tr>
+<tr>
+<td><code>jsonrpc</code></td>
+<td><code>string</code></td>
+<td>Yes</td>
+<td>JSON-RPC version.</td>
+</tr>
+<tr>
+<td><code>method</code></td>
+<td><code>string</code></td>
+<td>Yes</td>
+<td>MCP method to invoke.</td>
+</tr>
+<tr>
+<td><code>params</code></td>
+<td><code>object</code></td>
+<td>No</td>
+<td>Method-specific parameters.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="create">create</h2>
+<h3 id="post-mcp" class="operation" data-method="post"><code>POST</code> /mcp/</h3>
+<p>Authentication: bearer token (<code>apiKeyAuth</code>).</p>
+<h4 id="parameters">Parameters</h4>
+<p>| Parameter | In | Type | Required | Description |
+| --- | --- | --- | --- |
+| <code>Mcp-Session-Id</code> | <code>header</code> | <code>string</code> | No | Session ID returned by the server on initialization. Omit for the initial <code>initialize</code> request; required for all subsequent requests. |
+| <code>MCP-Protocol-Version</code> | <code>header</code> | <code>string</code> | No | MCP protocol version negotiated during initialization (for example <code>2025-06-18</code>). Required on all requests after initialization. Unrecognised values are rejected with 400. |</p>
+<h4 id="request-body">Request body</h4>
+<p><code>application/json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>string or number</code></td>
+<td>No</td>
+<td>Request identifier. Include for calls that expect a response; omit for notifications.</td>
+</tr>
+<tr>
+<td><code>jsonrpc</code></td>
+<td><code>enum: 2.0</code></td>
+<td>Yes</td>
+<td>JSON-RPC version. Must be &quot;2.0&quot;.</td>
+</tr>
+<tr>
+<td><code>method</code></td>
+<td><code>enum: initialize, tools/list, tools/call, resources/list, resources/read, prompts/list, ...</code></td>
+<td>Yes</td>
+<td>MCP method to invoke.</td>
+</tr>
+<tr>
+<td><code>params</code></td>
+<td><code>object</code></td>
+<td>No</td>
+<td>Method-specific parameters.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="responses">Responses</h4>
+<h5 id="200-message-handled-response-body-contains-the-json-rpc-result-or-may-be-empty-for-notifications-on-session-initialization-the-mcp-session-id-response-header-contains-the-new-session-id" class="status" data-status="2xx">200: Message handled. Response body contains the JSON-RPC result, or may be empty for notifications. On session initialization the <code>Mcp-Session-Id</code> response header contains the new session ID</h5>
+<h5 id="400-unsupported-mcp-protocol-version" class="status" data-status="4xx">400: Unsupported MCP-Protocol-Version</h5>
+<p><code>application/json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>errorCode</code></td>
+<td><code>number</code></td>
+<td>No</td>
+<td>A 5-digit error code uniquely identifying this particular type of error.</td>
+</tr>
+<tr>
+<td><code>message</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Message describing the error.</td>
+</tr>
+</tbody>
+</table>
+<h5 id="401-api-key-required" class="status" data-status="4xx">401: API key required</h5>
+<p><code>application/json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>$ref</code></td>
+<td><code>any</code></td>
+<td>No</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h5 id="404-session-not-found" class="status" data-status="4xx">404: Session not found</h5>
+<p><code>application/json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>$ref</code></td>
+<td><code>any</code></td>
+<td>No</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="load">load</h2>
+<h3 id="get-mcp" class="operation" data-method="get"><code>GET</code> /mcp/</h3>
+<p>Authentication: bearer token (<code>apiKeyAuth</code>).</p>
+<h4 id="parameters-1">Parameters</h4>
+<p>| Parameter | In | Type | Required | Description |
+| --- | --- | --- | --- |
+| <code>Mcp-Session-Id</code> | <code>header</code> | <code>string</code> | Yes | Session ID returned by the server on initialization. |
+| <code>MCP-Protocol-Version</code> | <code>header</code> | <code>string</code> | No | MCP protocol version negotiated during initialization (for example <code>2025-06-18</code>). Required on all requests after initialization. Unrecognised values are rejected with 400. |</p>
+<h4 id="responses-1">Responses</h4>
+<h5 id="200-sse-stream-opened-the-server-pushes-json-rpc-messages-as-server-sent-events" class="status" data-status="2xx">200: SSE stream opened. The server pushes JSON-RPC messages as server-sent events</h5>
+<p><code>text/event-stream</code></p>
+<p>The response is <code>string</code>.</p>
+<h5 id="400-unsupported-mcp-protocol-version-1" class="status" data-status="4xx">400: Unsupported MCP-Protocol-Version</h5>
+<p><code>application/json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>errorCode</code></td>
+<td><code>number</code></td>
+<td>No</td>
+<td>A 5-digit error code uniquely identifying this particular type of error.</td>
+</tr>
+<tr>
+<td><code>message</code></td>
+<td><code>string</code></td>
+<td>No</td>
+<td>Message describing the error.</td>
+</tr>
+</tbody>
+</table>
+<h5 id="401-api-key-required-1" class="status" data-status="4xx">401: API key required</h5>
+<p><code>application/json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>$ref</code></td>
+<td><code>any</code></td>
+<td>No</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h5 id="404-session-not-found-1" class="status" data-status="4xx">404: Session not found</h5>
+<p><code>application/json</code></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>$ref</code></td>
+<td><code>any</code></td>
+<td>No</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</main></div>
+<script src="../assets/search.js" defer></script></body></html>

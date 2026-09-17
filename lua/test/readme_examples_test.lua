@@ -20,7 +20,7 @@ local SDK_MODULE = "obsidian_sdk"
 -- A test-mode client seeded with a fixture for every entity. The constructor
 -- of each runnable snippet is rewritten to this form so the offline mock has
 -- data to return.
-local TEST_SEED = '{ entity = { ["tag"] = { ["test01"] = { id = "test01" } }, ["vault"] = { ["test01"] = { id = "test01" } } } }'
+local TEST_SEED = '{ entity = { ["active"] = { ["test01"] = { id = "test01" } }, ["command"] = { ["test01"] = { id = "test01" } }, ["entity1"] = { ["test01"] = { id = "test01" } }, ["mcp"] = { ["test01"] = { id = "test01" } }, ["open"] = { ["test01"] = { id = "test01" } }, ["search"] = { ["test01"] = { id = "test01" } }, ["system"] = { ["test01"] = { id = "test01" } }, ["tag"] = { ["test01"] = { id = "test01" } }, ["vault"] = { ["test01"] = { id = "test01" } } } }'
 local TEST_CTOR = "sdk.test(" .. TEST_SEED .. ")"
 
 local function script_dir()

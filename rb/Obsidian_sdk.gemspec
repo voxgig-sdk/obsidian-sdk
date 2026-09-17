@@ -2,8 +2,8 @@ Gem::Specification.new do |spec|
   spec.name          = "voxgig-sdk-obsidian"
   spec.version       = "0.0.1"
   spec.authors       = ["Voxgig"]
-  spec.summary       = "Unofficial generated Ruby SDK for the Obsidian Local REST public API. Not affiliated with or endorsed by the upstream API provider."
-  spec.description   = "Unofficial generated Ruby SDK for the Obsidian Local REST public API. Not affiliated with or endorsed by the upstream API provider."
+  spec.summary       = "Unofficial generated Ruby SDK for the Local REST API for Obsidian public API. Not affiliated with or endorsed by the upstream API provider."
+  spec.description   = "Unofficial generated Ruby SDK for the Local REST API for Obsidian public API. Not affiliated with or endorsed by the upstream API provider."
   spec.license       = "MIT"
   spec.homepage      = "https://github.com/voxgig-sdk/obsidian-sdk"
   spec.metadata      = {

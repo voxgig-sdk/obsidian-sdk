@@ -95,6 +95,8 @@ func tagDirectSetup(mockres any) *tagDirectSetupResult {
 		"OBSIDIAN_TEST_TAG_ENTID": map[string]any{},
 		"OBSIDIAN_TEST_LIVE":    "FALSE",
 		"OBSIDIAN_APIKEY":       "",
+		"OBSIDIAN_SERVER_HOST": "127.0.0.1",
+		"OBSIDIAN_SERVER_PORT": "27124",
 	})
 
 	live := env["OBSIDIAN_TEST_LIVE"] == "TRUE"
@@ -108,6 +110,10 @@ func tagDirectSetup(mockres any) *tagDirectSetupResult {
 		}
 		for k, v := range map[string]any{
 			"apikey": env["OBSIDIAN_APIKEY"],
+		"server": map[string]any{
+			"host": env["OBSIDIAN_SERVER_HOST"],
+			"port": env["OBSIDIAN_SERVER_PORT"],
+		},
 		} {
 			mergedOpts[k] = v
 		}

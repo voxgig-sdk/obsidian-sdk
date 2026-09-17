@@ -4,7 +4,7 @@
 
 The PHP SDK for the Obsidian API — an entity-oriented client using PHP conventions.
 
-The SDK exposes the API as capitalised, semantic **Entities** — for example `$client->Tag()` — with named operations (`list`/`load`/`create`/`update`/`remove`/`patch`) instead of raw URL paths and query strings. Working with resources and verbs keeps call sites self-describing and reduces cognitive load.
+The SDK exposes the API as capitalised, semantic **Entities** — for example `$client->Active()` — with named operations (`list`/`load`/`create`/`update`/`remove`/`patch`) instead of raw URL paths and query strings. Working with resources and verbs keeps call sites self-describing and reduces cognitive load.
 
 > Other languages, the CLI, and MCP server live alongside this one — see
 > the [top-level README](../README.md).
@@ -33,19 +33,29 @@ $client = new ObsidianSDK([
 ]);
 ```
 
-### 2. List tag records
+### 3. Load an active
 
 ```php
 try {
-    // list() returns entity instances; data_get() reads each record.
-    $tags = $client->Tag()->list();
-    foreach ($tags as $record) {
-        $item = $record->data_get();
-        echo $item["count"] . "\n";
-    }
+    // load() returns the ENTITY — call data_get() for the Active record (throws on error).
+    $active = $client->Active()->load();
+    print_r($active->data_get());
 } catch (\Throwable $err) {
     echo "Error: " . $err->getMessage();
 }
+```
+
+### 4. Create, update, and remove
+
+```php
+// create() returns the ENTITY — call data_get() for the created Active record.
+$created = $client->Active()->create(["destination" => [], "operation" => "example_operation", "target" => "example_target", "targetType" => "example_targetType"]);
+
+// Update
+$client->Active()->update(["content" => "example_content", "createTargetIfMissing" => true]);
+
+// Remove
+$client->Active()->remove();
 ```
 
 
@@ -56,7 +66,7 @@ Entity operations throw a `\Throwable` on failure, so wrap them in
 
 ```php
 try {
-    $tags = $client->Tag()->list();
+    $commands = $client->Command()->list();
 } catch (\Throwable $err) {
     echo "Error: " . $err->getMessage();
 }
@@ -128,13 +138,13 @@ data via the `entity` option so offline calls resolve without a live server:
 
 ```php
 $client = ObsidianSDK::test([
-    "entity" => ["vault" => ["test01" => ["id" => "test01"]]],
+    "entity" => ["mcp" => ["test01" => ["id" => "test01"]]],
 ]);
 
-// list() returns entity instances (throws on error);
+// Entity ops return the ENTITY (throws on error);
 // call data_get() for the mock record.
-$vault = $client->Vault()->list();
-print_r(array_map(fn($item) => $item->data_get(), $vault));
+$mcp = $client->Mcp()->load(["id" => "test01"]);
+print_r($mcp->data_get());
 ```
 
 ### Use a custom fetch function
@@ -215,6 +225,13 @@ Creates a test-mode client with mock transport. Both arguments may be `null`.
 | `get_utility` | `(): Utility` | Copy of the SDK utility object. |
 | `prepare` | `(array $fetchargs): array` | Build an HTTP request definition without sending. |
 | `direct` | `(array $fetchargs): array` | Build and send an HTTP request. |
+| `Active` | `($data): ActiveEntity` | Create an Active entity instance. |
+| `Command` | `($data): CommandEntity` | Create a Command entity instance. |
+| `Entity1` | `($data): Entity1Entity` | Create an Entity1 entity instance. |
+| `Mcp` | `($data): McpEntity` | Create a Mcp entity instance. |
+| `Open` | `($data): OpenEntity` | Create an Open entity instance. |
+| `Search` | `($data): SearchEntity` | Create a Search entity instance. |
+| `System` | `($data): SystemEntity` | Create a System entity instance. |
 | `Tag` | `($data): TagEntity` | Create a Tag entity instance. |
 | `Vault` | `($data): VaultEntity` | Create a Vault entity instance. |
 
@@ -256,6 +273,89 @@ On error, `ok` is `false` and `$err` contains the error value.
 
 ### Entities
 
+#### Active
+
+| Field | Description |
+| --- | --- |
+| `content` | String payload: a heading/block body or label, a new block id for a block `marker` rename (letters, numbers, hyphens, and underscores only), or a new frontmatter key name for a frontmatter `marker` rename. |
+| `createTargetIfMissing` | Create the target (heading path, block id, or frontmatter key) if it does not already exist. |
+| `destination` | For a heading move (operation `replace`, scope `parent`): where the section is re-parented. |
+| `ifMatch` | Optimistic-concurrency token (the `version` from a prior document map). |
+| `operation` | What happens to the scoped span: replace it, insert before (`prepend`) or after (`append`), or `delete` it. |
+| `rejectIfContentPreexists` | Fail a `prepend`/`append` when the string content already appears in the target span (makes those operations idempotent on retry). |
+| `scope` | Which part of the target the operation acts on (default `content`). |
+| `target` | The node to edit. |
+| `targetType` | The kind of node to edit. |
+| `value` | Structured JSON payload: a frontmatter value (any JSON — string, number, boolean, array, object, null; for `prepend`/`append` this merges: list concat, dict merge, string concat), or table rows on a `block` target's `content` cell (a 2-D a… |
+| `within` | Refines a heading target to one of the section's direct-body top-level blocks (a paragraph, list, table, code fence, blockquote, …): 0 is the first block in document order, and a negative index counts from the end (-1 = last). |
+
+Operations: Create, Load, Patch, Remove, Update.
+
+API path: `/active/`
+
+#### Command
+
+| Field | Description |
+| --- | --- |
+| `id` |  |
+| `name` |  |
+
+Operations: Create, List.
+
+API path: `/commands/{commandId}/`
+
+#### Entity1
+
+| Field | Description |
+| --- | --- |
+| `obsidian` | Obsidian plugin API version |
+| `self` | Plugin version. |
+
+Operations: Load.
+
+API path: `/`
+
+#### Mcp
+
+| Field | Description |
+| --- | --- |
+| `id` | Request identifier. |
+| `jsonrpc` | JSON-RPC version. |
+| `method` | MCP method to invoke. |
+| `params` | Method-specific parameters. |
+
+Operations: Create, Load.
+
+API path: `/mcp/`
+
+#### Open
+
+| Field | Description |
+| --- | --- |
+| `id` |  |
+
+Operations: Create.
+
+API path: `/open/{filename}`
+
+#### Search
+
+| Field | Description |
+| --- | --- |
+
+Operations: Create.
+
+API path: `/search/simple/`
+
+#### System
+
+| Field | Description |
+| --- | --- |
+
+Operations: Load.
+
+API path: `/obsidian-local-rest-api.crt`
+
 #### Tag
 
 | Field | Description |
@@ -292,6 +392,211 @@ API path: `/vault/{filename}`
 
 
 ## Entities
+
+
+### Active
+
+Create an instance: `$active = $client->Active();`
+
+#### Operations
+
+| Method | Description |
+| --- | --- |
+| `create(data)` | Create a new entity with the given data. |
+| `load(match)` | Load a single entity by match criteria. |
+| `remove(match)` | Remove the matching entity. |
+| `update(data)` | Update an existing entity. |
+
+#### Fields
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `content` | `string` | String payload: a heading/block body or label, a new block id for a block `marker` rename (letters, numbers, hyphens, and underscores only), or a new frontmatter key name for a frontmatter `marker` rename. |
+| `createTargetIfMissing` | `bool` | Create the target (heading path, block id, or frontmatter key) if it does not already exist. |
+| `destination` | `array` | For a heading move (operation `replace`, scope `parent`): where the section is re-parented. |
+| `ifMatch` | `string` | Optimistic-concurrency token (the `version` from a prior document map). |
+| `operation` | `string` | What happens to the scoped span: replace it, insert before (`prepend`) or after (`append`), or `delete` it. |
+| `rejectIfContentPreexists` | `bool` | Fail a `prepend`/`append` when the string content already appears in the target span (makes those operations idempotent on retry). |
+| `scope` | `string` | Which part of the target the operation acts on (default `content`). |
+| `target` | `mixed` | The node to edit. |
+| `targetType` | `string` | The kind of node to edit. |
+| `value` | `mixed` | Structured JSON payload: a frontmatter value (any JSON — string, number, boolean, array, object, null; for `prepend`/`append` this merges: list concat, dict merge, string concat), or table rows on a `block` target's `content` cell (a 2-D a… |
+| `within` | `int` | Refines a heading target to one of the section's direct-body top-level blocks (a paragraph, list, table, code fence, blockquote, …): 0 is the first block in document order, and a negative index counts from the end (-1 = last). |
+
+#### Example: Load
+
+```php
+// load() returns the ENTITY — call data_get() for the Active record (throws on error).
+$active = $client->Active()->load();
+```
+
+#### Example: Create
+
+```php
+$active = $client->Active()->create([
+    "destination" => null, // array
+    "operation" => null, // string
+    "target" => null, // mixed
+    "targetType" => null, // string
+]);
+```
+
+
+### Command
+
+Create an instance: `$command = $client->Command();`
+
+#### Operations
+
+| Method | Description |
+| --- | --- |
+| `create(data)` | Create a new entity with the given data. |
+| `list(match)` | List entities matching the criteria. |
+
+#### Fields
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `string` |  |
+| `name` | `string` |  |
+
+#### Example: List
+
+```php
+// list() returns an array of Command records (throws on error).
+$commands = $client->Command()->list();
+```
+
+#### Example: Create
+
+```php
+$command = $client->Command()->create([
+    "id" => null, // string
+]);
+```
+
+
+### Entity1
+
+Create an instance: `$entity1 = $client->Entity1();`
+
+#### Operations
+
+| Method | Description |
+| --- | --- |
+| `load(match)` | Load a single entity by match criteria. |
+
+#### Fields
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `obsidian` | `string` | Obsidian plugin API version |
+| `self` | `string` | Plugin version. |
+
+#### Example: Load
+
+```php
+// load() returns the ENTITY — call data_get() for the Entity1 record (throws on error).
+$entity1 = $client->Entity1()->load();
+```
+
+
+### Mcp
+
+Create an instance: `$mcp = $client->Mcp();`
+
+#### Operations
+
+| Method | Description |
+| --- | --- |
+| `create(data)` | Create a new entity with the given data. |
+| `load(match)` | Load a single entity by match criteria. |
+
+#### Fields
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `string` | Request identifier. |
+| `jsonrpc` | `string` | JSON-RPC version. |
+| `method` | `string` | MCP method to invoke. |
+| `params` | `array` | Method-specific parameters. |
+
+#### Example: Load
+
+```php
+// load() returns the ENTITY — call data_get() for the Mcp record (throws on error).
+$mcp = $client->Mcp()->load(["id" => "mcp_id"]);
+```
+
+#### Example: Create
+
+```php
+$mcp = $client->Mcp()->create([
+    "jsonrpc" => null, // string
+    "method" => null, // string
+]);
+```
+
+
+### Open
+
+Create an instance: `$open = $client->Open();`
+
+#### Operations
+
+| Method | Description |
+| --- | --- |
+| `create(data)` | Create a new entity with the given data. |
+
+#### Fields
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `string` |  |
+
+#### Example: Create
+
+```php
+$open = $client->Open()->create([
+    "id" => null, // string
+]);
+```
+
+
+### Search
+
+Create an instance: `$search = $client->Search();`
+
+#### Operations
+
+| Method | Description |
+| --- | --- |
+| `create(data)` | Create a new entity with the given data. |
+
+#### Example: Create
+
+```php
+$search = $client->Search()->create([
+]);
+```
+
+
+### System
+
+Create an instance: `$system = $client->System();`
+
+#### Operations
+
+| Method | Description |
+| --- | --- |
+| `load(match)` | Load a single entity by match criteria. |
+
+#### Example: Load
+
+```php
+// load() returns the ENTITY — call data_get() for the System record (throws on error).
+$system = $client->System()->load();
+```
 
 
 ### Tag
@@ -516,9 +821,9 @@ activated earlier.
 
 ## Open types
 
-1 field is carried as open values rather than typed structures.
+2 fields are carried as open values rather than typed structures.
 This follows from the API definition, not from a gap in this SDK: the
-definition describes it with untagged unions —
+definition describes them with untagged unions —
 `oneOf`/`anyOf` branches with no `discriminator` — so it never states which
 variant a given value is. Nothing can select a branch reliably, so the SDK
 passes the value through unchanged rather than assert a shape the API does not
@@ -526,6 +831,7 @@ guarantee.
 
 | Entity | Field | Variants | Nesting |
 | --- | --- | --- | --- |
+| `active` | `destination` | 3 | 2 levels |
 | `vault` | `destination` | 3 | 2 levels |
 
 These values round-trip unchanged — read them, modify them, send them back. If
@@ -597,6 +903,7 @@ Use `Helpers::to_map()` to safely validate that a value is an array.
 php/
 ├── obsidian_sdk.php          -- Main SDK class
 ├── config.php                     -- Configuration
+├── schema.php                     -- Generated option + entity specs
 ├── features.php                   -- Feature factory
 ├── core/                          -- Core types and context
 ├── entity/                        -- Entity implementations
@@ -615,11 +922,11 @@ Entity instances are stateful. After a successful `list`, the entity
 stores the returned data and match criteria internally.
 
 ```php
-$tag = $client->Tag();
-$tag->list();
+$command = $client->Command();
+$command->list();
 
-// $tag->data_get() now returns the tag data from the last list
-// $tag->match_get() returns the last match criteria
+// $command->data_get() now returns the command data from the last list
+// $command->match_get() returns the last match criteria
 ```
 
 Call `make()` to create a fresh instance with the same configuration

@@ -1,0 +1,56 @@
+# Entity: system
+
+main: kit: entity: system: {
+
+  alias: field: {}
+
+  name: "system"
+  op: {
+    load: {
+      name: "load"
+      points: [
+        {
+          contract: {
+            id: "GET /obsidian-local-rest-api.crt"
+            json: "{\"parameters\":[],\"protocol\":\"http\",\"responses\":{\"200\":{\"description\":\"Success\"}},\"security\":[{\"apiKeyAuth\":[]}],\"securitySchemes\":{\"apiKeyAuth\":{\"description\":\"Find your API Key in your Obsidian settings\\nin the \\\"Local REST API\\\" section under \\\"Plugins\\\".\\n\",\"scheme\":\"bearer\",\"type\":\"http\"}},\"securitySource\":\"definition\"}"
+            source: "openapi3"
+            version: 1
+          }
+          method: "GET"
+          orig: "/obsidian-local-rest-api.crt"
+          segments: [
+            {
+              lit: "obsidian-local-rest-api.crt"
+            }
+          ]
+          transform: {
+            req: "`reqdata`"
+            res: "`body`"
+          }
+        }
+        {
+          contract: {
+            id: "GET /openapi.yaml"
+            json: "{\"parameters\":[],\"protocol\":\"http\",\"responses\":{\"200\":{\"description\":\"Success\"}},\"security\":[{\"apiKeyAuth\":[]}],\"securitySchemes\":{\"apiKeyAuth\":{\"description\":\"Find your API Key in your Obsidian settings\\nin the \\\"Local REST API\\\" section under \\\"Plugins\\\".\\n\",\"scheme\":\"bearer\",\"type\":\"http\"}},\"securitySource\":\"definition\"}"
+            source: "openapi3"
+            version: 1
+          }
+          method: "GET"
+          orig: "/openapi.yaml"
+          segments: [
+            {
+              lit: "openapi.yaml"
+            }
+          ]
+          transform: {
+            req: "`reqdata`"
+            res: "`body`"
+          }
+        }
+      ]
+    }
+  }
+
+
+
+}

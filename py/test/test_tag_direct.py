@@ -61,6 +61,8 @@ def _tag_direct_setup(mockres):
         "OBSIDIAN_TEST_TAG_ENTID": {},
         "OBSIDIAN_TEST_LIVE": "FALSE",
         "OBSIDIAN_APIKEY": "",
+        "OBSIDIAN_SERVER_HOST": "127.0.0.1",
+        "OBSIDIAN_SERVER_PORT": "27124",
     })
 
     live = env.get("OBSIDIAN_TEST_LIVE") == "TRUE"
@@ -71,6 +73,10 @@ def _tag_direct_setup(mockres):
         merged_opts = dict(runner.live_client_options())
         merged_opts.update({
             "apikey": env.get("OBSIDIAN_APIKEY"),
+            "server": {
+                "host": env.get("OBSIDIAN_SERVER_HOST"),
+                "port": env.get("OBSIDIAN_SERVER_PORT"),
+            },
         })
         client = ObsidianSDK(merged_opts)
         return {

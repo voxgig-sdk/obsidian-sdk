@@ -1,9 +1,81 @@
 # Guide
 
 guide: {
-  metrics: count: entity: 2
-  metrics: count: path: 4
-  metrics: count: method: 8
+  metrics: count: entity: 9
+  metrics: count: path: 14
+  metrics: count: method: 23
+
+  entity: active: {
+    path: "/active/": {
+      op: create: method: *POST
+      op: load: method: *GET
+      op: patch: method: *PATCH
+      op: patch: transform: req: "content": *("`reqdata.content`")|top
+      op: patch: transform: req: "createTargetIfMissing": *("`reqdata.create_target_if_missing`")|top
+      op: patch: transform: req: "destination": *("`reqdata.destination`")|top
+      op: patch: transform: req: "ifMatch": *("`reqdata.if_match`")|top
+      op: patch: transform: req: "operation": *("`reqdata.operation`")|top
+      op: patch: transform: req: "rejectIfContentPreexists": *("`reqdata.reject_if_content_preexist`")|top
+      op: patch: transform: req: "scope": *("`reqdata.scope`")|top
+      op: patch: transform: req: "target": *("`reqdata.target`")|top
+      op: patch: transform: req: "targetType": *("`reqdata.target_type`")|top
+      op: patch: transform: req: "value": *("`reqdata.value`")|top
+      op: patch: transform: req: "within": *("`reqdata.within`")|top
+      op: remove: method: *DELETE
+      op: update: method: *PUT
+    }
+  }
+
+  entity: command: {
+    path: "/commands/": {
+      op: list: method: *GET
+      op: list: transform: res: *("`body.commands`")|top
+    }
+    path: "/commands/{commandId}/": {
+      rename: param: "commandId": *"id"
+      op: create: method: *POST
+    }
+  }
+
+  entity: entity1: {
+    path: "/": {
+      op: load: method: *GET
+      op: load: transform: res: *("`body.versions`")|top
+    }
+  }
+
+  entity: mcp: {
+    path: "/mcp/": {
+      op: create: method: *POST
+      op: load: method: *GET
+    }
+  }
+
+  entity: open: {
+    path: "/open/{filename}": {
+      rename: param: "filename": *"id"
+      op: create: method: *POST
+    }
+  }
+
+  entity: search: {
+    path: "/search/": {
+      op: create: method: *POST
+    }
+    path: "/search/simple/": {
+      action: "simple": {}
+      op: create: method: *POST
+    }
+  }
+
+  entity: system: {
+    path: "/obsidian-local-rest-api.crt": {
+      op: load: method: *GET
+    }
+    path: "/openapi.yaml": {
+      op: load: method: *GET
+    }
+  }
 
   entity: tag: {
     path: "/tags/": {

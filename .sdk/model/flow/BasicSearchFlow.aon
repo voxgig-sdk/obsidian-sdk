@@ -1,0 +1,18 @@
+# BasicSearchFlow
+
+main: kit: flow: BasicSearchFlow:
+{
+  entity: "search",
+  kind: "basic",
+  name: "BasicSearchFlow",
+  step: [
+    {
+      input: {
+        ref: "search_ref01"
+      }
+
+      op: "create"
+    }
+  ],
+  "key$": "BasicSearchFlow"
+}

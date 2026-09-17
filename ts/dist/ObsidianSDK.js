@@ -2,6 +2,13 @@
 // Obsidian Ts SDK
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SDK = exports.ObsidianSDK = exports.ObsidianEntityBase = exports.BaseFeature = exports.config = exports.stdutil = void 0;
+const ActiveEntity_1 = require("./entity/ActiveEntity");
+const CommandEntity_1 = require("./entity/CommandEntity");
+const Entity1Entity_1 = require("./entity/Entity1Entity");
+const McpEntity_1 = require("./entity/McpEntity");
+const OpenEntity_1 = require("./entity/OpenEntity");
+const SearchEntity_1 = require("./entity/SearchEntity");
+const SystemEntity_1 = require("./entity/SystemEntity");
 const TagEntity_1 = require("./entity/TagEntity");
 const VaultEntity_1 = require("./entity/VaultEntity");
 const node_util_1 = require("node:util");
@@ -225,6 +232,55 @@ class ObsidianSDK {
             return { ok: false, status: res.status, headers: res.headers, err, data: res.data };
         }
         return res;
+    }
+    // Entity access: `client.Active().list()` / `client.Active().load({ id })`.
+    // The argument is the entity OPTIONS object (passed to the entity
+    // constructor as entopts), not initial entity data.
+    Active(entopts) {
+        const self = this;
+        return new ActiveEntity_1.ActiveEntity(self, entopts);
+    }
+    // Entity access: `client.Command().list()` / `client.Command().load({ id })`.
+    // The argument is the entity OPTIONS object (passed to the entity
+    // constructor as entopts), not initial entity data.
+    Command(entopts) {
+        const self = this;
+        return new CommandEntity_1.CommandEntity(self, entopts);
+    }
+    // Entity access: `client.Entity1().list()` / `client.Entity1().load({ id })`.
+    // The argument is the entity OPTIONS object (passed to the entity
+    // constructor as entopts), not initial entity data.
+    Entity1(entopts) {
+        const self = this;
+        return new Entity1Entity_1.Entity1Entity(self, entopts);
+    }
+    // Entity access: `client.Mcp().list()` / `client.Mcp().load({ id })`.
+    // The argument is the entity OPTIONS object (passed to the entity
+    // constructor as entopts), not initial entity data.
+    Mcp(entopts) {
+        const self = this;
+        return new McpEntity_1.McpEntity(self, entopts);
+    }
+    // Entity access: `client.Open().list()` / `client.Open().load({ id })`.
+    // The argument is the entity OPTIONS object (passed to the entity
+    // constructor as entopts), not initial entity data.
+    Open(entopts) {
+        const self = this;
+        return new OpenEntity_1.OpenEntity(self, entopts);
+    }
+    // Entity access: `client.Search().list()` / `client.Search().load({ id })`.
+    // The argument is the entity OPTIONS object (passed to the entity
+    // constructor as entopts), not initial entity data.
+    Search(entopts) {
+        const self = this;
+        return new SearchEntity_1.SearchEntity(self, entopts);
+    }
+    // Entity access: `client.System().list()` / `client.System().load({ id })`.
+    // The argument is the entity OPTIONS object (passed to the entity
+    // constructor as entopts), not initial entity data.
+    System(entopts) {
+        const self = this;
+        return new SystemEntity_1.SystemEntity(self, entopts);
     }
     // Entity access: `client.Tag().list()` / `client.Tag().load({ id })`.
     // The argument is the entity OPTIONS object (passed to the entity

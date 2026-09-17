@@ -1,11 +1,18 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>API overview | Obsidian Local REST API</title><link rel="stylesheet" href="../assets/style.css"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>API overview | Local REST API for Obsidian</title><link rel="stylesheet" href="../assets/style.css"></head>
 <body><a class="skip" href="#content">Skip to content</a>
-<header class="site-header"><a class="site-title" href="../index.html">Obsidian Local REST API<span>SDK documentation</span></a><div class="site-links"><a class="repo-link" href="https://github.com/voxgig-sdk/obsidian-sdk">voxgig-sdk/obsidian-sdk</a></div></header>
+<header class="site-header"><a class="site-title" href="../index.html">Local REST API for Obsidian<span>SDK documentation</span></a><div class="site-links"><a class="repo-link" href="https://github.com/voxgig-sdk/obsidian-sdk">voxgig-sdk/obsidian-sdk</a></div></header>
 <div class="site-notice" role="note"></div>
-<div class="shell"><nav class="site-nav" aria-label="Documentation"><div class="search"><label for="search">Search documentation</label><input id="search" type="search" data-base="../" placeholder="Find a guide or reference"><div id="results" aria-live="polite"></div></div><details><summary>Overview</summary><a href="../index.html">Obsidian Local REST API</a></details>
+<div class="shell"><nav class="site-nav" aria-label="Documentation"><div class="search"><label for="search">Search documentation</label><input id="search" type="search" data-base="../" placeholder="Find a guide or reference"><div id="results" aria-live="polite"></div></div><details><summary>Overview</summary><a href="../index.html">Local REST API for Obsidian</a></details>
 <details open><summary>API</summary><a aria-current="page" href="../api/index.html">API overview</a>
+<a href="../api/active.html">Active</a>
+<a href="../api/command.html">Command</a>
+<a href="../api/entity1.html">Entity1</a>
+<a href="../api/mcp.html">Mcp</a>
+<a href="../api/open.html">Open</a>
+<a href="../api/search.html">Search</a>
+<a href="../api/system.html">System</a>
 <a href="../api/tag.html">Tag</a>
 <a href="../api/vault.html">Vault</a></details>
 <details><summary>Guides</summary><a href="../guides/authentication.html">Authentication</a>
@@ -29,12 +36,20 @@
 <a href="../features/retry.html">Automatic retry of transient failures with exponential backoff</a>
 <a href="../features/test.html">In-memory mock transport for testing without a live server</a>
 <a href="../features/timeout.html">Per-request timeout with transport abort</a></details></nav><main id="content"><div class="page-context"><span class="section-dot" aria-hidden="true"></span>API</div><h1 id="api-overview">API overview</h1>
-<p>The Local REST API plugin for Obsidian, which serves the open vault over HTTP on the machine Obsidian is running on.</p>
+<p>The Obsidian Local REST API with MCP plugin gives you two ways to interact with your Obsidian vault programmatically:</p>
 <ul>
-<li><code>http://127.0.0.1:27123</code>: The Local REST API plugin, enabled inside Obsidian. HTTPS runs on 27124 with a self-signed certificate.</li>
+<li><code>https://{host}:{port}</code>: HTTPS (Secure Mode)</li>
+<li><code>http://{host}:{port}</code>: HTTP (Insecure Mode)</li>
 </ul>
-<p>This documentation is generated from the <a href="https://github.com/voxgig-sdk/obsidian-sdk/blob/main/.sdk/def/obsidian-vault-only.json">OpenAPI specification</a> held in the SDK repository.</p>
+<p>This documentation is generated from the <a href="https://github.com/voxgig-sdk/obsidian-sdk/blob/main/.sdk/def/obsidian-local-rest-api-openapi.yaml">OpenAPI specification</a> held in the SDK repository.</p>
 <ul>
+<li><a href="active.html">Active</a></li>
+<li><a href="command.html">Command</a></li>
+<li><a href="entity1.html">Entity1</a></li>
+<li><a href="mcp.html">Mcp</a></li>
+<li><a href="open.html">Open</a></li>
+<li><a href="search.html">Search</a></li>
+<li><a href="system.html">System</a></li>
 <li><a href="tag.html">Tag</a></li>
 <li><a href="vault.html">Vault</a></li>
 </ul>

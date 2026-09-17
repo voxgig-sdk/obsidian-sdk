@@ -1,11 +1,18 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Obsidian Local REST API | Obsidian Local REST API</title><link rel="stylesheet" href="assets/style.css"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Local REST API for Obsidian | Local REST API for Obsidian</title><link rel="stylesheet" href="assets/style.css"></head>
 <body><a class="skip" href="#content">Skip to content</a>
-<header class="site-header"><a class="site-title" href="index.html">Obsidian Local REST API<span>SDK documentation</span></a><div class="site-links"><a class="repo-link" href="https://github.com/voxgig-sdk/obsidian-sdk">voxgig-sdk/obsidian-sdk</a></div></header>
+<header class="site-header"><a class="site-title" href="index.html">Local REST API for Obsidian<span>SDK documentation</span></a><div class="site-links"><a class="repo-link" href="https://github.com/voxgig-sdk/obsidian-sdk">voxgig-sdk/obsidian-sdk</a></div></header>
 <div class="site-notice" role="note"></div>
-<div class="shell"><nav class="site-nav" aria-label="Documentation"><div class="search"><label for="search">Search documentation</label><input id="search" type="search" data-base="" placeholder="Find a guide or reference"><div id="results" aria-live="polite"></div></div><details open><summary>Overview</summary><a aria-current="page" href="index.html">Obsidian Local REST API</a></details>
+<div class="shell"><nav class="site-nav" aria-label="Documentation"><div class="search"><label for="search">Search documentation</label><input id="search" type="search" data-base="" placeholder="Find a guide or reference"><div id="results" aria-live="polite"></div></div><details open><summary>Overview</summary><a aria-current="page" href="index.html">Local REST API for Obsidian</a></details>
 <details><summary>API</summary><a href="api/index.html">API overview</a>
+<a href="api/active.html">Active</a>
+<a href="api/command.html">Command</a>
+<a href="api/entity1.html">Entity1</a>
+<a href="api/mcp.html">Mcp</a>
+<a href="api/open.html">Open</a>
+<a href="api/search.html">Search</a>
+<a href="api/system.html">System</a>
 <a href="api/tag.html">Tag</a>
 <a href="api/vault.html">Vault</a></details>
 <details><summary>Guides</summary><a href="guides/authentication.html">Authentication</a>
@@ -28,7 +35,7 @@
 <a href="features/ratelimit.html">Client-side rate limiting via a token bucket</a>
 <a href="features/retry.html">Automatic retry of transient failures with exponential backoff</a>
 <a href="features/test.html">In-memory mock transport for testing without a live server</a>
-<a href="features/timeout.html">Per-request timeout with transport abort</a></details></nav><main id="content"><div class="page-context"><span class="section-dot" aria-hidden="true"></span>Overview</div><h1 id="obsidian-local-rest-api">Obsidian Local REST API</h1>
-<p>The Local REST API plugin for Obsidian, which serves the open vault over HTTP on the machine Obsidian is running on. Scoped here to the vault itself: list the vault, read, create, replace, append to and delete a file, and list the tags in use. Upstream specification by the plugin authors, reduced by Voxgig. Not an official Obsidian document, and not an API Obsidian ships: the plugin must be installed and its API key configured.</p>
+<a href="features/timeout.html">Per-request timeout with transport abort</a></details></nav><main id="content"><div class="page-context"><span class="section-dot" aria-hidden="true"></span>Overview</div><h1 id="local-rest-api-for-obsidian">Local REST API for Obsidian</h1>
+<p>The Obsidian Local REST API with MCP plugin gives you two ways to interact with your Obsidian vault programmatically: - <strong>REST API</strong>, standard HTTP endpoints for reading and writing notes, searching vault contents, and more. Useful from scripts, applications, or any HTTP client. - <strong>MCP server</strong>, exposes the same capabilities as structured tools for AI assistants (Claude, Cursor, and other MCP-compatible clients). See the <code>POST /mcp/</code> endpoint for connection details. ## Testing with this interface Select any operation in the sidebar, then open the <strong>Try It</strong> tab to send a live request to your running Obsidian instance. <strong>Authentication</strong>, all requests require a Bearer token. In the <strong>Try It</strong> panel, expand the <strong>Security</strong> section and paste the API key shown in Obsidian under <strong>Settings → Local REST API with MCP</strong>. <strong>Certificate warning</strong>, the plugin generates a self-signed TLS certificate on first run. Most browsers will block requests to an untrusted certificate, so you may need to add it as a trusted certificate in your OS or browser settings before requests will go through. The steps vary by environment, search for &quot;trust self-signed certificate&quot; plus your OS or browser name if you're unsure. If that proves too cumbersome, you can enable the insecure HTTP server in your plugin settings instead and select &quot;HTTP (insecure mode)&quot; from the <strong>Try It</strong> section.</p>
 </main></div>
 <script src="assets/search.js" defer></script></body></html>

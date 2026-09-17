@@ -22,7 +22,7 @@ import (
 // entries in a single compilation unit, and `compile` grew ~15 MB per fragment
 // to ~16 GB — the same superlinear-composite-literal blowup the L1 config data
 // path fixed for core/config.go. One shared var is O(1) in the snippet count.
-const testSeed = `map[string]any{"entity": map[string]any{"tag": map[string]any{"example_id": map[string]any{"id": "example_id"}}, "vault": map[string]any{"example_id": map[string]any{"id": "example_id"}}}}`
+const testSeed = `map[string]any{"entity": map[string]any{"active": map[string]any{"example_id": map[string]any{"id": "example_id"}}, "command": map[string]any{"example_id": map[string]any{"id": "example_id"}}, "entity1": map[string]any{"example_id": map[string]any{"id": "example_id"}}, "mcp": map[string]any{"example_id": map[string]any{"id": "example_id"}}, "open": map[string]any{"example_id": map[string]any{"id": "example_id"}}, "search": map[string]any{"example_id": map[string]any{"id": "example_id"}}, "system": map[string]any{"example_id": map[string]any{"id": "example_id"}}, "tag": map[string]any{"example_id": map[string]any{"id": "example_id"}}, "vault": map[string]any{"example_id": map[string]any{"id": "example_id"}}}}`
 
 // seedRef is how a snippet names the shared fixture; seedFile declares it.
 const seedRef = "readmeTestSeed"

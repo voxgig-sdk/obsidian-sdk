@@ -1,4 +1,11 @@
 # Entity Models
 
+@"./active.aon"
+@"./command.aon"
+@"./entity1.aon"
+@"./mcp.aon"
+@"./open.aon"
+@"./search.aon"
+@"./system.aon"
 @"./tag.aon"
 @"./vault.aon"

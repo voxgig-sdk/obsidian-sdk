@@ -247,6 +247,8 @@ func vaultBasicSetup(extra map[string]any) *entityTestSetup {
 		"OBSIDIAN_TEST_LIVE":      "FALSE",
 		"OBSIDIAN_TEST_EXPLAIN":   "FALSE",
 		"OBSIDIAN_APIKEY":         "",
+		"OBSIDIAN_SERVER_HOST": "127.0.0.1",
+		"OBSIDIAN_SERVER_PORT": "27124",
 	})
 
 	idmapResolved := core.ToMapAny(env["OBSIDIAN_TEST_VAULT_ENTID"])
@@ -270,6 +272,10 @@ func vaultBasicSetup(extra map[string]any) *entityTestSetup {
 			liveClientOptions(),
 			map[string]any{
 				"apikey": env["OBSIDIAN_APIKEY"],
+				"server": map[string]any{
+					"host": env["OBSIDIAN_SERVER_HOST"],
+					"port": env["OBSIDIAN_SERVER_PORT"],
+				},
 			},
 			extraOpts,
 		})

@@ -1,0 +1,72 @@
+{
+  "existing": {
+    "system": {
+      "SYSTEM00": {
+        "id": "SYSTEM00"
+      },
+      "SYSTEM01": {
+        "id": "SYSTEM01"
+      },
+      "SYSTEM02": {
+        "id": "SYSTEM02"
+      }
+    }
+  },
+  "new": {
+    "system": {
+      "system_ref01": {}
+    }
+  },
+  "requests": {
+    "GET /obsidian-local-rest-api.crt": {
+      "provenance": "operation-contract",
+      "contract": {
+        "parameters": [],
+        "protocol": "http",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "securitySchemes": {
+          "apiKeyAuth": {
+            "description": "Find your API Key in your Obsidian settings\nin the \"Local REST API\" section under \"Plugins\".\n",
+            "scheme": "bearer",
+            "type": "http"
+          }
+        },
+        "securitySource": "definition"
+      }
+    },
+    "GET /openapi.yaml": {
+      "provenance": "operation-contract",
+      "contract": {
+        "parameters": [],
+        "protocol": "http",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "securitySchemes": {
+          "apiKeyAuth": {
+            "description": "Find your API Key in your Obsidian settings\nin the \"Local REST API\" section under \"Plugins\".\n",
+            "scheme": "bearer",
+            "type": "http"
+          }
+        },
+        "securitySource": "definition"
+      }
+    }
+  }
+}

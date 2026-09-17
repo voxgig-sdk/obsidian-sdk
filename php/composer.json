@@ -1,6 +1,6 @@
 {
   "name": "voxgig-sdk/obsidian",
-  "description": "Unofficial generated PHP SDK for the Obsidian Local REST public API. Not affiliated with or endorsed by the upstream API provider.",
+  "description": "Unofficial generated PHP SDK for the Local REST API for Obsidian public API. Not affiliated with or endorsed by the upstream API provider.",
   "type": "library",
   "keywords": ["voxgig", "sdk", "generated-sdk", "openapi", "api-client", "obsidian"],
   "homepage": "https://github.com/voxgig-sdk/obsidian-sdk",
@@ -21,7 +21,7 @@
   },
   "autoload": {
     "files": ["obsidian_sdk.php"],
-    "classmap": ["core/", "entity/", "feature/", "types/", "utility/", "config.php", "features.php"]
+    "classmap": ["core/", "entity/", "feature/", "types/", "utility/", "config.php", "schema.php", "features.php"]
   },
   "autoload-dev": {
     "classmap": ["test/"]

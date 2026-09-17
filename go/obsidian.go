@@ -53,6 +53,27 @@ func init() {
 	core.NewTimeoutFeatureFunc = func() core.Feature {
 		return feature.NewTimeoutFeature()
 	}
+	core.NewActiveEntityFunc = func(client *core.ObsidianSDK, entopts map[string]any) core.ObsidianEntity {
+		return entity.NewActiveEntity(client, entopts)
+	}
+	core.NewCommandEntityFunc = func(client *core.ObsidianSDK, entopts map[string]any) core.ObsidianEntity {
+		return entity.NewCommandEntity(client, entopts)
+	}
+	core.NewEntity1EntityFunc = func(client *core.ObsidianSDK, entopts map[string]any) core.ObsidianEntity {
+		return entity.NewEntity1Entity(client, entopts)
+	}
+	core.NewMcpEntityFunc = func(client *core.ObsidianSDK, entopts map[string]any) core.ObsidianEntity {
+		return entity.NewMcpEntity(client, entopts)
+	}
+	core.NewOpenEntityFunc = func(client *core.ObsidianSDK, entopts map[string]any) core.ObsidianEntity {
+		return entity.NewOpenEntity(client, entopts)
+	}
+	core.NewSearchEntityFunc = func(client *core.ObsidianSDK, entopts map[string]any) core.ObsidianEntity {
+		return entity.NewSearchEntity(client, entopts)
+	}
+	core.NewSystemEntityFunc = func(client *core.ObsidianSDK, entopts map[string]any) core.ObsidianEntity {
+		return entity.NewSystemEntity(client, entopts)
+	}
 	core.NewTagEntityFunc = func(client *core.ObsidianSDK, entopts map[string]any) core.ObsidianEntity {
 		return entity.NewTagEntity(client, entopts)
 	}

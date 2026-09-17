@@ -338,6 +338,62 @@ func (sdk *ObsidianSDK) Graphql(
 }
 
 
+// Active returns a Active entity bound to this client.
+// Idiomatic usage: client.Active(nil).List(nil, nil) or
+// client.Active(nil).Load(map[string]any{"id": ...}, nil).
+func (sdk *ObsidianSDK) Active(data map[string]any) ObsidianEntity {
+	return NewActiveEntityFunc(sdk, data)
+}
+
+
+// Command returns a Command entity bound to this client.
+// Idiomatic usage: client.Command(nil).List(nil, nil) or
+// client.Command(nil).Load(map[string]any{"id": ...}, nil).
+func (sdk *ObsidianSDK) Command(data map[string]any) ObsidianEntity {
+	return NewCommandEntityFunc(sdk, data)
+}
+
+
+// Entity1 returns a Entity1 entity bound to this client.
+// Idiomatic usage: client.Entity1(nil).List(nil, nil) or
+// client.Entity1(nil).Load(map[string]any{"id": ...}, nil).
+func (sdk *ObsidianSDK) Entity1(data map[string]any) ObsidianEntity {
+	return NewEntity1EntityFunc(sdk, data)
+}
+
+
+// Mcp returns a Mcp entity bound to this client.
+// Idiomatic usage: client.Mcp(nil).List(nil, nil) or
+// client.Mcp(nil).Load(map[string]any{"id": ...}, nil).
+func (sdk *ObsidianSDK) Mcp(data map[string]any) ObsidianEntity {
+	return NewMcpEntityFunc(sdk, data)
+}
+
+
+// Open returns a Open entity bound to this client.
+// Idiomatic usage: client.Open(nil).List(nil, nil) or
+// client.Open(nil).Load(map[string]any{"id": ...}, nil).
+func (sdk *ObsidianSDK) Open(data map[string]any) ObsidianEntity {
+	return NewOpenEntityFunc(sdk, data)
+}
+
+
+// Search returns a Search entity bound to this client.
+// Idiomatic usage: client.Search(nil).List(nil, nil) or
+// client.Search(nil).Load(map[string]any{"id": ...}, nil).
+func (sdk *ObsidianSDK) Search(data map[string]any) ObsidianEntity {
+	return NewSearchEntityFunc(sdk, data)
+}
+
+
+// System returns a System entity bound to this client.
+// Idiomatic usage: client.System(nil).List(nil, nil) or
+// client.System(nil).Load(map[string]any{"id": ...}, nil).
+func (sdk *ObsidianSDK) System(data map[string]any) ObsidianEntity {
+	return NewSystemEntityFunc(sdk, data)
+}
+
+
 // Tag returns a Tag entity bound to this client.
 // Idiomatic usage: client.Tag(nil).List(nil, nil) or
 // client.Tag(nil).Load(map[string]any{"id": ...}, nil).

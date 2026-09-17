@@ -64,6 +64,8 @@ function tag_direct_setup(mockres)
     ["OBSIDIAN_TEST_TAG_ENTID"] = {},
     ["OBSIDIAN_TEST_LIVE"] = "FALSE",
     ["OBSIDIAN_APIKEY"] = "",
+    ["OBSIDIAN_SERVER_HOST"] = "127.0.0.1",
+    ["OBSIDIAN_SERVER_PORT"] = "27124",
   })
 
   local live = env["OBSIDIAN_TEST_LIVE"] == "TRUE"
@@ -71,6 +73,10 @@ function tag_direct_setup(mockres)
   if live then
     local merged_opts = {
       apikey = env["OBSIDIAN_APIKEY"],
+      server = {
+        ["host"] = env["OBSIDIAN_SERVER_HOST"],
+        ["port"] = env["OBSIDIAN_SERVER_PORT"],
+      },
     }
     -- sdk-test-control.json's test.client.options goes UNDER the generated
     -- fields: it adds to the live client, it does not redirect it.

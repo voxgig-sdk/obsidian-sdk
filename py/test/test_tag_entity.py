@@ -126,6 +126,8 @@ def _tag_basic_setup(extra):
         "OBSIDIAN_TEST_LIVE": "FALSE",
         "OBSIDIAN_TEST_EXPLAIN": "FALSE",
         "OBSIDIAN_APIKEY": "",
+        "OBSIDIAN_SERVER_HOST": "127.0.0.1",
+        "OBSIDIAN_SERVER_PORT": "27124",
     })
 
     idmap_resolved = helpers.to_map(
@@ -141,6 +143,10 @@ def _tag_basic_setup(extra):
             runner.live_client_options(),
             {
                 "apikey": env.get("OBSIDIAN_APIKEY"),
+                "server": {
+                    "host": env.get("OBSIDIAN_SERVER_HOST"),
+                    "port": env.get("OBSIDIAN_SERVER_PORT"),
+                },
             },
             extra or {},
         ])

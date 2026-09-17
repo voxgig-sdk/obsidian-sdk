@@ -1,7 +1,14 @@
 {
   "files": [
     "SUMMARY.md",
+    "docs/api/active.html",
+    "docs/api/command.html",
+    "docs/api/entity1.html",
     "docs/api/index.html",
+    "docs/api/mcp.html",
+    "docs/api/open.html",
+    "docs/api/search.html",
+    "docs/api/system.html",
     "docs/api/tag.html",
     "docs/api/vault.html",
     "docs/features/debug.html",

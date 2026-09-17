@@ -27,11 +27,11 @@ Tool-call arguments (what an agent sends):
 
 ```jsonc
 // obsidian_list: first page of records
-{ "entity": "tag" }
-{ "entity": "tag", "query": { } }
+{ "entity": "command" }
+{ "entity": "command", "query": { } }
 
 // obsidian_load: one record by id
-{ "entity": "vault", "query": { "id": 1 } }
+{ "entity": "active", "query": { "id": 1 } }
 ```
 
 > The rest of this guide follows the [Diátaxis](https://diataxis.fr) framework:
@@ -60,8 +60,8 @@ Tool-call arguments (what an agent sends):
    ```
 
 4. **Restart Claude Code.** The `obsidian_list` and `obsidian_load` tools now appear
-   in new sessions. Ask the agent to *"list tag using obsidian"*
-   and it calls `obsidian_list` with `{"entity":"tag"}`.
+   in new sessions. Ask the agent to *"list command using obsidian"*
+   and it calls `obsidian_list` with `{"entity":"command"}`.
 
 ## How-to guides
 
@@ -92,7 +92,7 @@ Args: `entity` (required), `query` (optional filter map). Returns the first
 page of records as JSON:
 
 ```jsonc
-{ "entity": "tag" }
+{ "entity": "command" }
 ```
 
 ### Call the `obsidian_load` tool
@@ -101,7 +101,7 @@ Args: `entity` (required), `query` = `{"id":N}` (required). Returns the single
 record as JSON:
 
 ```jsonc
-{ "entity": "vault", "query": { "id": 1 } }
+{ "entity": "active", "query": { "id": 1 } }
 ```
 
 ### Cross-compile release binaries
@@ -129,7 +129,7 @@ Both tools take the same argument object:
 
 | Field | Type | Notes |
 |-------|------|-------|
-| `entity` | string | One of the 2 supported entities (see below). |
+| `entity` | string | One of the 9 supported entities (see below). |
 | `query` | object | Optional match map. `{"id":N}` for load; omit or `{}` for list. |
 
 JSON schemas are emitted by the SDK from the `Args` struct's `json` /
@@ -151,9 +151,9 @@ JSON schemas are emitted by the SDK from the `Args` struct's `json` /
 
 ### Entities
 
-The 2 entities valid as the `entity` argument:
+The 9 entities valid as the `entity` argument:
 
-tag | vault
+active | command | entity1 | mcp | open | search | system | tag | vault
 
 ### Smoke test via HTTP (raw JSON-RPC)
 
@@ -173,7 +173,7 @@ curl -sN -X POST http://localhost:18080 \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json, text/event-stream' \
   -H "Mcp-Session-Id: $SESSION" \
-  -d '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"obsidian_load","arguments":{"entity":"vault","query":{"id":1}}}}'
+  -d '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"obsidian_load","arguments":{"entity":"active","query":{"id":1}}}}'
 ```
 
 ## Explanation

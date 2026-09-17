@@ -1,0 +1,36 @@
+# BasicMcpFlow
+
+main: kit: flow: BasicMcpFlow:
+{
+  entity: "mcp",
+  kind: "basic",
+  name: "BasicMcpFlow",
+  step: [
+    {
+      input: {
+        ref: "mcp_ref01"
+      }
+
+      op: "create"
+    }
+
+    {
+      input: {
+        ref: "mcp_ref01",
+        srcdatavar: "mcp_ref01_data",
+        suffix: "_dt0"
+      }
+
+      op: "load",
+      valid: [
+        {
+          apply: "TextFieldMark",
+          def: {
+            mark: "Mark01-mcp_ref01"
+          }
+        }
+      ]
+    }
+  ],
+  "key$": "BasicMcpFlow"
+}

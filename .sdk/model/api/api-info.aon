@@ -4,14 +4,19 @@
 main: {
   kit: {
     info: {
-      description: `The Local REST API plugin for Obsidian, which serves the open vault over HTTP on
-the machine Obsidian is running on. Scoped here to the vault itself: list the
-vault, read, create, replace, append to and delete a file, and list the tags in
-use.
+      description: `The Obsidian Local REST API with MCP plugin gives you two ways to interact with your Obsidian vault programmatically:
 
-Upstream specification by the plugin authors, reduced by Voxgig. Not an official
-Obsidian document, and not an API Obsidian ships: the plugin must be installed
-and its API key configured.`
+- **REST API** — standard HTTP endpoints for reading and writing notes, searching vault contents, and more. Useful from scripts, applications, or any HTTP client.
+- **MCP server** — exposes the same capabilities as structured tools for AI assistants (Claude, Cursor, and other MCP-compatible clients). See the \`POST /mcp/\` endpoint for connection details.
+
+## Testing with this interface
+
+Select any operation in the sidebar, then open the **Try It** tab to send a live request to your running Obsidian instance.
+
+**Authentication** — all requests require a Bearer token. In the **Try It** panel, expand the **Security** section and paste the API key shown in Obsidian under **Settings → Local REST API with MCP**.
+
+**Certificate warning** — the plugin generates a self-signed TLS certificate on first run. Most browsers will block requests to an untrusted certificate, so you may need to add it as a trusted certificate in your OS or browser settings before requests will go through. The steps vary by environment — search for "trust self-signed certificate" plus your OS or browser name if you're unsure. If that proves too cumbersome, you can enable the insecure HTTP server in your plugin settings instead and select "HTTP (insecure mode)" from the **Try It** section.
+`
       security: {
         in: "header"
         name: "Authorization"
@@ -21,14 +26,37 @@ and its API key configured.`
       }
       servers: [
         {
-          description: "The Local REST API plugin, enabled inside Obsidian. HTTPS runs on 27124 with a self-signed certificate."
-          url: "http://127.0.0.1:27123"
+          description: "HTTPS (Secure Mode)"
+          url: "https://{host}:{port}"
+          variables: {
+            host: {
+              default: "127.0.0.1"
+              description: "Binding host"
+            }
+            port: {
+              default: "27124"
+              description: "HTTPS port"
+            }
+          }
+        }
+        {
+          description: "HTTP (Insecure Mode)"
+          url: "http://{host}:{port}"
+          variables: {
+            host: {
+              default: "127.0.0.1"
+              description: "Binding host"
+            }
+            port: {
+              default: "27123"
+              description: "HTTP port"
+            }
+          }
         }
       ]
-      summary: "The Local REST API plugin for Obsidian, which serves the open vault over HTTP on the machine Obsidian is running on."
-      title: "Obsidian Local REST API"
+      summary: "The Obsidian Local REST API with MCP plugin gives you two ways to interact with your Obsidian vault programmatically:"
+      title: "Local REST API for Obsidian"
       version: "1.0"
-      website: "http://127.0.0.1"
     }
   }
 }

@@ -4,7 +4,7 @@
 
 The C SDK for the Obsidian API — an entity-oriented client following idiomatic C conventions (explicit structs, function-pointer vtables, and a trailing `PNError**` out-param for errors).
 
-The SDK exposes the API as capitalised, semantic **Entities** — for example `obsidian_tag(client, NULL)` — each
+The SDK exposes the API as capitalised, semantic **Entities** — for example `obsidian_active(client, NULL)` — each
 carrying a small, uniform set of operations (`list`, `load`, `create`, `update`, `remove`, `patch`) instead of raw URL
 paths and query strings. You work with named resources and verbs, which
 keeps the cognitive load low.
@@ -48,21 +48,31 @@ ObsidianSDK* client = obsidian_sdk_new(cmap(1,
 PNError* err = NULL;
 ```
 
-### 2. List tag records
+### 3. Load an active
 
-`list()` returns a List of records and sets `*err` on failure — check
-`err` after the call.
+`load()` returns the bare record and sets `*err` on failure.
 
 ```c
-Entity* tag = obsidian_tag(client, NULL);
-voxgig_value* tags = tag->vt->list(tag, NULL, NULL, &err);
+Entity* active = obsidian_active(client, NULL);
+voxgig_value* active_rec = active->vt->load(active, NULL, NULL, &err);
 if (err) {
-    fprintf(stderr, "list failed: %s\n", err->msg);
+    fprintf(stderr, "load failed: %s\n", err->msg);
 } else {
-    for (size_t i = 0; i < (size_t)voxgig_size(tags); i++) {
-        printf("%s\n", voxgig_to_json(voxgig_getelem(tags, v_int(i), NULL)));
-    }
+    printf("%s\n", voxgig_to_json(active_rec));
 }
+```
+
+### 4. Create, update, and remove
+
+```c
+// Create — returns the bare created record
+voxgig_value* created = active->vt->create(active, cmap(4, "destination", v_map(), "operation", v_str("example_operation"), "target", v_str("example_target"), "targetType", v_str("example_targetType")), NULL, &err);
+
+// Update
+active->vt->update(active, cmap(2, "content", v_str("example_content"), "createTargetIfMissing", v_bool(true)), NULL, &err);
+
+// Remove
+active->vt->remove(active, NULL, NULL, &err);
 ```
 
 
@@ -72,8 +82,8 @@ Entity operations reject on failure, so wrap them in `try` / `catch`:
 
 ```ts
 try {
-  const tags = await client.Tag().list()
-  console.log(tags)
+  const commands = await client.Command().list()
+  console.log(commands)
 } catch (err) {
   console.error('list failed:', err)
 }
@@ -144,9 +154,9 @@ ObsidianSDK* client = test_sdk(NULL, NULL);
 PNError* err = NULL;
 
 // Entity ops return the bare record and set *err on failure.
-Entity* tag = obsidian_tag(client, NULL);
-voxgig_value* tag_rec = tag->vt->list(tag, NULL, NULL, &err);
-// tag_rec contains the mock response record
+Entity* command = obsidian_command(client, NULL);
+voxgig_value* command_rec = command->vt->list(command, NULL, NULL, &err);
+// command_rec contains the mock response record
 ```
 
 ### Use a custom fetch function
@@ -231,6 +241,13 @@ Creates a test-mode client with mock transport. Both arguments may be
 | --- | --- | --- |
 | `sdk_prepare` | `(ObsidianSDK*, fetchargs, PNError**) -> voxgig_value*` | Build an HTTP request definition without sending. |
 | `sdk_direct` | `(ObsidianSDK*, fetchargs, PNError**) -> voxgig_value*` | Build and send an HTTP request. Returns a result map (branch on `ok`). |
+| `obsidian_active` | `(ObsidianSDK*, entopts) -> Entity*` | Create an Active entity instance. |
+| `obsidian_command` | `(ObsidianSDK*, entopts) -> Entity*` | Create a Command entity instance. |
+| `obsidian_entity1` | `(ObsidianSDK*, entopts) -> Entity*` | Create an Entity1 entity instance. |
+| `obsidian_mcp` | `(ObsidianSDK*, entopts) -> Entity*` | Create a Mcp entity instance. |
+| `obsidian_open` | `(ObsidianSDK*, entopts) -> Entity*` | Create an Open entity instance. |
+| `obsidian_search` | `(ObsidianSDK*, entopts) -> Entity*` | Create a Search entity instance. |
+| `obsidian_system` | `(ObsidianSDK*, entopts) -> Entity*` | Create a System entity instance. |
 | `obsidian_tag` | `(ObsidianSDK*, entopts) -> Entity*` | Create a Tag entity instance. |
 | `obsidian_vault` | `(ObsidianSDK*, entopts) -> Entity*` | Create a Vault entity instance. |
 
@@ -271,6 +288,89 @@ On error, `ok` is `false` and `err` carries the error value.
 
 ### Entities
 
+#### Active
+
+| Field | Description |
+| --- | --- |
+| `content` | String payload: a heading/block body or label, a new block id for a block `marker` rename (letters, numbers, hyphens, and underscores only), or a new frontmatter key name for a frontmatter `marker` rename. |
+| `createTargetIfMissing` | Create the target (heading path, block id, or frontmatter key) if it does not already exist. |
+| `destination` | For a heading move (operation `replace`, scope `parent`): where the section is re-parented. |
+| `ifMatch` | Optimistic-concurrency token (the `version` from a prior document map). |
+| `operation` | What happens to the scoped span: replace it, insert before (`prepend`) or after (`append`), or `delete` it. |
+| `rejectIfContentPreexists` | Fail a `prepend`/`append` when the string content already appears in the target span (makes those operations idempotent on retry). |
+| `scope` | Which part of the target the operation acts on (default `content`). |
+| `target` | The node to edit. |
+| `targetType` | The kind of node to edit. |
+| `value` | Structured JSON payload: a frontmatter value (any JSON — string, number, boolean, array, object, null; for `prepend`/`append` this merges: list concat, dict merge, string concat), or table rows on a `block` target's `content` cell (a 2-D a… |
+| `within` | Refines a heading target to one of the section's direct-body top-level blocks (a paragraph, list, table, code fence, blockquote, …): 0 is the first block in document order, and a negative index counts from the end (-1 = last). |
+
+Operations: Create, Load, Patch, Remove, Update.
+
+API path: `/active/`
+
+#### Command
+
+| Field | Description |
+| --- | --- |
+| `id` |  |
+| `name` |  |
+
+Operations: Create, List.
+
+API path: `/commands/{commandId}/`
+
+#### Entity1
+
+| Field | Description |
+| --- | --- |
+| `obsidian` | Obsidian plugin API version |
+| `self` | Plugin version. |
+
+Operations: Load.
+
+API path: `/`
+
+#### Mcp
+
+| Field | Description |
+| --- | --- |
+| `id` | Request identifier. |
+| `jsonrpc` | JSON-RPC version. |
+| `method` | MCP method to invoke. |
+| `params` | Method-specific parameters. |
+
+Operations: Create, Load.
+
+API path: `/mcp/`
+
+#### Open
+
+| Field | Description |
+| --- | --- |
+| `id` |  |
+
+Operations: Create.
+
+API path: `/open/{filename}`
+
+#### Search
+
+| Field | Description |
+| --- | --- |
+
+Operations: Create.
+
+API path: `/search/simple/`
+
+#### System
+
+| Field | Description |
+| --- | --- |
+
+Operations: Load.
+
+API path: `/obsidian-local-rest-api.crt`
+
 #### Tag
 
 | Field | Description |
@@ -307,6 +407,215 @@ API path: `/vault/{filename}`
 
 
 ## Entities
+
+
+### Active
+
+Create an instance: `Entity* active = obsidian_active(client, NULL);`
+
+#### Operations
+
+| Method | Description |
+| --- | --- |
+| `vt->create(e, reqdata, ctrl, &err)` | Create a new entity with the given data. |
+| `vt->load(e, reqmatch, ctrl, &err)` | Load a single entity by match criteria. |
+| `vt->remove(e, reqmatch, ctrl, &err)` | Remove the matching entity. |
+| `vt->update(e, reqdata, ctrl, &err)` | Update an existing entity. |
+
+#### Fields
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `content` | `char*` | String payload: a heading/block body or label, a new block id for a block `marker` rename (letters, numbers, hyphens, and underscores only), or a new frontmatter key name for a frontmatter `marker` rename. |
+| `createTargetIfMissing` | `bool` | Create the target (heading path, block id, or frontmatter key) if it does not already exist. |
+| `destination` | `voxgig_value* (map)` | For a heading move (operation `replace`, scope `parent`): where the section is re-parented. |
+| `ifMatch` | `char*` | Optimistic-concurrency token (the `version` from a prior document map). |
+| `operation` | `char*` | What happens to the scoped span: replace it, insert before (`prepend`) or after (`append`), or `delete` it. |
+| `rejectIfContentPreexists` | `bool` | Fail a `prepend`/`append` when the string content already appears in the target span (makes those operations idempotent on retry). |
+| `scope` | `char*` | Which part of the target the operation acts on (default `content`). |
+| `target` | `voxgig_value*` | The node to edit. |
+| `targetType` | `char*` | The kind of node to edit. |
+| `value` | `voxgig_value*` | Structured JSON payload: a frontmatter value (any JSON — string, number, boolean, array, object, null; for `prepend`/`append` this merges: list concat, dict merge, string concat), or table rows on a `block` target's `content` cell (a 2-D a… |
+| `within` | `int64_t` | Refines a heading target to one of the section's direct-body top-level blocks (a paragraph, list, table, code fence, blockquote, …): 0 is the first block in document order, and a negative index counts from the end (-1 = last). |
+
+#### Example: Load
+
+```c
+Entity* active = obsidian_active(client, NULL);
+voxgig_value* active_rec = active->vt->load(active, NULL, NULL, &err);
+```
+
+#### Example: Create
+
+```c
+Entity* active = obsidian_active(client, NULL);
+voxgig_value* active_rec = active->vt->create(active, cmap(4,
+    "destination", v_map(),  // voxgig_value* (map)
+    "operation", v_str("example_operation"),  // char*
+    "target", v_str("example_target"),  // voxgig_value*
+    "targetType", v_str("example_targetType"))  // char*
+, NULL, &err);
+```
+
+
+### Command
+
+Create an instance: `Entity* command = obsidian_command(client, NULL);`
+
+#### Operations
+
+| Method | Description |
+| --- | --- |
+| `vt->create(e, reqdata, ctrl, &err)` | Create a new entity with the given data. |
+| `vt->list(e, reqmatch, ctrl, &err)` | List entities, optionally matching the given criteria. |
+
+#### Fields
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `char*` |  |
+| `name` | `char*` |  |
+
+#### Example: List
+
+```c
+Entity* command = obsidian_command(client, NULL);
+voxgig_value* commands = command->vt->list(command, NULL, NULL, &err);
+```
+
+#### Example: Create
+
+```c
+Entity* command = obsidian_command(client, NULL);
+voxgig_value* command_rec = command->vt->create(command, cmap(1,
+    "id", v_str("example_id"))  // char*
+, NULL, &err);
+```
+
+
+### Entity1
+
+Create an instance: `Entity* entity1 = obsidian_entity1(client, NULL);`
+
+#### Operations
+
+| Method | Description |
+| --- | --- |
+| `vt->load(e, reqmatch, ctrl, &err)` | Load a single entity by match criteria. |
+
+#### Fields
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `obsidian` | `char*` | Obsidian plugin API version |
+| `self` | `char*` | Plugin version. |
+
+#### Example: Load
+
+```c
+Entity* entity1 = obsidian_entity1(client, NULL);
+voxgig_value* entity1_rec = entity1->vt->load(entity1, NULL, NULL, &err);
+```
+
+
+### Mcp
+
+Create an instance: `Entity* mcp = obsidian_mcp(client, NULL);`
+
+#### Operations
+
+| Method | Description |
+| --- | --- |
+| `vt->create(e, reqdata, ctrl, &err)` | Create a new entity with the given data. |
+| `vt->load(e, reqmatch, ctrl, &err)` | Load a single entity by match criteria. |
+
+#### Fields
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `char*` | Request identifier. |
+| `jsonrpc` | `char*` | JSON-RPC version. |
+| `method` | `char*` | MCP method to invoke. |
+| `params` | `voxgig_value* (map)` | Method-specific parameters. |
+
+#### Example: Load
+
+```c
+Entity* mcp = obsidian_mcp(client, NULL);
+voxgig_value* mcp_rec = mcp->vt->load(mcp, cmap(1, "id", v_str("mcp_id")), NULL, &err);
+```
+
+#### Example: Create
+
+```c
+Entity* mcp = obsidian_mcp(client, NULL);
+voxgig_value* mcp_rec = mcp->vt->create(mcp, cmap(2,
+    "jsonrpc", v_str("example_jsonrpc"),  // char*
+    "method", v_str("example_method"))  // char*
+, NULL, &err);
+```
+
+
+### Open
+
+Create an instance: `Entity* open = obsidian_open(client, NULL);`
+
+#### Operations
+
+| Method | Description |
+| --- | --- |
+| `vt->create(e, reqdata, ctrl, &err)` | Create a new entity with the given data. |
+
+#### Fields
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `char*` |  |
+
+#### Example: Create
+
+```c
+Entity* open = obsidian_open(client, NULL);
+voxgig_value* open_rec = open->vt->create(open, cmap(1,
+    "id", v_str("example_id"))  // char*
+, NULL, &err);
+```
+
+
+### Search
+
+Create an instance: `Entity* search = obsidian_search(client, NULL);`
+
+#### Operations
+
+| Method | Description |
+| --- | --- |
+| `vt->create(e, reqdata, ctrl, &err)` | Create a new entity with the given data. |
+
+#### Example: Create
+
+```c
+Entity* search = obsidian_search(client, NULL);
+voxgig_value* search_rec = search->vt->create(search, NULL, NULL, &err);
+```
+
+
+### System
+
+Create an instance: `Entity* system = obsidian_system(client, NULL);`
+
+#### Operations
+
+| Method | Description |
+| --- | --- |
+| `vt->load(e, reqmatch, ctrl, &err)` | Load a single entity by match criteria. |
+
+#### Example: Load
+
+```c
+Entity* system = obsidian_system(client, NULL);
+voxgig_value* system_rec = system->vt->load(system, NULL, NULL, &err);
+```
 
 
 ### Tag
@@ -532,9 +841,9 @@ activated earlier.
 
 ## Open types
 
-1 field is carried as open values rather than typed structures.
+2 fields are carried as open values rather than typed structures.
 This follows from the API definition, not from a gap in this SDK: the
-definition describes it with untagged unions —
+definition describes them with untagged unions —
 `oneOf`/`anyOf` branches with no `discriminator` — so it never states which
 variant a given value is. Nothing can select a branch reliably, so the SDK
 passes the value through unchanged rather than assert a shape the API does not
@@ -542,6 +851,7 @@ guarantee.
 
 | Entity | Field | Variants | Nesting |
 | --- | --- | --- | --- |
+| `active` | `destination` | 3 | 2 levels |
 | `vault` | `destination` | 3 | 2 levels |
 
 These values round-trip unchanged — read them, modify them, send them back. If
@@ -645,11 +955,11 @@ stores the returned data and match criteria internally. Subsequent
 calls on the same instance can rely on this state.
 
 ```ts
-const tag = client.Tag()
-await tag.list()
+const command = client.Command()
+await command.list()
 
-// tag.data() now returns the tag data from the last `list`
-// tag.match() returns the last match criteria
+// command.data() now returns the command data from the last `list`
+// command.match() returns the last match criteria
 ```
 
 Call `make()` to create a fresh instance with the same configuration

@@ -16,7 +16,7 @@ import (
 // reqdata map passed through to the SDK. For load, `query` should be
 // `{"id": <value>}`. For list, omit `query` or pass an empty map.
 type Args struct {
-	Entity string         `json:"entity" jsonschema:"tag | vault"`
+	Entity string         `json:"entity" jsonschema:"active | command | entity1 | mcp | open | search | system | tag | vault"`
 	Query  map[string]any `json:"query,omitempty" jsonschema:"optional match map e.g. {\"id\":1} for load, omit for list"`
 }
 
@@ -77,6 +77,20 @@ func runOp(client *sdk.ObsidianSDK, op string, args Args) (*mcp.CallToolResult, 
 // emits one `case "<name>":` per entity defined in the SDK model.
 func entityFor(client *sdk.ObsidianSDK, name string) (sdk.ObsidianEntity, error) {
 	switch strings.ToLower(name) {
+	case "active":
+		return client.Active(nil), nil
+	case "command":
+		return client.Command(nil), nil
+	case "entity1":
+		return client.Entity1(nil), nil
+	case "mcp":
+		return client.Mcp(nil), nil
+	case "open":
+		return client.Open(nil), nil
+	case "search":
+		return client.Search(nil), nil
+	case "system":
+		return client.System(nil), nil
 	case "tag":
 		return client.Tag(nil), nil
 	case "vault":

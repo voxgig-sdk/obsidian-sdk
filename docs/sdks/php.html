@@ -1,11 +1,18 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PHP | Obsidian Local REST API</title><link rel="stylesheet" href="../assets/style.css"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PHP | Local REST API for Obsidian</title><link rel="stylesheet" href="../assets/style.css"></head>
 <body><a class="skip" href="#content">Skip to content</a>
-<header class="site-header"><a class="site-title" href="../index.html">Obsidian Local REST API<span>SDK documentation</span></a><div class="site-links"><a class="repo-link" href="https://github.com/voxgig-sdk/obsidian-sdk">voxgig-sdk/obsidian-sdk</a></div></header>
+<header class="site-header"><a class="site-title" href="../index.html">Local REST API for Obsidian<span>SDK documentation</span></a><div class="site-links"><a class="repo-link" href="https://github.com/voxgig-sdk/obsidian-sdk">voxgig-sdk/obsidian-sdk</a></div></header>
 <div class="site-notice" role="note"></div>
-<div class="shell"><nav class="site-nav" aria-label="Documentation"><div class="search"><label for="search">Search documentation</label><input id="search" type="search" data-base="../" placeholder="Find a guide or reference"><div id="results" aria-live="polite"></div></div><details><summary>Overview</summary><a href="../index.html">Obsidian Local REST API</a></details>
+<div class="shell"><nav class="site-nav" aria-label="Documentation"><div class="search"><label for="search">Search documentation</label><input id="search" type="search" data-base="../" placeholder="Find a guide or reference"><div id="results" aria-live="polite"></div></div><details><summary>Overview</summary><a href="../index.html">Local REST API for Obsidian</a></details>
 <details><summary>API</summary><a href="../api/index.html">API overview</a>
+<a href="../api/active.html">Active</a>
+<a href="../api/command.html">Command</a>
+<a href="../api/entity1.html">Entity1</a>
+<a href="../api/mcp.html">Mcp</a>
+<a href="../api/open.html">Open</a>
+<a href="../api/search.html">Search</a>
+<a href="../api/system.html">System</a>
 <a href="../api/tag.html">Tag</a>
 <a href="../api/vault.html">Vault</a></details>
 <details><summary>Guides</summary><a href="../guides/authentication.html">Authentication</a>
@@ -44,6 +51,34 @@
 </thead>
 <tbody>
 <tr>
+<td><a href="../api/active.html">Active</a></td>
+<td><code>create</code>, <code>load</code>, <code>patch</code>, <code>remove</code>, <code>update</code></td>
+</tr>
+<tr>
+<td><a href="../api/command.html">Command</a></td>
+<td><code>create</code>, <code>list</code></td>
+</tr>
+<tr>
+<td><a href="../api/entity1.html">Entity1</a></td>
+<td><code>load</code></td>
+</tr>
+<tr>
+<td><a href="../api/mcp.html">Mcp</a></td>
+<td><code>create</code>, <code>load</code></td>
+</tr>
+<tr>
+<td><a href="../api/open.html">Open</a></td>
+<td><code>create</code></td>
+</tr>
+<tr>
+<td><a href="../api/search.html">Search</a></td>
+<td><code>create</code></td>
+</tr>
+<tr>
+<td><a href="../api/system.html">System</a></td>
+<td><code>load</code></td>
+</tr>
+<tr>
 <td><a href="../api/tag.html">Tag</a></td>
 <td><code>list</code></td>
 </tr>
@@ -74,7 +109,11 @@ $client = new ObsidianSDK([&quot;apikey&quot; =&gt; getenv(&quot;OBSIDIAN_APIKEY
 </code></pre>
 <h2 id="client-defaults">Client defaults</h2>
 <pre><code class="language-json">{
-  &quot;base&quot;: &quot;http://127.0.0.1:27123&quot;,
+  &quot;base&quot;: &quot;https://{host}:{port}&quot;,
+  &quot;server&quot;: {
+    &quot;host&quot;: &quot;127.0.0.1&quot;,
+    &quot;port&quot;: &quot;27124&quot;
+  },
   &quot;auth&quot;: {
     &quot;prefix&quot;: &quot;Bearer&quot;
   },
@@ -82,6 +121,13 @@ $client = new ObsidianSDK([&quot;apikey&quot; =&gt; getenv(&quot;OBSIDIAN_APIKEY
     &quot;content-type&quot;: &quot;application/json&quot;
   },
   &quot;entity&quot;: {
+    &quot;active&quot;: {},
+    &quot;command&quot;: {},
+    &quot;entity1&quot;: {},
+    &quot;mcp&quot;: {},
+    &quot;open&quot;: {},
+    &quot;search&quot;: {},
+    &quot;system&quot;: {},
     &quot;tag&quot;: {},
     &quot;vault&quot;: {}
   }

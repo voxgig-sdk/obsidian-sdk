@@ -16,6 +16,158 @@ from __future__ import annotations
 from typing import TypedDict, Any
 
 
+class ActiveRequired(TypedDict):
+    destination: dict
+    operation: str
+    target: Any
+    targetType: str
+
+
+class Active(ActiveRequired, total=False):
+    content: str
+    createTargetIfMissing: bool
+    ifMatch: str
+    rejectIfContentPreexists: bool
+    scope: str
+    value: Any
+    within: int
+
+
+class ActiveLoadMatch(TypedDict, total=False):
+    content: str
+    createTargetIfMissing: bool
+    destination: dict
+    ifMatch: str
+    operation: str
+    rejectIfContentPreexists: bool
+    scope: str
+    target: Any
+    targetType: str
+    value: Any
+    within: int
+
+
+class ActiveCreateDataRequired(TypedDict):
+    destination: dict
+    operation: str
+    target: Any
+    targetType: str
+
+
+class ActiveCreateData(ActiveCreateDataRequired, total=False):
+    content: str
+    createTargetIfMissing: bool
+    ifMatch: str
+    rejectIfContentPreexists: bool
+    scope: str
+    value: Any
+    within: int
+
+
+class ActiveUpdateData(TypedDict, total=False):
+    content: str
+    createTargetIfMissing: bool
+    destination: dict
+    ifMatch: str
+    operation: str
+    rejectIfContentPreexists: bool
+    scope: str
+    target: Any
+    targetType: str
+    value: Any
+    within: int
+
+
+class ActiveRemoveMatch(TypedDict, total=False):
+    permanent: str
+
+
+class Command(TypedDict, total=False):
+    id: str
+    name: str
+
+
+class CommandListMatch(TypedDict, total=False):
+    id: str
+    name: str
+
+
+class CommandCreateDataRequired(TypedDict):
+    id: str
+
+
+class CommandCreateData(CommandCreateDataRequired, total=False):
+    name: str
+
+
+class Entity1(TypedDict, total=False):
+    obsidian: str
+    self: str
+
+
+class Entity1LoadMatch(TypedDict, total=False):
+    obsidian: str
+    self: str
+
+
+class McpRequired(TypedDict):
+    jsonrpc: str
+    method: str
+
+
+class Mcp(McpRequired, total=False):
+    id: str
+    params: dict
+
+
+class McpLoadMatchRequired(TypedDict):
+    id: str
+
+
+class McpLoadMatch(McpLoadMatchRequired, total=False):
+    jsonrpc: str
+    method: str
+    params: dict
+
+
+class McpCreateDataRequired(TypedDict):
+    jsonrpc: str
+    method: str
+
+
+class McpCreateData(McpCreateDataRequired, total=False):
+    id: str
+    params: dict
+
+
+class Open(TypedDict, total=False):
+    id: str
+
+
+class OpenCreateDataRequired(TypedDict):
+    id: str
+
+
+class OpenCreateData(OpenCreateDataRequired, total=False):
+    new_leaf: bool
+
+
+class Search(TypedDict):
+    pass
+
+
+class SearchCreateData(TypedDict):
+    pass
+
+
+class System(TypedDict):
+    pass
+
+
+class SystemLoadMatch(TypedDict):
+    pass
+
+
 class Tag(TypedDict, total=False):
     count: float
     name: str

@@ -4,7 +4,7 @@
 
 The Python SDK for the Obsidian API — an entity-oriented client following Pythonic conventions.
 
-The SDK exposes the API as capitalised, semantic **Entities** — for example `client.Tag()` — each
+The SDK exposes the API as capitalised, semantic **Entities** — for example `client.Active()` — each
 carrying a small, uniform set of operations (`list`, `load`, `create`, `update`, `remove`, `patch`) instead of raw URL
 paths and query strings. You work with named resources and verbs, which
 keeps the cognitive load low.
@@ -36,21 +36,36 @@ from obsidian_sdk import ObsidianSDK
 
 client = ObsidianSDK({
     "apikey": os.environ.get("OBSIDIAN_APIKEY"),
+    "server": {
+        "host": "<host>",
+        "port": "<port>",
+    },
 })
 ```
 
-### 2. List tag records
+### 3. Load an active
 
-`list()` returns a `list` of records (each a `dict`) and raises on
-error — iterate it directly.
+`load()` returns the ENTITY — call data_get() for the record — and raises on error.
 
 ```python
 try:
-    tags = client.Tag().list()
-    for tag in tags:
-        print(tag)
+    active = client.Active().load()
+    print(active)
 except Exception as err:
-    print(f"list failed: {err}")
+    print(f"load failed: {err}")
+```
+
+### 4. Create, update, and remove
+
+```python
+# Create — returns the ENTITY (call data_get() for the record)
+created = client.Active().create({"destination": {}, "operation": "example_operation", "target": "example_target", "targetType": "example_targetType"})
+
+# Update
+client.Active().update({"content": "example_content", "createTargetIfMissing": True})
+
+# Remove
+client.Active().remove()
 ```
 
 
@@ -60,8 +75,8 @@ Entity operations raise on failure, so wrap them in `try` / `except`:
 
 ```python
 try:
-    tags = client.Tag().list()
-    print(tags)
+    commands = client.Command().list()
+    print(commands)
 except Exception as err:
     print(f"list failed: {err}")
 ```
@@ -129,8 +144,8 @@ client = ObsidianSDK.test()
 
 # Entity ops return the ENTITY and raises on error;
 # call data_get() for the record.
-tag = client.Tag().list()
-# tag contains the mock response record
+command = client.Command().list()
+# command contains the mock response record
 ```
 
 ### Use a custom fetch function
@@ -208,6 +223,13 @@ Creates a test-mode client with mock transport. Both arguments may be `None`.
 | `get_utility` | `() -> Utility` | Copy of the SDK utility object. |
 | `prepare` | `(fetchargs) -> dict` | Build an HTTP request definition without sending. Raises on error. |
 | `direct` | `(fetchargs) -> dict` | Build and send an HTTP request. Returns a result dict (branch on `ok`). |
+| `Active` | `(data) -> ActiveEntity` | Create an Active entity instance. |
+| `Command` | `(data) -> CommandEntity` | Create a Command entity instance. |
+| `Entity1` | `(data) -> Entity1Entity` | Create an Entity1 entity instance. |
+| `Mcp` | `(data) -> McpEntity` | Create a Mcp entity instance. |
+| `Open` | `(data) -> OpenEntity` | Create an Open entity instance. |
+| `Search` | `(data) -> SearchEntity` | Create a Search entity instance. |
+| `System` | `(data) -> SystemEntity` | Create a System entity instance. |
 | `Tag` | `(data) -> TagEntity` | Create a Tag entity instance. |
 | `Vault` | `(data) -> VaultEntity` | Create a Vault entity instance. |
 
@@ -249,6 +271,89 @@ On error, `ok` is `False` and `err` contains the error value.
 
 ### Entities
 
+#### Active
+
+| Field | Description |
+| --- | --- |
+| `content` | String payload: a heading/block body or label, a new block id for a block `marker` rename (letters, numbers, hyphens, and underscores only), or a new frontmatter key name for a frontmatter `marker` rename. |
+| `createTargetIfMissing` | Create the target (heading path, block id, or frontmatter key) if it does not already exist. |
+| `destination` | For a heading move (operation `replace`, scope `parent`): where the section is re-parented. |
+| `ifMatch` | Optimistic-concurrency token (the `version` from a prior document map). |
+| `operation` | What happens to the scoped span: replace it, insert before (`prepend`) or after (`append`), or `delete` it. |
+| `rejectIfContentPreexists` | Fail a `prepend`/`append` when the string content already appears in the target span (makes those operations idempotent on retry). |
+| `scope` | Which part of the target the operation acts on (default `content`). |
+| `target` | The node to edit. |
+| `targetType` | The kind of node to edit. |
+| `value` | Structured JSON payload: a frontmatter value (any JSON — string, number, boolean, array, object, null; for `prepend`/`append` this merges: list concat, dict merge, string concat), or table rows on a `block` target's `content` cell (a 2-D a… |
+| `within` | Refines a heading target to one of the section's direct-body top-level blocks (a paragraph, list, table, code fence, blockquote, …): 0 is the first block in document order, and a negative index counts from the end (-1 = last). |
+
+Operations: Create, Load, Patch, Remove, Update.
+
+API path: `/active/`
+
+#### Command
+
+| Field | Description |
+| --- | --- |
+| `id` |  |
+| `name` |  |
+
+Operations: Create, List.
+
+API path: `/commands/{commandId}/`
+
+#### Entity1
+
+| Field | Description |
+| --- | --- |
+| `obsidian` | Obsidian plugin API version |
+| `self` | Plugin version. |
+
+Operations: Load.
+
+API path: `/`
+
+#### Mcp
+
+| Field | Description |
+| --- | --- |
+| `id` | Request identifier. |
+| `jsonrpc` | JSON-RPC version. |
+| `method` | MCP method to invoke. |
+| `params` | Method-specific parameters. |
+
+Operations: Create, Load.
+
+API path: `/mcp/`
+
+#### Open
+
+| Field | Description |
+| --- | --- |
+| `id` |  |
+
+Operations: Create.
+
+API path: `/open/{filename}`
+
+#### Search
+
+| Field | Description |
+| --- | --- |
+
+Operations: Create.
+
+API path: `/search/simple/`
+
+#### System
+
+| Field | Description |
+| --- | --- |
+
+Operations: Load.
+
+API path: `/obsidian-local-rest-api.crt`
+
 #### Tag
 
 | Field | Description |
@@ -285,6 +390,206 @@ API path: `/vault/{filename}`
 
 
 ## Entities
+
+
+### Active
+
+Create an instance: `active = client.Active()`
+
+#### Operations
+
+| Method | Description |
+| --- | --- |
+| `create(data)` | Create a new entity with the given data. |
+| `load(match)` | Load a single entity by match criteria. |
+| `remove(match)` | Remove the matching entity. |
+| `update(data)` | Update an existing entity. |
+
+#### Fields
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `content` | `str` | String payload: a heading/block body or label, a new block id for a block `marker` rename (letters, numbers, hyphens, and underscores only), or a new frontmatter key name for a frontmatter `marker` rename. |
+| `createTargetIfMissing` | `bool` | Create the target (heading path, block id, or frontmatter key) if it does not already exist. |
+| `destination` | `dict` | For a heading move (operation `replace`, scope `parent`): where the section is re-parented. |
+| `ifMatch` | `str` | Optimistic-concurrency token (the `version` from a prior document map). |
+| `operation` | `str` | What happens to the scoped span: replace it, insert before (`prepend`) or after (`append`), or `delete` it. |
+| `rejectIfContentPreexists` | `bool` | Fail a `prepend`/`append` when the string content already appears in the target span (makes those operations idempotent on retry). |
+| `scope` | `str` | Which part of the target the operation acts on (default `content`). |
+| `target` | `Any` | The node to edit. |
+| `targetType` | `str` | The kind of node to edit. |
+| `value` | `Any` | Structured JSON payload: a frontmatter value (any JSON — string, number, boolean, array, object, null; for `prepend`/`append` this merges: list concat, dict merge, string concat), or table rows on a `block` target's `content` cell (a 2-D a… |
+| `within` | `int` | Refines a heading target to one of the section's direct-body top-level blocks (a paragraph, list, table, code fence, blockquote, …): 0 is the first block in document order, and a negative index counts from the end (-1 = last). |
+
+#### Example: Load
+
+```python
+active = client.Active().load()
+```
+
+#### Example: Create
+
+```python
+active = client.Active().create({
+    "destination": {},  # dict
+    "operation": "example_operation",  # str
+    "target": "example_target",  # Any
+    "targetType": "example_targetType",  # str
+})
+```
+
+
+### Command
+
+Create an instance: `command = client.Command()`
+
+#### Operations
+
+| Method | Description |
+| --- | --- |
+| `create(data)` | Create a new entity with the given data. |
+| `list()` | List entities, optionally matching the given criteria. |
+
+#### Fields
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `str` |  |
+| `name` | `str` |  |
+
+#### Example: List
+
+```python
+commands = client.Command().list()
+```
+
+#### Example: Create
+
+```python
+command = client.Command().create({
+    "id": "example_id",  # str
+})
+```
+
+
+### Entity1
+
+Create an instance: `entity1 = client.Entity1()`
+
+#### Operations
+
+| Method | Description |
+| --- | --- |
+| `load(match)` | Load a single entity by match criteria. |
+
+#### Fields
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `obsidian` | `str` | Obsidian plugin API version |
+| `self` | `str` | Plugin version. |
+
+#### Example: Load
+
+```python
+entity1 = client.Entity1().load()
+```
+
+
+### Mcp
+
+Create an instance: `mcp = client.Mcp()`
+
+#### Operations
+
+| Method | Description |
+| --- | --- |
+| `create(data)` | Create a new entity with the given data. |
+| `load(match)` | Load a single entity by match criteria. |
+
+#### Fields
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `str` | Request identifier. |
+| `jsonrpc` | `str` | JSON-RPC version. |
+| `method` | `str` | MCP method to invoke. |
+| `params` | `dict` | Method-specific parameters. |
+
+#### Example: Load
+
+```python
+mcp = client.Mcp().load({"id": "mcp_id"})
+```
+
+#### Example: Create
+
+```python
+mcp = client.Mcp().create({
+    "jsonrpc": "example_jsonrpc",  # str
+    "method": "example_method",  # str
+})
+```
+
+
+### Open
+
+Create an instance: `open = client.Open()`
+
+#### Operations
+
+| Method | Description |
+| --- | --- |
+| `create(data)` | Create a new entity with the given data. |
+
+#### Fields
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `str` |  |
+
+#### Example: Create
+
+```python
+open = client.Open().create({
+    "id": "example_id",  # str
+})
+```
+
+
+### Search
+
+Create an instance: `search = client.Search()`
+
+#### Operations
+
+| Method | Description |
+| --- | --- |
+| `create(data)` | Create a new entity with the given data. |
+
+#### Example: Create
+
+```python
+search = client.Search().create({
+})
+```
+
+
+### System
+
+Create an instance: `system = client.System()`
+
+#### Operations
+
+| Method | Description |
+| --- | --- |
+| `load(match)` | Load a single entity by match criteria. |
+
+#### Example: Load
+
+```python
+system = client.System().load()
+```
 
 
 ### Tag
@@ -506,9 +811,9 @@ activated earlier.
 
 ## Open types
 
-1 field is carried as open values rather than typed structures.
+2 fields are carried as open values rather than typed structures.
 This follows from the API definition, not from a gap in this SDK: the
-definition describes it with untagged unions —
+definition describes them with untagged unions —
 `oneOf`/`anyOf` branches with no `discriminator` — so it never states which
 variant a given value is. Nothing can select a branch reliably, so the SDK
 passes the value through unchanged rather than assert a shape the API does not
@@ -516,6 +821,7 @@ guarantee.
 
 | Entity | Field | Variants | Nesting |
 | --- | --- | --- | --- |
+| `active` | `destination` | 3 | 2 levels |
 | `vault` | `destination` | 3 | 2 levels |
 
 These values round-trip unchanged — read them, modify them, send them back. If
@@ -587,6 +893,7 @@ Use `helpers.to_map()` to safely validate that a value is a dict.
 py/
 ├── obsidian_sdk.py         -- Main SDK module
 ├── config.py                    -- Configuration
+├── schema.py                    -- Generated option + entity specs
 ├── features.py                  -- Feature factory
 ├── core/                        -- Core types and context
 ├── entity/                      -- Entity implementations
@@ -604,11 +911,11 @@ Entity instances are stateful. After a successful `list`, the entity
 stores the returned data and match criteria internally.
 
 ```python
-tag = client.Tag()
-tag.list()
+command = client.Command()
+command.list()
 
-# tag.data_get() now returns the tag data from the last list
-# tag.match_get() returns the last match criteria
+# command.data_get() now returns the command data from the last list
+# command.match_get() returns the last match criteria
 ```
 
 Call `make()` to create a fresh instance with the same configuration

@@ -1,0 +1,85 @@
+# Entity: search
+
+main: kit: entity: search: {
+
+  alias: field: {}
+
+  name: "search"
+  op: {
+    create: {
+      name: "create"
+      points: [
+        {
+          args: {
+            query: [
+              {
+                example: 100
+                kind: "query"
+                name: "context_length"
+                orig: "context_length"
+                reqd: false
+                type: "`$NUMBER`"
+              }
+              {
+                kind: "query"
+                name: "query"
+                orig: "query"
+                reqd: true
+                type: "`$STRING`"
+              }
+            ]
+          }
+          contract: {
+            id: "POST /search/simple/"
+            json: "{\"parameters\":[{\"description\":\"Your search query\",\"in\":\"query\",\"name\":\"query\",\"required\":true,\"schema\":{\"type\":\"string\"}},{\"description\":\"How much context to return around the matching string\",\"in\":\"query\",\"name\":\"contextLength\",\"required\":false,\"schema\":{\"default\":100,\"type\":\"number\"}}],\"protocol\":\"http\",\"responses\":{\"200\":{\"content\":{\"application/json\":{\"schema\":{\"items\":{\"properties\":{\"filename\":{\"description\":\"Path to the matching file\",\"type\":\"string\"},\"matches\":{\"items\":{\"properties\":{\"context\":{\"type\":\"string\"},\"match\":{\"properties\":{\"end\":{\"type\":\"number\"},\"start\":{\"type\":\"number\"}},\"required\":[\"start\",\"end\"],\"type\":\"object\"}},\"required\":[\"match\",\"context\"],\"type\":\"object\"},\"type\":\"array\"},\"score\":{\"type\":\"number\"}},\"type\":\"object\"},\"type\":\"array\"}}},\"description\":\"Success\"}},\"security\":[{\"apiKeyAuth\":[]}],\"securitySchemes\":{\"apiKeyAuth\":{\"description\":\"Find your API Key in your Obsidian settings\\nin the \\\"Local REST API\\\" section under \\\"Plugins\\\".\\n\",\"scheme\":\"bearer\",\"type\":\"http\"}},\"securitySource\":\"definition\"}"
+            source: "openapi3"
+            version: 1
+          }
+          method: "POST"
+          orig: "/search/simple/"
+          segments: [
+            {
+              lit: "search"
+            }
+            {
+              lit: "simple"
+            }
+          ]
+          select: {
+            "$action": "simple"
+            exist: [
+              "context_length"
+              "query"
+            ]
+          }
+          transform: {
+            req: "`reqdata`"
+            res: "`body`"
+          }
+        }
+        {
+          contract: {
+            id: "POST /search/"
+            json: "{\"parameters\":[],\"protocol\":\"http\",\"requestBody\":{\"content\":{\"application/vnd.olrapi.jsonlogic+json\":{\"examples\":{\"find_by_frontmatter_url_glob\":{\"summary\":\"Find notes having URL or a matching URL glob frontmatter field.\",\"value\":\"{\\n  \\\"or\\\": [\\n    {\\\"===\\\": [{\\\"var\\\": \\\"frontmatter.url\\\"}, \\\"https://myurl.com/some/path/\\\"]},\\n    {\\\"glob\\\": [{\\\"var\\\": \\\"frontmatter.url-glob\\\"}, \\\"https://myurl.com/some/path/\\\"]}\\n  ]\\n}\\n\"},\"find_by_frontmatter_value\":{\"summary\":\"Find notes having a certain frontmatter field value.\",\"value\":\"{\\n  \\\"==\\\": [\\n    {\\\"var\\\": \\\"frontmatter.myField\\\"},\\n    \\\"myValue\\\"\\n  ]\\n}\\n\"},\"find_by_tag\":{\"summary\":\"Find notes having a certain tag\",\"value\":\"{\\n  \\\"in\\\": [\\n    \\\"myTag\\\",\\n    {\\\"var\\\": \\\"tags\\\"}\\n  ]\\n}\\n\"}},\"schema\":{\"externalDocs\":{\"url\":\"https://jsonlogic.com/operations.html\"},\"type\":\"object\"}}},\"required\":true},\"responses\":{\"200\":{\"content\":{\"application/json\":{\"schema\":{\"items\":{\"properties\":{\"filename\":{\"description\":\"Path to the matching file\",\"type\":\"string\"},\"result\":{\"oneOf\":[{\"type\":\"string\"},{\"type\":\"number\"},{\"items\":{},\"type\":\"array\"},{\"type\":\"object\"},{\"type\":\"boolean\"}]}},\"required\":[\"filename\",\"result\"],\"type\":\"object\"},\"type\":\"array\"}}},\"description\":\"Success\"},\"400\":{\"content\":{\"application/json\":{\"schema\":{\"properties\":{\"errorCode\":{\"description\":\"A 5-digit error code uniquely identifying this particular type of error.\\n\",\"example\":40149,\"type\":\"number\"},\"message\":{\"description\":\"Message describing the error.\",\"example\":\"A brief description of the error.\",\"type\":\"string\"}},\"type\":\"object\"}}},\"description\":\"Bad request.  Make sure you have specified an acceptable\\nContent-Type for your search query.\\n\"}},\"security\":[{\"apiKeyAuth\":[]}],\"securitySchemes\":{\"apiKeyAuth\":{\"description\":\"Find your API Key in your Obsidian settings\\nin the \\\"Local REST API\\\" section under \\\"Plugins\\\".\\n\",\"scheme\":\"bearer\",\"type\":\"http\"}},\"securitySource\":\"definition\"}"
+            source: "openapi3"
+            version: 1
+          }
+          method: "POST"
+          orig: "/search/"
+          segments: [
+            {
+              lit: "search"
+            }
+          ]
+          transform: {
+            req: "`reqdata`"
+            res: "`body`"
+          }
+        }
+      ]
+    }
+  }
+
+
+
+}

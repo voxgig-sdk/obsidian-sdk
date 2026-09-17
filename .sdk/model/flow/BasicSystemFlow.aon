@@ -1,0 +1,28 @@
+# BasicSystemFlow
+
+main: kit: flow: BasicSystemFlow:
+{
+  entity: "system",
+  kind: "basic",
+  name: "BasicSystemFlow",
+  step: [
+    {
+      input: {
+        ref: "system_ref01",
+        srcdatavar: "system_ref01_data",
+        suffix: "_dt0"
+      }
+
+      op: "load",
+      valid: [
+        {
+          apply: "TextFieldMark",
+          def: {
+            mark: "Mark01-system_ref01"
+          }
+        }
+      ]
+    }
+  ],
+  "key$": "BasicSystemFlow"
+}

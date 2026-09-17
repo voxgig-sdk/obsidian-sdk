@@ -1,3 +1,10 @@
+import { ActiveEntity } from './entity/ActiveEntity';
+import { CommandEntity } from './entity/CommandEntity';
+import { Entity1Entity } from './entity/Entity1Entity';
+import { McpEntity } from './entity/McpEntity';
+import { OpenEntity } from './entity/OpenEntity';
+import { SearchEntity } from './entity/SearchEntity';
+import { SystemEntity } from './entity/SystemEntity';
 import { TagEntity } from './entity/TagEntity';
 import { VaultEntity } from './entity/VaultEntity';
 export type * from './ObsidianTypes';
@@ -45,6 +52,13 @@ declare class ObsidianSDK {
         data?: undefined;
     }>;
     graphql(query: string, variables?: any, ctrl?: any): Promise<any>;
+    Active(entopts?: Record<string, any>): ActiveEntity;
+    Command(entopts?: Record<string, any>): CommandEntity;
+    Entity1(entopts?: Record<string, any>): Entity1Entity;
+    Mcp(entopts?: Record<string, any>): McpEntity;
+    Open(entopts?: Record<string, any>): OpenEntity;
+    Search(entopts?: Record<string, any>): SearchEntity;
+    System(entopts?: Record<string, any>): SystemEntity;
     Tag(entopts?: Record<string, any>): TagEntity;
     Vault(entopts?: Record<string, any>): VaultEntity;
     static test(testoptsarg?: any, sdkoptsarg?: any): ObsidianSDK;

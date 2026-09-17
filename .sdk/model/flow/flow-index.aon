@@ -1,4 +1,11 @@
 # Flows
 
+@"./BasicActiveFlow.aon"
+@"./BasicCommandFlow.aon"
+@"./BasicEntity1Flow.aon"
+@"./BasicMcpFlow.aon"
+@"./BasicOpenFlow.aon"
+@"./BasicSearchFlow.aon"
+@"./BasicSystemFlow.aon"
 @"./BasicTagFlow.aon"
 @"./BasicVaultFlow.aon"

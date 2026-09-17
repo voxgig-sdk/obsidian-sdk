@@ -63,6 +63,8 @@ def tag_direct_setup(mockres)
     "OBSIDIAN_TEST_TAG_ENTID" => {},
     "OBSIDIAN_TEST_LIVE" => "FALSE",
     "OBSIDIAN_APIKEY" => "",
+    "OBSIDIAN_SERVER_HOST" => "127.0.0.1",
+    "OBSIDIAN_SERVER_PORT" => "27124",
   })
 
   live = env["OBSIDIAN_TEST_LIVE"] == "TRUE"
@@ -72,6 +74,10 @@ def tag_direct_setup(mockres)
     # test.client.options adds to the live client, it does not redirect it.
     merged_opts = Runner.live_client_options.merge({
       "apikey" => env["OBSIDIAN_APIKEY"],
+      "server" => {
+        "host" => env["OBSIDIAN_SERVER_HOST"],
+        "port" => env["OBSIDIAN_SERVER_PORT"],
+      },
     })
     client = ObsidianSDK.new(merged_opts)
     return {

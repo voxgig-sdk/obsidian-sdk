@@ -1,0 +1,90 @@
+{
+  "existing": {
+    "entity1": {
+      "ENTITY100": {
+        "obsidian": "s14",
+        "self": "s15",
+        "id": "ENTITY100"
+      },
+      "ENTITY101": {
+        "obsidian": "s28",
+        "self": "s29",
+        "id": "ENTITY101"
+      },
+      "ENTITY102": {
+        "obsidian": "s3c",
+        "self": "s3d",
+        "id": "ENTITY102"
+      }
+    }
+  },
+  "new": {
+    "entity1": {
+      "entity1_ref01": {
+        "obsidian": "s50",
+        "self": "s51"
+      }
+    }
+  },
+  "requests": {
+    "GET /": {
+      "provenance": "operation-contract",
+      "contract": {
+        "parameters": [],
+        "protocol": "http",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "authenticated": {
+                      "description": "Is your current request authenticated?",
+                      "type": "boolean"
+                    },
+                    "ok": {
+                      "description": "'OK'",
+                      "type": "string"
+                    },
+                    "service": {
+                      "description": "'Obsidian Local REST API'",
+                      "type": "string"
+                    },
+                    "versions": {
+                      "properties": {
+                        "obsidian": {
+                          "description": "Obsidian plugin API version",
+                          "type": "string"
+                        },
+                        "self": {
+                          "description": "Plugin version.",
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success"
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "securitySchemes": {
+          "apiKeyAuth": {
+            "description": "Find your API Key in your Obsidian settings\nin the \"Local REST API\" section under \"Plugins\".\n",
+            "scheme": "bearer",
+            "type": "http"
+          }
+        },
+        "securitySource": "definition"
+      }
+    }
+  }
+}

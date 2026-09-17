@@ -1,5 +1,12 @@
 // Obsidian Ts SDK
 
+import { ActiveEntity } from './entity/ActiveEntity'
+import { CommandEntity } from './entity/CommandEntity'
+import { Entity1Entity } from './entity/Entity1Entity'
+import { McpEntity } from './entity/McpEntity'
+import { OpenEntity } from './entity/OpenEntity'
+import { SearchEntity } from './entity/SearchEntity'
+import { SystemEntity } from './entity/SystemEntity'
 import { TagEntity } from './entity/TagEntity'
 import { VaultEntity } from './entity/VaultEntity'
 
@@ -296,6 +303,69 @@ class ObsidianSDK {
     return res
   }
 
+
+
+  // Entity access: `client.Active().list()` / `client.Active().load({ id })`.
+  // The argument is the entity OPTIONS object (passed to the entity
+  // constructor as entopts), not initial entity data.
+  Active(entopts?: Record<string, any>) {
+    const self = this
+    return new ActiveEntity(self, entopts)
+  }
+
+
+  // Entity access: `client.Command().list()` / `client.Command().load({ id })`.
+  // The argument is the entity OPTIONS object (passed to the entity
+  // constructor as entopts), not initial entity data.
+  Command(entopts?: Record<string, any>) {
+    const self = this
+    return new CommandEntity(self, entopts)
+  }
+
+
+  // Entity access: `client.Entity1().list()` / `client.Entity1().load({ id })`.
+  // The argument is the entity OPTIONS object (passed to the entity
+  // constructor as entopts), not initial entity data.
+  Entity1(entopts?: Record<string, any>) {
+    const self = this
+    return new Entity1Entity(self, entopts)
+  }
+
+
+  // Entity access: `client.Mcp().list()` / `client.Mcp().load({ id })`.
+  // The argument is the entity OPTIONS object (passed to the entity
+  // constructor as entopts), not initial entity data.
+  Mcp(entopts?: Record<string, any>) {
+    const self = this
+    return new McpEntity(self, entopts)
+  }
+
+
+  // Entity access: `client.Open().list()` / `client.Open().load({ id })`.
+  // The argument is the entity OPTIONS object (passed to the entity
+  // constructor as entopts), not initial entity data.
+  Open(entopts?: Record<string, any>) {
+    const self = this
+    return new OpenEntity(self, entopts)
+  }
+
+
+  // Entity access: `client.Search().list()` / `client.Search().load({ id })`.
+  // The argument is the entity OPTIONS object (passed to the entity
+  // constructor as entopts), not initial entity data.
+  Search(entopts?: Record<string, any>) {
+    const self = this
+    return new SearchEntity(self, entopts)
+  }
+
+
+  // Entity access: `client.System().list()` / `client.System().load({ id })`.
+  // The argument is the entity OPTIONS object (passed to the entity
+  // constructor as entopts), not initial entity data.
+  System(entopts?: Record<string, any>) {
+    const self = this
+    return new SystemEntity(self, entopts)
+  }
 
 
   // Entity access: `client.Tag().list()` / `client.Tag().load({ id })`.

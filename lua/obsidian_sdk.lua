@@ -353,6 +353,104 @@ end
 
 
 
+-- Idiomatic facade: client:Active():list() / client:Active():load({ id = ... })
+-- Entity access is capitalised (PascalCase) for parity with the other SDKs.
+function ObsidianSDK:Active(data)
+  local EntityMod = require("entity.active_entity")
+  if data == nil then
+    if self._active == nil then
+      self._active = EntityMod.new(self, nil)
+    end
+    return self._active
+  end
+  return EntityMod.new(self, data)
+end
+
+
+-- Idiomatic facade: client:Command():list() / client:Command():load({ id = ... })
+-- Entity access is capitalised (PascalCase) for parity with the other SDKs.
+function ObsidianSDK:Command(data)
+  local EntityMod = require("entity.command_entity")
+  if data == nil then
+    if self._command == nil then
+      self._command = EntityMod.new(self, nil)
+    end
+    return self._command
+  end
+  return EntityMod.new(self, data)
+end
+
+
+-- Idiomatic facade: client:Entity1():list() / client:Entity1():load({ id = ... })
+-- Entity access is capitalised (PascalCase) for parity with the other SDKs.
+function ObsidianSDK:Entity1(data)
+  local EntityMod = require("entity.entity1_entity")
+  if data == nil then
+    if self._entity1 == nil then
+      self._entity1 = EntityMod.new(self, nil)
+    end
+    return self._entity1
+  end
+  return EntityMod.new(self, data)
+end
+
+
+-- Idiomatic facade: client:Mcp():list() / client:Mcp():load({ id = ... })
+-- Entity access is capitalised (PascalCase) for parity with the other SDKs.
+function ObsidianSDK:Mcp(data)
+  local EntityMod = require("entity.mcp_entity")
+  if data == nil then
+    if self._mcp == nil then
+      self._mcp = EntityMod.new(self, nil)
+    end
+    return self._mcp
+  end
+  return EntityMod.new(self, data)
+end
+
+
+-- Idiomatic facade: client:Open():list() / client:Open():load({ id = ... })
+-- Entity access is capitalised (PascalCase) for parity with the other SDKs.
+function ObsidianSDK:Open(data)
+  local EntityMod = require("entity.open_entity")
+  if data == nil then
+    if self._open == nil then
+      self._open = EntityMod.new(self, nil)
+    end
+    return self._open
+  end
+  return EntityMod.new(self, data)
+end
+
+
+-- Idiomatic facade: client:Search():list() / client:Search():load({ id = ... })
+-- Entity access is capitalised (PascalCase) for parity with the other SDKs.
+function ObsidianSDK:Search(data)
+  local EntityMod = require("entity.search_entity")
+  if data == nil then
+    if self._search == nil then
+      self._search = EntityMod.new(self, nil)
+    end
+    return self._search
+  end
+  return EntityMod.new(self, data)
+end
+
+
+-- Idiomatic facade: client:System():list() / client:System():load({ id = ... })
+-- Entity access is capitalised (PascalCase) for parity with the other SDKs.
+function ObsidianSDK:System(data)
+  local EntityMod = require("entity.system_entity")
+  if data == nil then
+    if self._system == nil then
+      self._system = EntityMod.new(self, nil)
+    end
+    return self._system
+  end
+  return EntityMod.new(self, data)
+end
+
+
 -- Idiomatic facade: client:Tag():list() / client:Tag():load({ id = ... })
 -- Entity access is capitalised (PascalCase) for parity with the other SDKs.
 function ObsidianSDK:Tag(data)

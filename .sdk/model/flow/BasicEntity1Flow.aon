@@ -1,0 +1,28 @@
+# BasicEntity1Flow
+
+main: kit: flow: BasicEntity1Flow:
+{
+  entity: "entity1",
+  kind: "basic",
+  name: "BasicEntity1Flow",
+  step: [
+    {
+      input: {
+        ref: "entity1_ref01",
+        srcdatavar: "entity1_ref01_data",
+        suffix: "_dt0"
+      }
+
+      op: "load",
+      valid: [
+        {
+          apply: "TextFieldMark",
+          def: {
+            mark: "Mark01-entity1_ref01"
+          }
+        }
+      ]
+    }
+  ],
+  "key$": "BasicEntity1Flow"
+}

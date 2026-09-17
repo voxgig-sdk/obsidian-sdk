@@ -1,0 +1,146 @@
+# Entity: mcp
+
+main: kit: entity: mcp: {
+
+  alias: field: {}
+
+  fields: [
+    {
+      name: "id"
+      req: false
+      short: "Request identifier."
+      type: "`$STRING`"
+      union: {
+        branches: 2
+        count: 1
+        depth: 0
+      }
+    }
+    {
+      name: "jsonrpc"
+      req: true
+      short: "JSON-RPC version."
+      type: "`$STRING`"
+    }
+    {
+      name: "method"
+      req: true
+      short: "MCP method to invoke."
+      type: "`$STRING`"
+    }
+    {
+      name: "params"
+      req: false
+      short: "Method-specific parameters."
+      type: "`$OBJECT`"
+    }
+  ]
+
+  id: {
+    field: "id"
+    name: "id"
+  }
+
+  name: "mcp"
+  op: {
+    create: {
+      name: "create"
+      points: [
+        {
+          args: {
+            header: [
+              {
+                kind: "header"
+                name: "mcp_protocol_version"
+                orig: "mcp_protocol_version"
+                reqd: false
+                type: "`$STRING`"
+              }
+              {
+                kind: "header"
+                name: "mcp_session_id"
+                orig: "mcp_session_id"
+                reqd: false
+                type: "`$STRING`"
+              }
+            ]
+          }
+          contract: {
+            id: "POST /mcp/"
+            json: "{\"parameters\":[{\"description\":\"Session ID returned by the server on initialization. Omit for the initial `initialize` request; required for all subsequent requests.\",\"in\":\"header\",\"name\":\"Mcp-Session-Id\",\"required\":false,\"schema\":{\"type\":\"string\"}},{\"description\":\"MCP protocol version negotiated during initialization (e.g. `2025-06-18`). Required on all requests after initialization. Unrecognised values are rejected with 400.\",\"in\":\"header\",\"name\":\"MCP-Protocol-Version\",\"required\":false,\"schema\":{\"type\":\"string\"}}],\"protocol\":\"http\",\"requestBody\":{\"content\":{\"application/json\":{\"examples\":{\"call_vault_patch\":{\"summary\":\"Patch a heading in a vault file (tools/call)\",\"value\":{\"id\":3,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"arguments\":{\"content\":\"New line of content\\n\",\"operation\":\"append\",\"path\":\"path/to/note.md\",\"target\":[\"My Section\"],\"targetType\":\"heading\"},\"name\":\"vault_patch\"}}},\"call_vault_read\":{\"summary\":\"Read a vault file (tools/call)\",\"value\":{\"id\":2,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"arguments\":{\"path\":\"path/to/note.md\"},\"name\":\"vault_read\"}}},\"list_tools\":{\"summary\":\"List all available MCP tools\",\"value\":{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"params\":{}}},\"read_openapi_resource\":{\"summary\":\"Read the OpenAPI spec resource (resources/read)\",\"value\":{\"id\":4,\"jsonrpc\":\"2.0\",\"method\":\"resources/read\",\"params\":{\"uri\":\"obsidian://local-rest-api/openapi.yaml\"}}}},\"schema\":{\"description\":\"A JSON-RPC 2.0 request message.\",\"properties\":{\"id\":{\"description\":\"Request identifier. Include for calls that expect a response; omit for notifications.\",\"oneOf\":[{\"type\":\"string\"},{\"type\":\"number\"}]},\"jsonrpc\":{\"description\":\"JSON-RPC version. Must be \\\"2.0\\\".\",\"enum\":[\"2.0\"],\"type\":\"string\"},\"method\":{\"description\":\"MCP method to invoke.\",\"enum\":[\"initialize\",\"tools/list\",\"tools/call\",\"resources/list\",\"resources/read\",\"prompts/list\",\"prompts/get\",\"ping\"],\"type\":\"string\"},\"params\":{\"description\":\"Method-specific parameters.\",\"type\":\"object\"}},\"required\":[\"jsonrpc\",\"method\"],\"type\":\"object\"}}},\"required\":true},\"responses\":{\"200\":{\"description\":\"Message handled. Response body contains the JSON-RPC result, or may be empty for notifications. On session initialization the `Mcp-Session-Id` response header contains the new session ID.\",\"headers\":{\"Mcp-Session-Id\":{\"description\":\"Session ID assigned by the server. Present only on the `initialize` response.\",\"schema\":{\"type\":\"string\"}}}},\"400\":{\"content\":{\"application/json\":{\"schema\":{\"properties\":{\"errorCode\":{\"description\":\"A 5-digit error code uniquely identifying this particular type of error.\\n\",\"example\":40149,\"type\":\"number\"},\"message\":{\"description\":\"Message describing the error.\",\"example\":\"A brief description of the error.\",\"type\":\"string\"}},\"type\":\"object\"}}},\"description\":\"Unsupported MCP-Protocol-Version.\"},\"401\":{\"content\":{\"application/json\":{\"schema\":{\"properties\":{\"$ref\":\"#/responses/400/content/application~1json/schema/properties\"},\"type\":\"object\"}}},\"description\":\"API key required.\"},\"404\":{\"content\":{\"application/json\":{\"schema\":{\"properties\":{\"$ref\":\"#/responses/400/content/application~1json/schema/properties\"},\"type\":\"object\"}}},\"description\":\"Session not found.\"}},\"security\":[{\"apiKeyAuth\":[]}],\"securitySchemes\":{\"apiKeyAuth\":{\"description\":\"Find your API Key in your Obsidian settings\\nin the \\\"Local REST API\\\" section under \\\"Plugins\\\".\\n\",\"scheme\":\"bearer\",\"type\":\"http\"}},\"securitySource\":\"definition\"}"
+            source: "openapi3"
+            version: 1
+          }
+          method: "POST"
+          orig: "/mcp/"
+          segments: [
+            {
+              lit: "mcp"
+            }
+          ]
+          select: {
+            exist: [
+              "mcp_protocol_version"
+              "mcp_session_id"
+            ]
+          }
+          transform: {
+            req: "`reqdata`"
+            res: "`body`"
+          }
+        }
+      ]
+    }
+    load: {
+      name: "load"
+      points: [
+        {
+          args: {
+            header: [
+              {
+                kind: "header"
+                name: "mcp_protocol_version"
+                orig: "mcp_protocol_version"
+                reqd: false
+                type: "`$STRING`"
+              }
+              {
+                kind: "header"
+                name: "mcp_session_id"
+                orig: "mcp_session_id"
+                reqd: true
+                type: "`$STRING`"
+              }
+            ]
+          }
+          contract: {
+            id: "GET /mcp/"
+            json: "{\"parameters\":[{\"description\":\"Session ID returned by the server on initialization.\",\"in\":\"header\",\"name\":\"Mcp-Session-Id\",\"required\":true,\"schema\":{\"type\":\"string\"}},{\"description\":\"MCP protocol version negotiated during initialization (e.g. `2025-06-18`). Required on all requests after initialization. Unrecognised values are rejected with 400.\",\"in\":\"header\",\"name\":\"MCP-Protocol-Version\",\"required\":false,\"schema\":{\"type\":\"string\"}}],\"protocol\":\"http\",\"responses\":{\"200\":{\"content\":{\"text/event-stream\":{\"schema\":{\"type\":\"string\"}}},\"description\":\"SSE stream opened. The server pushes JSON-RPC messages as server-sent events.\"},\"400\":{\"content\":{\"application/json\":{\"schema\":{\"properties\":{\"errorCode\":{\"description\":\"A 5-digit error code uniquely identifying this particular type of error.\\n\",\"example\":40149,\"type\":\"number\"},\"message\":{\"description\":\"Message describing the error.\",\"example\":\"A brief description of the error.\",\"type\":\"string\"}},\"type\":\"object\"}}},\"description\":\"Unsupported MCP-Protocol-Version.\"},\"401\":{\"content\":{\"application/json\":{\"schema\":{\"properties\":{\"$ref\":\"#/responses/400/content/application~1json/schema/properties\"},\"type\":\"object\"}}},\"description\":\"API key required.\"},\"404\":{\"content\":{\"application/json\":{\"schema\":{\"properties\":{\"$ref\":\"#/responses/400/content/application~1json/schema/properties\"},\"type\":\"object\"}}},\"description\":\"Session not found.\"}},\"security\":[{\"apiKeyAuth\":[]}],\"securitySchemes\":{\"apiKeyAuth\":{\"description\":\"Find your API Key in your Obsidian settings\\nin the \\\"Local REST API\\\" section under \\\"Plugins\\\".\\n\",\"scheme\":\"bearer\",\"type\":\"http\"}},\"securitySource\":\"definition\"}"
+            source: "openapi3"
+            version: 1
+          }
+          method: "GET"
+          orig: "/mcp/"
+          segments: [
+            {
+              lit: "mcp"
+            }
+          ]
+          select: {
+            exist: [
+              "mcp_protocol_version"
+              "mcp_session_id"
+            ]
+          }
+          transform: {
+            req: "`reqdata`"
+            res: "`body`"
+          }
+        }
+      ]
+    }
+  }
+
+
+
+}

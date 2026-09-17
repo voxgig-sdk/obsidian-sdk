@@ -5,7 +5,7 @@
 The TypeScript SDK for the Obsidian API — a type-safe, entity-oriented client with full async/await support.
 
 The API is exposed as capitalised, semantic **Entities** — e.g.
-`client.Tag()` — each with a small set of operations (`list`, `load`, `create`, `update`, `remove`, `patch`)
+`client.Active()` — each with a small set of operations (`list`, `load`, `create`, `update`, `remove`, `patch`)
 instead of raw URL paths and query parameters. This keeps the surface
 predictable and low-friction for both humans and AI agents.
 
@@ -32,21 +32,46 @@ import { ObsidianSDK } from '@voxgig-sdk/obsidian'
 
 const client = new ObsidianSDK({
   apikey: process.env.OBSIDIAN_APIKEY,
+  // Required: this API's server URL is templated on these.
+  server: {
+    host: '<host>',
+    port: '<port>',
+  },
 })
 ```
 
-### 2. List tag records
+### 3. Load an active
 
-`list()` resolves to an array of Tag ENTITIES — every operation
-resolves to entities, not raw records. Iterate them directly, and call
-`.data()` on one for the record it holds:
+`load()` returns the entity directly and throws on failure:
 
 ```ts
-const tags = await client.Tag().list()
-
-for (const tag of tags) {
-  console.log(tag)
+try {
+  const active = await client.Active().load()
+  console.log(active)
+} catch (err) {
+  console.error('load failed:', err)
 }
+```
+
+### 4. Create, update, and remove
+
+```ts
+// Create — returns the created Active ENTITY (.data() for the record)
+const created = await client.Active().create({
+  destination: {},
+  operation: 'example_operation',
+  target: 'example_target',
+  targetType: 'example_targetType',
+})
+
+// Update
+const updated = await client.Active().update({
+  content: 'example_content',
+  createTargetIfMissing: true,
+})
+
+// Remove
+await client.Active().remove()
 ```
 
 
@@ -56,8 +81,8 @@ Entity operations reject on failure, so wrap them in `try` / `catch`:
 
 ```ts
 try {
-  const tags = await client.Tag().list()
-  console.log(tags)
+  const commands = await client.Command().list()
+  console.log(commands)
 } catch (err) {
   console.error('list failed:', err)
 }
@@ -123,10 +148,10 @@ Create a mock client for unit testing — no server required:
 ```ts
 const client = ObsidianSDK.test()
 
-const tag = await client.Tag().list()
-// tag is the entity, populated with mock response data
-// — call tag.data() for the record itself
-console.log(tag)
+const command = await client.Command().list()
+// command is the entity, populated with mock response data
+// — call command.data() for the record itself
+console.log(command)
 ```
 
 You can also use the instance method:
@@ -141,14 +166,14 @@ const testClient = client.tester()
 Entity instances remember their last match and data:
 
 ```ts
-const entity = client.Tag()
+const entity = client.Command()
 
 // First call runs the operation and stores its result
 await entity.list()
 
 // Subsequent calls reuse the stored state
 const data = entity.data()
-console.log(data)
+console.log(data.id)
 ```
 
 ### Add custom middleware
@@ -203,6 +228,7 @@ API operations the generated scenarios cover.
 ```ts
 new ObsidianSDK(options?: {
   apikey?: string
+  server?: { host: string, port: string }
   base?: string
   prefix?: string
   suffix?: string
@@ -213,6 +239,7 @@ new ObsidianSDK(options?: {
 
 | Option | Type | Description |
 | --- | --- | --- |
+| `server` | `object` | **Required.** Values for the server-URL variables: `host`, `port`. The API base URL is a template over them. |
 | `apikey` | `string` | API key for authentication. |
 | `base` | `string` | Base URL of the API server. |
 | `prefix` | `string` | URL path prefix prepended to all requests. |
@@ -228,6 +255,13 @@ new ObsidianSDK(options?: {
 | `utility()` | `Utility` | Deep copy of the SDK utility object. |
 | `prepare(fetchargs?)` | `Promise<FetchDef>` | Build an HTTP request definition without sending it. |
 | `direct(fetchargs?)` | `Promise<DirectResult>` | Build and send an HTTP request. |
+| `Active(data?)` | `ActiveEntity` | Create an Active entity instance. |
+| `Command(data?)` | `CommandEntity` | Create a Command entity instance. |
+| `Entity1(data?)` | `Entity1Entity` | Create an Entity1 entity instance. |
+| `Mcp(data?)` | `McpEntity` | Create a Mcp entity instance. |
+| `Open(data?)` | `OpenEntity` | Create an Open entity instance. |
+| `Search(data?)` | `SearchEntity` | Create a Search entity instance. |
+| `System(data?)` | `SystemEntity` | Create a System entity instance. |
 | `Tag(data?)` | `TagEntity` | Create a Tag entity instance. |
 | `Vault(data?)` | `VaultEntity` | Create a Vault entity instance. |
 | `tester(testopts?, sdkopts?)` | `ObsidianSDK` | Create a test-mode client instance. |
@@ -301,6 +335,89 @@ The `prepare()` method returns:
 
 ### Entities
 
+#### Active
+
+| Field | Description |
+| --- | --- |
+| `content` | String payload: a heading/block body or label, a new block id for a block `marker` rename (letters, numbers, hyphens, and underscores only), or a new frontmatter key name for a frontmatter `marker` rename. |
+| `createTargetIfMissing` | Create the target (heading path, block id, or frontmatter key) if it does not already exist. |
+| `destination` | For a heading move (operation `replace`, scope `parent`): where the section is re-parented. |
+| `ifMatch` | Optimistic-concurrency token (the `version` from a prior document map). |
+| `operation` | What happens to the scoped span: replace it, insert before (`prepend`) or after (`append`), or `delete` it. |
+| `rejectIfContentPreexists` | Fail a `prepend`/`append` when the string content already appears in the target span (makes those operations idempotent on retry). |
+| `scope` | Which part of the target the operation acts on (default `content`). |
+| `target` | The node to edit. |
+| `targetType` | The kind of node to edit. |
+| `value` | Structured JSON payload: a frontmatter value (any JSON — string, number, boolean, array, object, null; for `prepend`/`append` this merges: list concat, dict merge, string concat), or table rows on a `block` target's `content` cell (a 2-D a… |
+| `within` | Refines a heading target to one of the section's direct-body top-level blocks (a paragraph, list, table, code fence, blockquote, …): 0 is the first block in document order, and a negative index counts from the end (-1 = last). |
+
+Operations: create, load, patch, remove, update.
+
+API path: `/active/`
+
+#### Command
+
+| Field | Description |
+| --- | --- |
+| `id` |  |
+| `name` |  |
+
+Operations: create, list.
+
+API path: `/commands/{commandId}/`
+
+#### Entity1
+
+| Field | Description |
+| --- | --- |
+| `obsidian` | Obsidian plugin API version |
+| `self` | Plugin version. |
+
+Operations: load.
+
+API path: `/`
+
+#### Mcp
+
+| Field | Description |
+| --- | --- |
+| `id` | Request identifier. |
+| `jsonrpc` | JSON-RPC version. |
+| `method` | MCP method to invoke. |
+| `params` | Method-specific parameters. |
+
+Operations: create, load.
+
+API path: `/mcp/`
+
+#### Open
+
+| Field | Description |
+| --- | --- |
+| `id` |  |
+
+Operations: create.
+
+API path: `/open/{filename}`
+
+#### Search
+
+| Field | Description |
+| --- | --- |
+
+Operations: create.
+
+API path: `/search/simple/`
+
+#### System
+
+| Field | Description |
+| --- | --- |
+
+Operations: load.
+
+API path: `/obsidian-local-rest-api.crt`
+
 #### Tag
 
 | Field | Description |
@@ -337,6 +454,206 @@ API path: `/vault/{filename}`
 
 
 ## Entities
+
+
+### Active
+
+Create an instance: `const active = client.Active()`
+
+#### Operations
+
+| Method | Description |
+| --- | --- |
+| `create(data)` | Create a new entity with the given data. |
+| `load(match)` | Load a single entity by match criteria. |
+| `remove(match)` | Remove the matching entity. |
+| `update(data)` | Update an existing entity. |
+
+#### Fields
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `content` | `string` | String payload: a heading/block body or label, a new block id for a block `marker` rename (letters, numbers, hyphens, and underscores only), or a new frontmatter key name for a frontmatter `marker` rename. |
+| `createTargetIfMissing` | `boolean` | Create the target (heading path, block id, or frontmatter key) if it does not already exist. |
+| `destination` | `Record<string, any>` | For a heading move (operation `replace`, scope `parent`): where the section is re-parented. |
+| `ifMatch` | `string` | Optimistic-concurrency token (the `version` from a prior document map). |
+| `operation` | `string` | What happens to the scoped span: replace it, insert before (`prepend`) or after (`append`), or `delete` it. |
+| `rejectIfContentPreexists` | `boolean` | Fail a `prepend`/`append` when the string content already appears in the target span (makes those operations idempotent on retry). |
+| `scope` | `string` | Which part of the target the operation acts on (default `content`). |
+| `target` | `any` | The node to edit. |
+| `targetType` | `string` | The kind of node to edit. |
+| `value` | `any` | Structured JSON payload: a frontmatter value (any JSON — string, number, boolean, array, object, null; for `prepend`/`append` this merges: list concat, dict merge, string concat), or table rows on a `block` target's `content` cell (a 2-D a… |
+| `within` | `number` | Refines a heading target to one of the section's direct-body top-level blocks (a paragraph, list, table, code fence, blockquote, …): 0 is the first block in document order, and a negative index counts from the end (-1 = last). |
+
+#### Example: Load
+
+```ts
+const active = await client.Active().load()
+```
+
+#### Example: Create
+
+```ts
+const active = await client.Active().create({
+  destination: {},
+  operation: 'example_operation',
+  target: 'example_target',
+  targetType: 'example_targetType',
+})
+```
+
+
+### Command
+
+Create an instance: `const command = client.Command()`
+
+#### Operations
+
+| Method | Description |
+| --- | --- |
+| `create(data)` | Create a new entity with the given data. |
+| `list(match)` | List entities matching the criteria. |
+
+#### Fields
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `string` |  |
+| `name` | `string` |  |
+
+#### Example: List
+
+```ts
+const commands = await client.Command().list()
+```
+
+#### Example: Create
+
+```ts
+const command = await client.Command().create({
+  id: 'example_id',
+})
+```
+
+
+### Entity1
+
+Create an instance: `const entity1 = client.Entity1()`
+
+#### Operations
+
+| Method | Description |
+| --- | --- |
+| `load(match)` | Load a single entity by match criteria. |
+
+#### Fields
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `obsidian` | `string` | Obsidian plugin API version |
+| `self` | `string` | Plugin version. |
+
+#### Example: Load
+
+```ts
+const entity1 = await client.Entity1().load()
+```
+
+
+### Mcp
+
+Create an instance: `const mcp = client.Mcp()`
+
+#### Operations
+
+| Method | Description |
+| --- | --- |
+| `create(data)` | Create a new entity with the given data. |
+| `load(match)` | Load a single entity by match criteria. |
+
+#### Fields
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `string` | Request identifier. |
+| `jsonrpc` | `string` | JSON-RPC version. |
+| `method` | `string` | MCP method to invoke. |
+| `params` | `Record<string, any>` | Method-specific parameters. |
+
+#### Example: Load
+
+```ts
+const mcp = await client.Mcp().load({ id: 'mcp_id' })
+```
+
+#### Example: Create
+
+```ts
+const mcp = await client.Mcp().create({
+  jsonrpc: 'example_jsonrpc',
+  method: 'example_method',
+})
+```
+
+
+### Open
+
+Create an instance: `const open = client.Open()`
+
+#### Operations
+
+| Method | Description |
+| --- | --- |
+| `create(data)` | Create a new entity with the given data. |
+
+#### Fields
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `string` |  |
+
+#### Example: Create
+
+```ts
+const open = await client.Open().create({
+  id: 'example_id',
+})
+```
+
+
+### Search
+
+Create an instance: `const search = client.Search()`
+
+#### Operations
+
+| Method | Description |
+| --- | --- |
+| `create(data)` | Create a new entity with the given data. |
+
+#### Example: Create
+
+```ts
+const search = await client.Search().create({
+})
+```
+
+
+### System
+
+Create an instance: `const system = client.System()`
+
+#### Operations
+
+| Method | Description |
+| --- | --- |
+| `load(match)` | Load a single entity by match criteria. |
+
+#### Example: Load
+
+```ts
+const system = await client.System().load()
+```
 
 
 ### Tag
@@ -558,9 +875,9 @@ activated earlier.
 
 ## Open types
 
-1 field is carried as open values rather than typed structures.
+2 fields are carried as open values rather than typed structures.
 This follows from the API definition, not from a gap in this SDK: the
-definition describes it with untagged unions —
+definition describes them with untagged unions —
 `oneOf`/`anyOf` branches with no `discriminator` — so it never states which
 variant a given value is. Nothing can select a branch reliably, so the SDK
 passes the value through unchanged rather than assert a shape the API does not
@@ -568,6 +885,7 @@ guarantee.
 
 | Entity | Field | Variants | Nesting |
 | --- | --- | --- | --- |
+| `active` | `destination` | 3 | 2 levels |
 | `vault` | `destination` | 3 | 2 levels |
 
 These values round-trip unchanged — read them, modify them, send them back. If
@@ -650,11 +968,11 @@ stores the returned data and match criteria internally. Subsequent
 calls on the same instance can rely on this state.
 
 ```ts
-const tag = client.Tag()
-await tag.list()
+const command = client.Command()
+await command.list()
 
-// tag.data() now returns the tag data from the last `list`
-// tag.match() returns the last match criteria
+// command.data() now returns the command data from the last `list`
+// command.match() returns the last match criteria
 ```
 
 Call `make()` to create a fresh instance with the same configuration

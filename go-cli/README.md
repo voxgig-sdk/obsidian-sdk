@@ -19,15 +19,16 @@ make build
 export OBSIDIAN_APIKEY=sk_live_xxx
 
 # 4. Each command line is ONE boru expression, run against the API:
-./obsidian-cli list tag
-./obsidian-cli list vault
+./obsidian-cli load 1 active            # {id:1} shorthand
+./obsidian-cli load '{id:1}' active       # explicit match map
+./obsidian-cli update '{name:"x"}' active
 
 # 5. Override the API base URL for a single call
-OBSIDIAN_BASE=https://api.example.com ./obsidian-cli list tag
+OBSIDIAN_BASE=https://api.example.com ./obsidian-cli load 1 active
 
 # 6. No arguments -> interactive REPL
 ./obsidian-cli
-obsidian> list tag
+obsidian> load 1 active
 obsidian> /quit
 ```
 
@@ -53,7 +54,7 @@ obsidian> /quit
    arguments to open the REPL):
 
    ```sh
-   ./dist/*/obsidian-cli list tag
+   ./dist/*/obsidian-cli load 1 active
    ```
 
 4. **Go interactive.** Run the binary with no arguments to open the REPL, then
@@ -63,14 +64,24 @@ That is the whole loop: *build → set key → evaluate boru expressions*.
 
 ## How-to guides
 
-### List the records of an entity
+### Load a single record
 
 ```sh
-./obsidian-cli list tag
+./obsidian-cli load 1 active          # scalar shorthand for {id:1}
+./obsidian-cli load '{id:1}' active     # explicit match map
 ```
 
-`list <entity>` returns the first page of records. `<entity>` is a bareword —
-it is auto-quoted as an boru atom, so no quotes are needed.
+The query is either a **scalar** (`1`, treated as `{id:1}`) or a **match map**
+(`{id:1}`, `{slug:"acme"}`). Quote the map so your shell passes it through intact.
+
+### Update a record
+
+```sh
+./obsidian-cli update '{id:1,name:"new"}' active
+```
+
+The match map carries both the selector and the new field values; the updated
+record is printed back.
 
 ### Authenticate and choose an environment
 
@@ -79,7 +90,7 @@ Configuration is read from the environment — nothing is written to disk:
 ```sh
 export OBSIDIAN_APIKEY=sk_live_xxx            # API key
 export OBSIDIAN_BASE=https://api.example.com  # optional: override the API base URL
-./obsidian-cli list tag
+./obsidian-cli load 1 active
 ```
 
 Both are injectable by a secrets vault, so the key never has to be typed inline.
@@ -91,7 +102,7 @@ evaluated as its own boru expression:
 
 ```text
 $ ./obsidian-cli
-obsidian> list tag
+obsidian> load 1 active
 obsidian> /help
 obsidian> /quit
 ```
@@ -106,7 +117,7 @@ make build-all   # linux/darwin/windows x amd64/arm64, under dist/<os>-<arch>/
 ### Discover the available entities
 
 `/help` in the REPL prints the full entity list, or see [Entities](#entities)
-below — this SDK exposes 2 entities.
+below — this SDK exposes 9 entities.
 
 ## Reference
 
@@ -120,7 +131,7 @@ The CLI registers these boru words, each bound to the SDK:
 | `load`   | `load <entity>` · `load <query> <entity>`     | A single record                |
 | `update` | `update <query> <entity>`                     | Update a record, return it     |
 
-- `<entity>` is a bareword, auto-quoted as an boru atom (e.g. `tag`).
+- `<entity>` is a bareword, auto-quoted as an boru atom (e.g. `active`).
 - `<query>` is either a **Map** (`{id:1}`) or a **Scalar** (`1`, treated as
   `{id:1}`). A scalar is always wrapped as `{id:<value>}`.
 
@@ -161,9 +172,9 @@ Meta-commands use the `/` prefix (everything else on a line is evaluated as boru
 
 ### Entities
 
-The 2 entities this SDK exposes (any is valid as `<entity>`):
+The 9 entities this SDK exposes (any is valid as `<entity>`):
 
-tag vault
+active command entity1 mcp open search system tag vault
 
 ## Explanation
 

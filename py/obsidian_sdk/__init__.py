@@ -307,6 +307,48 @@ class ObsidianSDK:
         return res
 
 
+    def Active(self, data=None) -> "ActiveEntity":
+        """Entity factory: client.Active().list() / client.Active().load({"id": ...})."""
+        from obsidian_sdk.entity.active_entity import ActiveEntity
+        return ActiveEntity(self, data)
+
+
+    def Command(self, data=None) -> "CommandEntity":
+        """Entity factory: client.Command().list() / client.Command().load({"id": ...})."""
+        from obsidian_sdk.entity.command_entity import CommandEntity
+        return CommandEntity(self, data)
+
+
+    def Entity1(self, data=None) -> "Entity1Entity":
+        """Entity factory: client.Entity1().list() / client.Entity1().load({"id": ...})."""
+        from obsidian_sdk.entity.entity1_entity import Entity1Entity
+        return Entity1Entity(self, data)
+
+
+    def Mcp(self, data=None) -> "McpEntity":
+        """Entity factory: client.Mcp().list() / client.Mcp().load({"id": ...})."""
+        from obsidian_sdk.entity.mcp_entity import McpEntity
+        return McpEntity(self, data)
+
+
+    def Open(self, data=None) -> "OpenEntity":
+        """Entity factory: client.Open().list() / client.Open().load({"id": ...})."""
+        from obsidian_sdk.entity.open_entity import OpenEntity
+        return OpenEntity(self, data)
+
+
+    def Search(self, data=None) -> "SearchEntity":
+        """Entity factory: client.Search().list() / client.Search().load({"id": ...})."""
+        from obsidian_sdk.entity.search_entity import SearchEntity
+        return SearchEntity(self, data)
+
+
+    def System(self, data=None) -> "SystemEntity":
+        """Entity factory: client.System().list() / client.System().load({"id": ...})."""
+        from obsidian_sdk.entity.system_entity import SystemEntity
+        return SystemEntity(self, data)
+
+
     def Tag(self, data=None) -> "TagEntity":
         """Entity factory: client.Tag().list() / client.Tag().load({"id": ...})."""
         from obsidian_sdk.entity.tag_entity import TagEntity
@@ -346,5 +388,12 @@ class ObsidianSDK:
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from obsidian_sdk.entity.active_entity import ActiveEntity
+    from obsidian_sdk.entity.command_entity import CommandEntity
+    from obsidian_sdk.entity.entity1_entity import Entity1Entity
+    from obsidian_sdk.entity.mcp_entity import McpEntity
+    from obsidian_sdk.entity.open_entity import OpenEntity
+    from obsidian_sdk.entity.search_entity import SearchEntity
+    from obsidian_sdk.entity.system_entity import SystemEntity
     from obsidian_sdk.entity.tag_entity import TagEntity
     from obsidian_sdk.entity.vault_entity import VaultEntity

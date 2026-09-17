@@ -1,0 +1,144 @@
+{
+  "existing": {
+    "command": {
+      "COMMAND00": {
+        "id": "COMMAND00",
+        "name": "s15"
+      },
+      "COMMAND01": {
+        "id": "COMMAND01",
+        "name": "s29"
+      },
+      "COMMAND02": {
+        "id": "COMMAND02",
+        "name": "s3d"
+      }
+    }
+  },
+  "new": {
+    "command": {
+      "command_ref01": {
+        "name": "s51"
+      }
+    }
+  },
+  "requests": {
+    "POST /commands/{commandId}/": {
+      "provenance": "operation-contract",
+      "contract": {
+        "parameters": [
+          {
+            "description": "The id of the command to execute",
+            "in": "path",
+            "name": "commandId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "protocol": "http",
+        "responses": {
+          "204": {
+            "description": "Success"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "errorCode": {
+                      "description": "A 5-digit error code uniquely identifying this particular type of error.\n",
+                      "example": 40149,
+                      "type": "number"
+                    },
+                    "message": {
+                      "description": "Message describing the error.",
+                      "example": "A brief description of the error.",
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The command you specified does not exist."
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "securitySchemes": {
+          "apiKeyAuth": {
+            "description": "Find your API Key in your Obsidian settings\nin the \"Local REST API\" section under \"Plugins\".\n",
+            "scheme": "bearer",
+            "type": "http"
+          }
+        },
+        "securitySource": "definition"
+      }
+    },
+    "GET /commands/": {
+      "provenance": "operation-contract",
+      "contract": {
+        "parameters": [],
+        "protocol": "http",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "commands": [
+                    {
+                      "id": "global-search:open",
+                      "name": "Search: Search in all files"
+                    },
+                    {
+                      "id": "graph:open",
+                      "name": "Graph view: Open graph view"
+                    }
+                  ]
+                },
+                "schema": {
+                  "properties": {
+                    "commands": {
+                      "items": {
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "A list of available commands."
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "securitySchemes": {
+          "apiKeyAuth": {
+            "description": "Find your API Key in your Obsidian settings\nin the \"Local REST API\" section under \"Plugins\".\n",
+            "scheme": "bearer",
+            "type": "http"
+          }
+        },
+        "securitySource": "definition"
+      }
+    }
+  }
+}

@@ -124,6 +124,8 @@ function vault_direct_setup($mockres)
         "OBSIDIAN_TEST_VAULT_ENTID" => [],
         "OBSIDIAN_TEST_LIVE" => "FALSE",
         "OBSIDIAN_APIKEY" => "",
+        "OBSIDIAN_SERVER_HOST" => '127.0.0.1',
+        "OBSIDIAN_SERVER_PORT" => '27124',
     ]);
 
     $live = $env["OBSIDIAN_TEST_LIVE"] === "TRUE";
@@ -133,6 +135,10 @@ function vault_direct_setup($mockres)
         // test.client.options adds to the live client, it does not redirect it.
         $merged_opts = array_merge(Runner::live_client_options(), [
             "apikey" => $env["OBSIDIAN_APIKEY"],
+            "server" => [
+                "host" => $env["OBSIDIAN_SERVER_HOST"],
+                "port" => $env["OBSIDIAN_SERVER_PORT"],
+            ],
         ]);
         $client = new ObsidianSDK($merged_opts);
         return [

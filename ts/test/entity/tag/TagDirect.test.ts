@@ -96,6 +96,8 @@ function directSetup(mockres?: any) {
     'OBSIDIAN_TEST_TAG_ENTID': {},
     'OBSIDIAN_TEST_LIVE': 'FALSE',
     'OBSIDIAN_APIKEY': '',
+    'OBSIDIAN_SERVER_HOST': "127.0.0.1",
+    'OBSIDIAN_SERVER_PORT': "27124",
   })
 
   const live = 'TRUE' === env.OBSIDIAN_TEST_LIVE
@@ -107,6 +109,10 @@ function directSetup(mockres?: any) {
     const client = new ObsidianSDK(
       Object.assign({}, liveClientOptions(), { system: { fetch: transport.fetch },
       apikey: env.OBSIDIAN_APIKEY,
+      server: {
+        host: env.OBSIDIAN_SERVER_HOST,
+        port: env.OBSIDIAN_SERVER_PORT,
+      },
       }))
 
     let idmap: any = env['OBSIDIAN_TEST_TAG_ENTID']

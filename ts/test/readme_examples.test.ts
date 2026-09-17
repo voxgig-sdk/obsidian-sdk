@@ -37,7 +37,7 @@ const SDK_NAME = 'ObsidianSDK'
 
 // A fixture for every entity, so list()/load() resolve offline with no
 // network. Snippet client construction is rewritten to seed this.
-const TEST_SEED = {"entity":{"tag":{"test01":{"id":"test01"}},"vault":{"test01":{"id":"test01"}}}}
+const TEST_SEED = {"entity":{"active":{"test01":{"id":"test01"}},"command":{"test01":{"id":"test01"}},"entity1":{"test01":{"id":"test01"}},"mcp":{"test01":{"id":"test01"}},"open":{"test01":{"id":"test01"}},"search":{"test01":{"id":"test01"}},"system":{"test01":{"id":"test01"}},"tag":{"test01":{"id":"test01"}},"vault":{"test01":{"id":"test01"}}}}
 const SEED_ARG = JSON.stringify(TEST_SEED)
 const SEEDED_CTOR = SDK_NAME + '.test(' + SEED_ARG + ')'
 

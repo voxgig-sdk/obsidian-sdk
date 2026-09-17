@@ -66,7 +66,7 @@ const utility_1 = require("../../utility");
         }
         const setup = basicSetup();
         if (setup.live) {
-            return (0, live_entity_1.runLiveEntity)(setup, { "active": true, "alias": { "field": {} }, "fields": [{ "active": true, "name": "count", "req": false, "short": "Number of times this tag is used across the vault.", "type": "`$NUMBER`", "index$": 0 }, { "active": true, "name": "name", "req": false, "short": "Tag name without the leading `#`.", "type": "`$STRING`", "index$": 1 }], "name": "tag", "op": { "list": { "input": "data", "name": "list", "points": [{ "active": true, "args": {}, "contract": { "id": "GET /tags/", "json": "{\"parameters\":[],\"protocol\":\"http\",\"responses\":{\"200\":{\"content\":{\"application/json\":{\"example\":{\"tags\":[{\"count\":3,\"name\":\"project\"},{\"count\":1,\"name\":\"important\"},{\"count\":2,\"name\":\"work\"},{\"count\":2,\"name\":\"work/tasks\"}]},\"schema\":{\"properties\":{\"tags\":{\"items\":{\"properties\":{\"count\":{\"description\":\"Number of times this tag is used across the vault.\",\"type\":\"number\"},\"name\":{\"description\":\"Tag name without the leading `#`.\",\"type\":\"string\"}},\"type\":\"object\"},\"type\":\"array\"}},\"type\":\"object\"}}},\"description\":\"A list of tags with their usage counts.\"}},\"security\":[{\"apiKeyAuth\":[]}],\"securitySchemes\":{\"apiKeyAuth\":{\"description\":\"Find your API Key in your Obsidian settings\\nin the \\\"Local REST API\\\" section under \\\"Plugins\\\".\\n\",\"scheme\":\"bearer\",\"type\":\"http\"}},\"securitySource\":\"definition\"}", "source": "openapi3", "version": 1 }, "kind": "http", "method": "GET", "orig": "/tags/", "segments": [{ "lit": "tags" }], "select": {}, "transform": { "req": "`reqdata`", "res": "`body.tags`" }, "index$": 0 }], "key$": "list" } }, "relations": { "ancestors": [] }, "key$": "tag", "name__orig": "tag", "Name": "Tag", "name_": "tag", "name-": "tag", "NAME": "TAG", "index$": 0 }, { "active": true, "entity": "tag", "key$": "BasicTagFlow", "kind": "basic", "name": "BasicTagFlow", "param": {}, "step": [{ "active": true, "data": {}, "input": {}, "match": {}, "op": "list", "spec": [], "valid": [{ "apply": "ItemExists", "def": { "ref": "tag_ref01" } }], "index$": 0 }] }, 'Tag');
+            return (0, live_entity_1.runLiveEntity)(setup, { "active": true, "alias": { "field": {} }, "fields": [{ "active": true, "name": "count", "req": false, "short": "Number of times this tag is used across the vault.", "type": "`$NUMBER`", "index$": 0 }, { "active": true, "name": "name", "req": false, "short": "Tag name without the leading `#`.", "type": "`$STRING`", "index$": 1 }], "name": "tag", "op": { "list": { "input": "data", "name": "list", "points": [{ "active": true, "args": {}, "contract": { "id": "GET /tags/", "json": "{\"parameters\":[],\"protocol\":\"http\",\"responses\":{\"200\":{\"content\":{\"application/json\":{\"example\":{\"tags\":[{\"count\":3,\"name\":\"project\"},{\"count\":1,\"name\":\"important\"},{\"count\":2,\"name\":\"work\"},{\"count\":2,\"name\":\"work/tasks\"}]},\"schema\":{\"properties\":{\"tags\":{\"items\":{\"properties\":{\"count\":{\"description\":\"Number of times this tag is used across the vault.\",\"type\":\"number\"},\"name\":{\"description\":\"Tag name without the leading `#`.\",\"type\":\"string\"}},\"type\":\"object\"},\"type\":\"array\"}},\"type\":\"object\"}}},\"description\":\"A list of tags with their usage counts.\"}},\"security\":[{\"apiKeyAuth\":[]}],\"securitySchemes\":{\"apiKeyAuth\":{\"description\":\"Find your API Key in your Obsidian settings\\nin the \\\"Local REST API\\\" section under \\\"Plugins\\\".\\n\",\"scheme\":\"bearer\",\"type\":\"http\"}},\"securitySource\":\"definition\"}", "source": "openapi3", "version": 1 }, "kind": "http", "method": "GET", "orig": "/tags/", "segments": [{ "lit": "tags" }], "select": {}, "transform": { "req": "`reqdata`", "res": "`body.tags`" }, "index$": 0 }], "key$": "list" } }, "relations": { "ancestors": [] }, "key$": "tag", "name__orig": "tag", "Name": "Tag", "name_": "tag", "name-": "tag", "NAME": "TAG", "index$": 7 }, { "active": true, "entity": "tag", "key$": "BasicTagFlow", "kind": "basic", "name": "BasicTagFlow", "param": {}, "step": [{ "active": true, "data": {}, "input": {}, "match": {}, "op": "list", "spec": [], "valid": [{ "apply": "ItemExists", "def": { "ref": "tag_ref01" } }], "index$": 0 }] }, 'Tag');
         }
         const client = setup.client;
         const struct = setup.struct;
@@ -104,6 +104,8 @@ function basicSetup(extra) {
         'OBSIDIAN_TEST_LIVE': 'FALSE',
         'OBSIDIAN_TEST_EXPLAIN': 'FALSE',
         'OBSIDIAN_APIKEY': '',
+        'OBSIDIAN_SERVER_HOST': "127.0.0.1",
+        'OBSIDIAN_SERVER_PORT': "27124",
     });
     idmap = env['OBSIDIAN_TEST_TAG_ENTID'];
     const live = 'TRUE' === env.OBSIDIAN_TEST_LIVE;
@@ -120,6 +122,10 @@ function basicSetup(extra) {
             (0, utility_1.liveClientOptions)(),
             {
                 apikey: env.OBSIDIAN_APIKEY,
+                server: {
+                    host: env.OBSIDIAN_SERVER_HOST,
+                    port: env.OBSIDIAN_SERVER_PORT,
+                },
             },
             // 'extra || {}', not a bare 'extra': struct.merge returns UNDEFINED when the
             // last entry is undefined, and basicSetup is normally called with no

@@ -125,6 +125,8 @@ function tag_basic_setup($extra)
         "OBSIDIAN_TEST_LIVE" => "FALSE",
         "OBSIDIAN_TEST_EXPLAIN" => "FALSE",
         "OBSIDIAN_APIKEY" => "",
+        "OBSIDIAN_SERVER_HOST" => '127.0.0.1',
+        "OBSIDIAN_SERVER_PORT" => '27124',
     ]);
 
     $idmap_resolved = Helpers::to_map(
@@ -140,6 +142,10 @@ function tag_basic_setup($extra)
             Runner::live_client_options(),
             [
                 "apikey" => $env["OBSIDIAN_APIKEY"],
+                "server" => [
+                    "host" => $env["OBSIDIAN_SERVER_HOST"],
+                    "port" => $env["OBSIDIAN_SERVER_PORT"],
+                ],
             ],
             // ismap, not a plain "?? []" default: an empty PHP array is a
             // LIST, and a non-map later entry REPLACES the accumulated map in

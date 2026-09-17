@@ -341,6 +341,132 @@ class ObsidianSDK
     }
 
 
+    private $_active = null;
+
+    // Canonical facade: $client->Active()->list() / ->load(["id" => ...]).
+    // PHP method names are case-insensitive, so lowercase $client->active()
+    // resolves here too.
+    public function Active($data = null)
+    {
+        require_once __DIR__ . '/entity/active_entity.php';
+        if ($data === null) {
+            if ($this->_active === null) {
+                $this->_active = new ActiveEntity($this, null);
+            }
+            return $this->_active;
+        }
+        return new ActiveEntity($this, $data);
+    }
+
+
+    private $_command = null;
+
+    // Canonical facade: $client->Command()->list() / ->load(["id" => ...]).
+    // PHP method names are case-insensitive, so lowercase $client->command()
+    // resolves here too.
+    public function Command($data = null)
+    {
+        require_once __DIR__ . '/entity/command_entity.php';
+        if ($data === null) {
+            if ($this->_command === null) {
+                $this->_command = new CommandEntity($this, null);
+            }
+            return $this->_command;
+        }
+        return new CommandEntity($this, $data);
+    }
+
+
+    private $_entity1 = null;
+
+    // Canonical facade: $client->Entity1()->list() / ->load(["id" => ...]).
+    // PHP method names are case-insensitive, so lowercase $client->entity1()
+    // resolves here too.
+    public function Entity1($data = null)
+    {
+        require_once __DIR__ . '/entity/entity1_entity.php';
+        if ($data === null) {
+            if ($this->_entity1 === null) {
+                $this->_entity1 = new Entity1Entity($this, null);
+            }
+            return $this->_entity1;
+        }
+        return new Entity1Entity($this, $data);
+    }
+
+
+    private $_mcp = null;
+
+    // Canonical facade: $client->Mcp()->list() / ->load(["id" => ...]).
+    // PHP method names are case-insensitive, so lowercase $client->mcp()
+    // resolves here too.
+    public function Mcp($data = null)
+    {
+        require_once __DIR__ . '/entity/mcp_entity.php';
+        if ($data === null) {
+            if ($this->_mcp === null) {
+                $this->_mcp = new McpEntity($this, null);
+            }
+            return $this->_mcp;
+        }
+        return new McpEntity($this, $data);
+    }
+
+
+    private $_open = null;
+
+    // Canonical facade: $client->Open()->list() / ->load(["id" => ...]).
+    // PHP method names are case-insensitive, so lowercase $client->open()
+    // resolves here too.
+    public function Open($data = null)
+    {
+        require_once __DIR__ . '/entity/open_entity.php';
+        if ($data === null) {
+            if ($this->_open === null) {
+                $this->_open = new OpenEntity($this, null);
+            }
+            return $this->_open;
+        }
+        return new OpenEntity($this, $data);
+    }
+
+
+    private $_search = null;
+
+    // Canonical facade: $client->Search()->list() / ->load(["id" => ...]).
+    // PHP method names are case-insensitive, so lowercase $client->search()
+    // resolves here too.
+    public function Search($data = null)
+    {
+        require_once __DIR__ . '/entity/search_entity.php';
+        if ($data === null) {
+            if ($this->_search === null) {
+                $this->_search = new SearchEntity($this, null);
+            }
+            return $this->_search;
+        }
+        return new SearchEntity($this, $data);
+    }
+
+
+    private $_system = null;
+
+    // Canonical facade: $client->System()->list() / ->load(["id" => ...]).
+    // PHP method names are case-insensitive, so lowercase $client->system()
+    // resolves here too.
+    public function System($data = null)
+    {
+        require_once __DIR__ . '/entity/system_entity.php';
+        if ($data === null) {
+            if ($this->_system === null) {
+                $this->_system = new SystemEntity($this, null);
+            }
+            return $this->_system;
+        }
+        return new SystemEntity($this, $data);
+    }
+
+
     private $_tag = null;
 
     // Canonical facade: $client->Tag()->list() / ->load(["id" => ...]).
