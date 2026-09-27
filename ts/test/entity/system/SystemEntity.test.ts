@@ -25,10 +25,6 @@ import {
 } from '../../utility'
 
 
-// AFTER the imports on purpose: TypeScript hoists `import` above any
-// statement in the emitted CommonJS, so a loader placed above them would
-// run only after every imported module had already been evaluated - and
-// anything reading process.env at module scope would miss these values.
 loadEnvLocal(__dirname + '/../../../.env.local')
 
 
@@ -55,7 +51,7 @@ describe('SystemEntity', async () => {
     
     const setup = basicSetup()
     if (setup.live) {
-      return runLiveEntity(setup, {"active":true,"alias":{"field":{}},"fields":[],"name":"system","op":{"load":{"input":"data","name":"load","points":[{"active":true,"args":{},"contract":{"id":"GET /obsidian-local-rest-api.crt","json":"{\"parameters\":[],\"protocol\":\"http\",\"responses\":{\"200\":{\"description\":\"Success\"}},\"security\":[{\"apiKeyAuth\":[]}],\"securitySchemes\":{\"apiKeyAuth\":{\"description\":\"Find your API Key in your Obsidian settings\\nin the \\\"Local REST API\\\" section under \\\"Plugins\\\".\\n\",\"scheme\":\"bearer\",\"type\":\"http\"}},\"securitySource\":\"definition\"}","source":"openapi3","version":1},"kind":"http","method":"GET","orig":"/obsidian-local-rest-api.crt","segments":[{"lit":"obsidian-local-rest-api.crt"}],"select":{},"transform":{"req":"`reqdata`","res":"`body`"},"index$":0},{"active":true,"args":{},"contract":{"id":"GET /openapi.yaml","json":"{\"parameters\":[],\"protocol\":\"http\",\"responses\":{\"200\":{\"description\":\"Success\"}},\"security\":[{\"apiKeyAuth\":[]}],\"securitySchemes\":{\"apiKeyAuth\":{\"description\":\"Find your API Key in your Obsidian settings\\nin the \\\"Local REST API\\\" section under \\\"Plugins\\\".\\n\",\"scheme\":\"bearer\",\"type\":\"http\"}},\"securitySource\":\"definition\"}","source":"openapi3","version":1},"kind":"http","method":"GET","orig":"/openapi.yaml","segments":[{"lit":"openapi.yaml"}],"select":{},"transform":{"req":"`reqdata`","res":"`body`"},"index$":1}],"key$":"load"}},"relations":{"ancestors":[]},"key$":"system","name__orig":"system","Name":"System","name_":"system","name-":"system","NAME":"SYSTEM","index$":6}, {"active":true,"entity":"system","key$":"BasicSystemFlow","kind":"basic","name":"BasicSystemFlow","param":{},"step":[{"active":true,"data":{},"input":{"ref":"system_ref01","srcdatavar":"system_ref01_data","suffix":"_dt0"},"match":{},"op":"load","spec":[],"valid":[{"apply":"TextFieldMark","def":{"mark":"Mark01-system_ref01"}}],"index$":0}]}, 'System')
+      return runLiveEntity(setup, {"active":true,"alias":{"field":{}},"fields":{},"name":"system","op":{"load":{"input":"data","name":"load","points":[{"a":true,"co":{"id":"GET /obsidian-local-rest-api.crt","source":"openapi3","version":2},"g":{},"k":"http","m":"GET","o":"/obsidian-local-rest-api.crt","q":{},"r":{},"s":[{"lit":"obsidian-local-rest-api.crt"}],"t":{"req":"`reqdata`","res":"`body`"},"index$":0},{"a":true,"co":{"id":"GET /openapi.yaml","source":"openapi3","version":2},"g":{},"k":"http","m":"GET","o":"/openapi.yaml","q":{},"r":{},"s":[{"lit":"openapi.yaml"}],"t":{"req":"`reqdata`","res":"`body`"},"index$":1}],"key$":"load"}},"relations":{"ancestors":[]},"key$":"system","name__orig":"system","Name":"System","name_":"system","name-":"system","NAME":"SYSTEM","index$":6}, {"active":true,"entity":"system","key$":"BasicSystemFlow","kind":"basic","name":"BasicSystemFlow","param":{},"step":[{"a":true,"d":{},"i":{"ref":"system_ref01","srcdatavar":"system_ref01_data","suffix":"_dt0"},"m":{},"o":"load","s":[],"v":[{"apply":"TextFieldMark","def":{"mark":"Mark01-system_ref01"}}],"index$":0}]}, 'System', {"GET /obsidian-local-rest-api.crt":{"protocol":"http","parameters":[]},"GET /openapi.yaml":{"protocol":"http","parameters":[]}})
     }
     const client = setup.client
     const struct = setup.struct

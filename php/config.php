@@ -198,72 +198,73 @@ class ObsidianConfig
           'fields' => [
             [
               'name' => 'content',
-              'short' => 'String payload: a heading/block body or label, a new block id for a block `marker` rename (letters, numbers, hyphens, and underscores only), or a new frontmatter key name for a frontmatter `marker` rename.',
+              'title' => 'Content',
               'type' => '`$STRING`',
+              'short' => 'String payload: a heading/block body or label, a new block id for a block `marker` rename (letters, numbers, hyphens, and underscores only), or a new frontmatter key name for a frontmatter `marker` rename.',
             ],
             [
               'name' => 'createTargetIfMissing',
-              'short' => 'Create the target (heading path, block id, or frontmatter key) if it does not already exist.',
+              'title' => 'Create Target If Missing',
               'type' => '`$BOOLEAN`',
+              'short' => 'Create the target (heading path, block id, or frontmatter key) if it does not already exist.',
             ],
             [
               'name' => 'destination',
+              'title' => 'Destination',
+              'type' => '`$OBJECT`',
               'req' => true,
               'short' => 'For a heading move (operation `replace`, scope `parent`): where the section is re-parented.',
-              'type' => '`$OBJECT`',
-              'union' => [
-                'branches' => 3,
-                'count' => 1,
-                'depth' => 2,
-              ],
             ],
             [
               'name' => 'ifMatch',
-              'short' => 'Optimistic-concurrency token (the `version` from a prior document map).',
+              'title' => 'If Match',
               'type' => '`$STRING`',
+              'short' => 'Optimistic-concurrency token (the `version` from a prior document map).',
             ],
             [
               'name' => 'operation',
+              'title' => 'Operation',
+              'type' => '`$STRING`',
               'req' => true,
               'short' => 'What happens to the scoped span: replace it, insert before (`prepend`) or after (`append`), or `delete` it.',
-              'type' => '`$STRING`',
             ],
             [
               'name' => 'rejectIfContentPreexists',
-              'short' => 'Fail a `prepend`/`append` when the string content already appears in the target span (makes those operations idempotent on retry).',
+              'title' => 'Reject If Content Preexists',
               'type' => '`$BOOLEAN`',
+              'short' => 'Fail a `prepend`/`append` when the string content already appears in the target span (makes those operations idempotent on retry).',
             ],
             [
               'name' => 'scope',
-              'short' => 'Which part of the target the operation acts on (default `content`).',
+              'title' => 'Scope',
               'type' => '`$STRING`',
+              'short' => 'Which part of the target the operation acts on (default `content`).',
             ],
             [
               'name' => 'target',
+              'title' => 'Target',
+              'type' => '`$ANY`',
               'req' => true,
               'short' => 'The node to edit.',
-              'type' => '`$ANY`',
-              'union' => [
-                'branches' => 2,
-                'count' => 1,
-                'depth' => 0,
-              ],
             ],
             [
               'name' => 'targetType',
+              'title' => 'Target Type',
+              'type' => '`$STRING`',
               'req' => true,
               'short' => 'The kind of node to edit.',
-              'type' => '`$STRING`',
             ],
             [
               'name' => 'value',
-              'short' => 'Structured JSON payload: a frontmatter value (any JSON — string, number, boolean, array, object, null; for `prepend`/`append` this merges: list concat, dict merge, string concat), or table rows on a `block` target\'s `content` cell (a 2-D a…',
+              'title' => 'Value',
               'type' => '`$ANY`',
+              'short' => 'Structured JSON payload: a frontmatter value (any JSON — string, number, boolean, array, object, null; for `prepend`/`append` this merges: list concat, dict merge, string concat), or table rows on a `block` target\'s `content` cell (a 2-D a…',
             ],
             [
               'name' => 'within',
-              'short' => 'Refines a heading target to one of the section\'s direct-body top-level blocks (a paragraph, list, table, code fence, blockquote, …): 0 is the first block in document order, and a negative index counts from the end (-1 = last).',
+              'title' => 'Within',
               'type' => '`$INTEGER`',
+              'short' => 'Refines a heading target to one of the section\'s direct-body top-level blocks (a paragraph, list, table, code fence, blockquote, …): 0 is the first block in document order, and a negative index counts from the end (-1 = last).',
             ],
           ],
           'name' => 'active',
@@ -273,31 +274,6 @@ class ObsidianConfig
               'name' => 'create',
               'points' => [
                 [
-                  'args' => [
-                    'header' => [
-                      [
-                        'example' => 'false',
-                        'kind' => 'header',
-                        'name' => 'create_target_if_missing',
-                        'orig' => 'create_target_if_missing',
-                        'type' => '`$STRING`',
-                      ],
-                      [
-                        'example' => '2',
-                        'kind' => 'header',
-                        'name' => 'markdown_patch_version',
-                        'orig' => 'markdown_patch_version',
-                        'type' => '`$STRING`',
-                      ],
-                      [
-                        'example' => 'false',
-                        'kind' => 'header',
-                        'name' => 'reject_if_content_preexist',
-                        'orig' => 'reject_if_content_preexist',
-                        'type' => '`$STRING`',
-                      ],
-                    ],
-                  ],
                   'kind' => 'http',
                   'method' => 'POST',
                   'orig' => '/active/',
@@ -306,19 +282,45 @@ class ObsidianConfig
                       'lit' => 'active',
                     ],
                   ],
+                  'parts' => [
+                    'active',
+                  ],
+                  'rename' => [],
+                  'transform' => [
+                    'req' => '`reqdata`',
+                    'res' => '`body`',
+                  ],
+                  'args' => [
+                    'header' => [
+                      [
+                        'name' => 'create_target_if_missing',
+                        'orig' => 'create_target_if_missing',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                        'example' => 'false',
+                      ],
+                      [
+                        'name' => 'markdown_patch_version',
+                        'orig' => 'markdown_patch_version',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                        'example' => '2',
+                      ],
+                      [
+                        'name' => 'reject_if_content_preexist',
+                        'orig' => 'reject_if_content_preexist',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                        'example' => 'false',
+                      ],
+                    ],
+                  ],
                   'select' => [
                     'exist' => [
                       'create_target_if_missing',
                       'markdown_patch_version',
                       'reject_if_content_preexist',
                     ],
-                  ],
-                  'transform' => [
-                    'req' => '`reqdata`',
-                    'res' => '`body`',
-                  ],
-                  'parts' => [
-                    'active',
                   ],
                 ],
               ],
@@ -328,24 +330,6 @@ class ObsidianConfig
               'name' => 'load',
               'points' => [
                 [
-                  'args' => [
-                    'header' => [
-                      [
-                        'example' => '2',
-                        'kind' => 'header',
-                        'name' => 'markdown_patch_version',
-                        'orig' => 'markdown_patch_version',
-                        'type' => '`$STRING`',
-                      ],
-                      [
-                        'example' => 'content',
-                        'kind' => 'header',
-                        'name' => 'target_scope',
-                        'orig' => 'target_scope',
-                        'type' => '`$STRING`',
-                      ],
-                    ],
-                  ],
                   'kind' => 'http',
                   'method' => 'GET',
                   'orig' => '/active/',
@@ -354,18 +338,37 @@ class ObsidianConfig
                       'lit' => 'active',
                     ],
                   ],
+                  'parts' => [
+                    'active',
+                  ],
+                  'rename' => [],
+                  'transform' => [
+                    'req' => '`reqdata`',
+                    'res' => '`body`',
+                  ],
+                  'args' => [
+                    'header' => [
+                      [
+                        'name' => 'markdown_patch_version',
+                        'orig' => 'markdown_patch_version',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                        'example' => '2',
+                      ],
+                      [
+                        'name' => 'target_scope',
+                        'orig' => 'target_scope',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                        'example' => 'content',
+                      ],
+                    ],
+                  ],
                   'select' => [
                     'exist' => [
                       'markdown_patch_version',
                       'target_scope',
                     ],
-                  ],
-                  'transform' => [
-                    'req' => '`reqdata`',
-                    'res' => '`body`',
-                  ],
-                  'parts' => [
-                    'active',
                   ],
                 ],
               ],
@@ -375,74 +378,6 @@ class ObsidianConfig
               'name' => 'patch',
               'points' => [
                 [
-                  'args' => [
-                    'header' => [
-                      [
-                        'example' => 'false',
-                        'kind' => 'header',
-                        'name' => 'create_target_if_missing',
-                        'orig' => 'create_target_if_missing',
-                        'type' => '`$STRING`',
-                      ],
-                      [
-                        'kind' => 'header',
-                        'name' => 'destination',
-                        'orig' => 'destination',
-                        'type' => '`$STRING`',
-                      ],
-                      [
-                        'kind' => 'header',
-                        'name' => 'if_match',
-                        'orig' => 'if_match',
-                        'type' => '`$STRING`',
-                      ],
-                      [
-                        'example' => '2',
-                        'kind' => 'header',
-                        'name' => 'markdown_patch_version',
-                        'orig' => 'markdown_patch_version',
-                        'type' => '`$STRING`',
-                      ],
-                      [
-                        'kind' => 'header',
-                        'name' => 'operation',
-                        'orig' => 'operation',
-                        'type' => '`$STRING`',
-                      ],
-                      [
-                        'example' => 'false',
-                        'kind' => 'header',
-                        'name' => 'reject_if_content_preexist',
-                        'orig' => 'reject_if_content_preexist',
-                        'type' => '`$STRING`',
-                      ],
-                      [
-                        'kind' => 'header',
-                        'name' => 'target',
-                        'orig' => 'target',
-                        'type' => '`$STRING`',
-                      ],
-                      [
-                        'example' => 'content',
-                        'kind' => 'header',
-                        'name' => 'target_scope',
-                        'orig' => 'target_scope',
-                        'type' => '`$STRING`',
-                      ],
-                      [
-                        'kind' => 'header',
-                        'name' => 'target_type',
-                        'orig' => 'target_type',
-                        'type' => '`$STRING`',
-                      ],
-                      [
-                        'kind' => 'header',
-                        'name' => 'within',
-                        'orig' => 'within',
-                        'type' => '`$STRING`',
-                      ],
-                    ],
-                  ],
                   'kind' => 'http',
                   'method' => 'PATCH',
                   'orig' => '/active/',
@@ -451,20 +386,10 @@ class ObsidianConfig
                       'lit' => 'active',
                     ],
                   ],
-                  'select' => [
-                    'exist' => [
-                      'create_target_if_missing',
-                      'destination',
-                      'if_match',
-                      'markdown_patch_version',
-                      'operation',
-                      'reject_if_content_preexist',
-                      'target',
-                      'target_scope',
-                      'target_type',
-                      'within',
-                    ],
+                  'parts' => [
+                    'active',
                   ],
+                  'rename' => [],
                   'transform' => [
                     'req' => [
                       'content' => '`reqdata.content`',
@@ -481,8 +406,87 @@ class ObsidianConfig
                     ],
                     'res' => '`body`',
                   ],
-                  'parts' => [
-                    'active',
+                  'args' => [
+                    'header' => [
+                      [
+                        'name' => 'create_target_if_missing',
+                        'orig' => 'create_target_if_missing',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                        'example' => 'false',
+                      ],
+                      [
+                        'name' => 'destination',
+                        'orig' => 'destination',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                      ],
+                      [
+                        'name' => 'if_match',
+                        'orig' => 'if_match',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                      ],
+                      [
+                        'name' => 'markdown_patch_version',
+                        'orig' => 'markdown_patch_version',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                        'example' => '2',
+                      ],
+                      [
+                        'name' => 'operation',
+                        'orig' => 'operation',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                      ],
+                      [
+                        'name' => 'reject_if_content_preexist',
+                        'orig' => 'reject_if_content_preexist',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                        'example' => 'false',
+                      ],
+                      [
+                        'name' => 'target',
+                        'orig' => 'target',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                      ],
+                      [
+                        'name' => 'target_scope',
+                        'orig' => 'target_scope',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                        'example' => 'content',
+                      ],
+                      [
+                        'name' => 'target_type',
+                        'orig' => 'target_type',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                      ],
+                      [
+                        'name' => 'within',
+                        'orig' => 'within',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                      ],
+                    ],
+                  ],
+                  'select' => [
+                    'exist' => [
+                      'create_target_if_missing',
+                      'destination',
+                      'if_match',
+                      'markdown_patch_version',
+                      'operation',
+                      'reject_if_content_preexist',
+                      'target',
+                      'target_scope',
+                      'target_type',
+                      'within',
+                    ],
                   ],
                 ],
               ],
@@ -492,17 +496,6 @@ class ObsidianConfig
               'name' => 'remove',
               'points' => [
                 [
-                  'args' => [
-                    'query' => [
-                      [
-                        'example' => 'false',
-                        'kind' => 'query',
-                        'name' => 'permanent',
-                        'orig' => 'permanent',
-                        'type' => '`$STRING`',
-                      ],
-                    ],
-                  ],
                   'kind' => 'http',
                   'method' => 'DELETE',
                   'orig' => '/active/',
@@ -511,17 +504,29 @@ class ObsidianConfig
                       'lit' => 'active',
                     ],
                   ],
-                  'select' => [
-                    'exist' => [
-                      'permanent',
-                    ],
+                  'parts' => [
+                    'active',
                   ],
+                  'rename' => [],
                   'transform' => [
                     'req' => '`reqdata`',
                     'res' => '`body`',
                   ],
-                  'parts' => [
-                    'active',
+                  'args' => [
+                    'query' => [
+                      [
+                        'name' => 'permanent',
+                        'orig' => 'permanent',
+                        'type' => '`$STRING`',
+                        'kind' => 'query',
+                        'example' => 'false',
+                      ],
+                    ],
+                  ],
+                  'select' => [
+                    'exist' => [
+                      'permanent',
+                    ],
                   ],
                 ],
               ],
@@ -531,24 +536,6 @@ class ObsidianConfig
               'name' => 'update',
               'points' => [
                 [
-                  'args' => [
-                    'header' => [
-                      [
-                        'example' => '2',
-                        'kind' => 'header',
-                        'name' => 'markdown_patch_version',
-                        'orig' => 'markdown_patch_version',
-                        'type' => '`$STRING`',
-                      ],
-                      [
-                        'example' => 'false',
-                        'kind' => 'header',
-                        'name' => 'reject_if_content_preexist',
-                        'orig' => 'reject_if_content_preexist',
-                        'type' => '`$STRING`',
-                      ],
-                    ],
-                  ],
                   'kind' => 'http',
                   'method' => 'PUT',
                   'orig' => '/active/',
@@ -557,18 +544,37 @@ class ObsidianConfig
                       'lit' => 'active',
                     ],
                   ],
+                  'parts' => [
+                    'active',
+                  ],
+                  'rename' => [],
+                  'transform' => [
+                    'req' => '`reqdata`',
+                    'res' => '`body`',
+                  ],
+                  'args' => [
+                    'header' => [
+                      [
+                        'name' => 'markdown_patch_version',
+                        'orig' => 'markdown_patch_version',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                        'example' => '2',
+                      ],
+                      [
+                        'name' => 'reject_if_content_preexist',
+                        'orig' => 'reject_if_content_preexist',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                        'example' => 'false',
+                      ],
+                    ],
+                  ],
                   'select' => [
                     'exist' => [
                       'markdown_patch_version',
                       'reject_if_content_preexist',
                     ],
-                  ],
-                  'transform' => [
-                    'req' => '`reqdata`',
-                    'res' => '`body`',
-                  ],
-                  'parts' => [
-                    'active',
                   ],
                 ],
               ],
@@ -582,10 +588,12 @@ class ObsidianConfig
           'fields' => [
             [
               'name' => 'id',
+              'title' => 'Id',
               'type' => '`$STRING`',
             ],
             [
               'name' => 'name',
+              'title' => 'Name',
               'type' => '`$STRING`',
             ],
           ],
@@ -600,25 +608,9 @@ class ObsidianConfig
               'name' => 'create',
               'points' => [
                 [
-                  'args' => [
-                    'params' => [
-                      [
-                        'kind' => 'param',
-                        'name' => 'id',
-                        'orig' => 'command_id',
-                        'reqd' => true,
-                        'type' => '`$STRING`',
-                      ],
-                    ],
-                  ],
                   'kind' => 'http',
                   'method' => 'POST',
                   'orig' => '/commands/{commandId}/',
-                  'rename' => [
-                    'param' => [
-                      'commandId' => 'id',
-                    ],
-                  ],
                   'segments' => [
                     [
                       'lit' => 'commands',
@@ -627,18 +619,34 @@ class ObsidianConfig
                       'var' => 'id',
                     ],
                   ],
-                  'select' => [
-                    'exist' => [
-                      'id',
+                  'parts' => [
+                    'commands',
+                    '{id}',
+                  ],
+                  'rename' => [
+                    'param' => [
+                      'commandId' => 'id',
                     ],
                   ],
                   'transform' => [
                     'req' => '`reqdata`',
                     'res' => '`body`',
                   ],
-                  'parts' => [
-                    'commands',
-                    '{id}',
+                  'args' => [
+                    'params' => [
+                      [
+                        'name' => 'id',
+                        'orig' => 'command_id',
+                        'type' => '`$STRING`',
+                        'kind' => 'param',
+                        'reqd' => true,
+                      ],
+                    ],
+                  ],
+                  'select' => [
+                    'exist' => [
+                      'id',
+                    ],
                   ],
                 ],
               ],
@@ -648,7 +656,6 @@ class ObsidianConfig
               'name' => 'list',
               'points' => [
                 [
-                  'args' => [],
                   'kind' => 'http',
                   'method' => 'GET',
                   'orig' => '/commands/',
@@ -657,14 +664,16 @@ class ObsidianConfig
                       'lit' => 'commands',
                     ],
                   ],
-                  'select' => [],
+                  'parts' => [
+                    'commands',
+                  ],
+                  'rename' => [],
                   'transform' => [
                     'req' => '`reqdata`',
                     'res' => '`body.commands`',
                   ],
-                  'parts' => [
-                    'commands',
-                  ],
+                  'args' => [],
+                  'select' => [],
                 ],
               ],
             ],
@@ -677,13 +686,15 @@ class ObsidianConfig
           'fields' => [
             [
               'name' => 'obsidian',
-              'short' => 'Obsidian plugin API version',
+              'title' => 'Obsidian',
               'type' => '`$STRING`',
+              'short' => 'Obsidian plugin API version',
             ],
             [
               'name' => 'self',
-              'short' => 'Plugin version.',
+              'title' => 'Self',
               'type' => '`$STRING`',
+              'short' => 'Plugin version.',
             ],
           ],
           'name' => 'entity1',
@@ -693,17 +704,18 @@ class ObsidianConfig
               'name' => 'load',
               'points' => [
                 [
-                  'args' => [],
                   'kind' => 'http',
                   'method' => 'GET',
                   'orig' => '/',
                   'segments' => [],
-                  'select' => [],
+                  'parts' => [],
+                  'rename' => [],
                   'transform' => [
                     'req' => '`reqdata`',
                     'res' => '`body.versions`',
                   ],
-                  'parts' => [],
+                  'args' => [],
+                  'select' => [],
                 ],
               ],
             ],
@@ -716,30 +728,29 @@ class ObsidianConfig
           'fields' => [
             [
               'name' => 'id',
-              'short' => 'Request identifier.',
+              'title' => 'Id',
               'type' => '`$STRING`',
-              'union' => [
-                'branches' => 2,
-                'count' => 1,
-                'depth' => 0,
-              ],
+              'short' => 'Request identifier.',
             ],
             [
               'name' => 'jsonrpc',
+              'title' => 'Jsonrpc',
+              'type' => '`$STRING`',
               'req' => true,
               'short' => 'JSON-RPC version.',
-              'type' => '`$STRING`',
             ],
             [
               'name' => 'method',
+              'title' => 'Method',
+              'type' => '`$STRING`',
               'req' => true,
               'short' => 'MCP method to invoke.',
-              'type' => '`$STRING`',
             ],
             [
               'name' => 'params',
-              'short' => 'Method-specific parameters.',
+              'title' => 'Params',
               'type' => '`$OBJECT`',
+              'short' => 'Method-specific parameters.',
             ],
           ],
           'id' => [
@@ -753,22 +764,6 @@ class ObsidianConfig
               'name' => 'create',
               'points' => [
                 [
-                  'args' => [
-                    'header' => [
-                      [
-                        'kind' => 'header',
-                        'name' => 'mcp_protocol_version',
-                        'orig' => 'mcp_protocol_version',
-                        'type' => '`$STRING`',
-                      ],
-                      [
-                        'kind' => 'header',
-                        'name' => 'mcp_session_id',
-                        'orig' => 'mcp_session_id',
-                        'type' => '`$STRING`',
-                      ],
-                    ],
-                  ],
                   'kind' => 'http',
                   'method' => 'POST',
                   'orig' => '/mcp/',
@@ -777,18 +772,35 @@ class ObsidianConfig
                       'lit' => 'mcp',
                     ],
                   ],
+                  'parts' => [
+                    'mcp',
+                  ],
+                  'rename' => [],
+                  'transform' => [
+                    'req' => '`reqdata`',
+                    'res' => '`body`',
+                  ],
+                  'args' => [
+                    'header' => [
+                      [
+                        'name' => 'mcp_protocol_version',
+                        'orig' => 'mcp_protocol_version',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                      ],
+                      [
+                        'name' => 'mcp_session_id',
+                        'orig' => 'mcp_session_id',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                      ],
+                    ],
+                  ],
                   'select' => [
                     'exist' => [
                       'mcp_protocol_version',
                       'mcp_session_id',
                     ],
-                  ],
-                  'transform' => [
-                    'req' => '`reqdata`',
-                    'res' => '`body`',
-                  ],
-                  'parts' => [
-                    'mcp',
                   ],
                 ],
               ],
@@ -798,23 +810,6 @@ class ObsidianConfig
               'name' => 'load',
               'points' => [
                 [
-                  'args' => [
-                    'header' => [
-                      [
-                        'kind' => 'header',
-                        'name' => 'mcp_protocol_version',
-                        'orig' => 'mcp_protocol_version',
-                        'type' => '`$STRING`',
-                      ],
-                      [
-                        'kind' => 'header',
-                        'name' => 'mcp_session_id',
-                        'orig' => 'mcp_session_id',
-                        'reqd' => true,
-                        'type' => '`$STRING`',
-                      ],
-                    ],
-                  ],
                   'kind' => 'http',
                   'method' => 'GET',
                   'orig' => '/mcp/',
@@ -823,18 +818,36 @@ class ObsidianConfig
                       'lit' => 'mcp',
                     ],
                   ],
+                  'parts' => [
+                    'mcp',
+                  ],
+                  'rename' => [],
+                  'transform' => [
+                    'req' => '`reqdata`',
+                    'res' => '`body`',
+                  ],
+                  'args' => [
+                    'header' => [
+                      [
+                        'name' => 'mcp_protocol_version',
+                        'orig' => 'mcp_protocol_version',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                      ],
+                      [
+                        'name' => 'mcp_session_id',
+                        'orig' => 'mcp_session_id',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                        'reqd' => true,
+                      ],
+                    ],
+                  ],
                   'select' => [
                     'exist' => [
                       'mcp_protocol_version',
                       'mcp_session_id',
                     ],
-                  ],
-                  'transform' => [
-                    'req' => '`reqdata`',
-                    'res' => '`body`',
-                  ],
-                  'parts' => [
-                    'mcp',
                   ],
                 ],
               ],
@@ -848,6 +861,7 @@ class ObsidianConfig
           'fields' => [
             [
               'name' => 'id',
+              'title' => 'Id',
               'type' => '`$STRING`',
             ],
           ],
@@ -862,33 +876,9 @@ class ObsidianConfig
               'name' => 'create',
               'points' => [
                 [
-                  'args' => [
-                    'params' => [
-                      [
-                        'kind' => 'param',
-                        'name' => 'id',
-                        'orig' => 'filename',
-                        'reqd' => true,
-                        'type' => '`$STRING`',
-                      ],
-                    ],
-                    'query' => [
-                      [
-                        'kind' => 'query',
-                        'name' => 'new_leaf',
-                        'orig' => 'new_leaf',
-                        'type' => '`$BOOLEAN`',
-                      ],
-                    ],
-                  ],
                   'kind' => 'http',
                   'method' => 'POST',
                   'orig' => '/open/{filename}',
-                  'rename' => [
-                    'param' => [
-                      'filename' => 'id',
-                    ],
-                  ],
                   'segments' => [
                     [
                       'lit' => 'open',
@@ -897,19 +887,43 @@ class ObsidianConfig
                       'var' => 'id',
                     ],
                   ],
-                  'select' => [
-                    'exist' => [
-                      'id',
-                      'new_leaf',
+                  'parts' => [
+                    'open',
+                    '{id}',
+                  ],
+                  'rename' => [
+                    'param' => [
+                      'filename' => 'id',
                     ],
                   ],
                   'transform' => [
                     'req' => '`reqdata`',
                     'res' => '`body`',
                   ],
-                  'parts' => [
-                    'open',
-                    '{id}',
+                  'args' => [
+                    'params' => [
+                      [
+                        'name' => 'id',
+                        'orig' => 'filename',
+                        'type' => '`$STRING`',
+                        'kind' => 'param',
+                        'reqd' => true,
+                      ],
+                    ],
+                    'query' => [
+                      [
+                        'name' => 'new_leaf',
+                        'orig' => 'new_leaf',
+                        'type' => '`$BOOLEAN`',
+                        'kind' => 'query',
+                      ],
+                    ],
+                  ],
+                  'select' => [
+                    'exist' => [
+                      'id',
+                      'new_leaf',
+                    ],
                   ],
                 ],
               ],
@@ -928,24 +942,6 @@ class ObsidianConfig
               'name' => 'create',
               'points' => [
                 [
-                  'args' => [
-                    'query' => [
-                      [
-                        'example' => 100,
-                        'kind' => 'query',
-                        'name' => 'context_length',
-                        'orig' => 'context_length',
-                        'type' => '`$NUMBER`',
-                      ],
-                      [
-                        'kind' => 'query',
-                        'name' => 'query',
-                        'orig' => 'query',
-                        'reqd' => true,
-                        'type' => '`$STRING`',
-                      ],
-                    ],
-                  ],
                   'kind' => 'http',
                   'method' => 'POST',
                   'orig' => '/search/simple/',
@@ -957,6 +953,33 @@ class ObsidianConfig
                       'lit' => 'simple',
                     ],
                   ],
+                  'parts' => [
+                    'search',
+                    'simple',
+                  ],
+                  'rename' => [],
+                  'transform' => [
+                    'req' => '`reqdata`',
+                    'res' => '`body`',
+                  ],
+                  'args' => [
+                    'query' => [
+                      [
+                        'name' => 'context_length',
+                        'orig' => 'context_length',
+                        'type' => '`$NUMBER`',
+                        'kind' => 'query',
+                        'example' => 100,
+                      ],
+                      [
+                        'name' => 'query',
+                        'orig' => 'query',
+                        'type' => '`$STRING`',
+                        'kind' => 'query',
+                        'reqd' => true,
+                      ],
+                    ],
+                  ],
                   'select' => [
                     '$action' => 'simple',
                     'exist' => [
@@ -964,17 +987,8 @@ class ObsidianConfig
                       'query',
                     ],
                   ],
-                  'transform' => [
-                    'req' => '`reqdata`',
-                    'res' => '`body`',
-                  ],
-                  'parts' => [
-                    'search',
-                    'simple',
-                  ],
                 ],
                 [
-                  'args' => [],
                   'kind' => 'http',
                   'method' => 'POST',
                   'orig' => '/search/',
@@ -983,14 +997,16 @@ class ObsidianConfig
                       'lit' => 'search',
                     ],
                   ],
-                  'select' => [],
+                  'parts' => [
+                    'search',
+                  ],
+                  'rename' => [],
                   'transform' => [
                     'req' => '`reqdata`',
                     'res' => '`body`',
                   ],
-                  'parts' => [
-                    'search',
-                  ],
+                  'args' => [],
+                  'select' => [],
                 ],
               ],
             ],
@@ -1008,7 +1024,6 @@ class ObsidianConfig
               'name' => 'load',
               'points' => [
                 [
-                  'args' => [],
                   'kind' => 'http',
                   'method' => 'GET',
                   'orig' => '/obsidian-local-rest-api.crt',
@@ -1017,17 +1032,18 @@ class ObsidianConfig
                       'lit' => 'obsidian-local-rest-api.crt',
                     ],
                   ],
-                  'select' => [],
+                  'parts' => [
+                    'obsidian-local-rest-api.crt',
+                  ],
+                  'rename' => [],
                   'transform' => [
                     'req' => '`reqdata`',
                     'res' => '`body`',
                   ],
-                  'parts' => [
-                    'obsidian-local-rest-api.crt',
-                  ],
+                  'args' => [],
+                  'select' => [],
                 ],
                 [
-                  'args' => [],
                   'kind' => 'http',
                   'method' => 'GET',
                   'orig' => '/openapi.yaml',
@@ -1036,14 +1052,16 @@ class ObsidianConfig
                       'lit' => 'openapi.yaml',
                     ],
                   ],
-                  'select' => [],
+                  'parts' => [
+                    'openapi.yaml',
+                  ],
+                  'rename' => [],
                   'transform' => [
                     'req' => '`reqdata`',
                     'res' => '`body`',
                   ],
-                  'parts' => [
-                    'openapi.yaml',
-                  ],
+                  'args' => [],
+                  'select' => [],
                 ],
               ],
             ],
@@ -1056,13 +1074,15 @@ class ObsidianConfig
           'fields' => [
             [
               'name' => 'count',
-              'short' => 'Number of times this tag is used across the vault.',
+              'title' => 'Count',
               'type' => '`$NUMBER`',
+              'short' => 'Number of times this tag is used across the vault.',
             ],
             [
               'name' => 'name',
-              'short' => 'Tag name without the leading `#`.',
+              'title' => 'Name',
               'type' => '`$STRING`',
+              'short' => 'Tag name without the leading `#`.',
             ],
           ],
           'name' => 'tag',
@@ -1072,7 +1092,6 @@ class ObsidianConfig
               'name' => 'list',
               'points' => [
                 [
-                  'args' => [],
                   'kind' => 'http',
                   'method' => 'GET',
                   'orig' => '/tags/',
@@ -1081,14 +1100,16 @@ class ObsidianConfig
                       'lit' => 'tags',
                     ],
                   ],
-                  'select' => [],
+                  'parts' => [
+                    'tags',
+                  ],
+                  'rename' => [],
                   'transform' => [
                     'req' => '`reqdata`',
                     'res' => '`body.tags`',
                   ],
-                  'parts' => [
-                    'tags',
-                  ],
+                  'args' => [],
+                  'select' => [],
                 ],
               ],
             ],
@@ -1101,80 +1122,83 @@ class ObsidianConfig
           'fields' => [
             [
               'name' => 'content',
-              'short' => 'String payload: a heading/block body or label, a new block id for a block `marker` rename (letters, numbers, hyphens, and underscores only), or a new frontmatter key name for a frontmatter `marker` rename.',
+              'title' => 'Content',
               'type' => '`$STRING`',
+              'short' => 'String payload: a heading/block body or label, a new block id for a block `marker` rename (letters, numbers, hyphens, and underscores only), or a new frontmatter key name for a frontmatter `marker` rename.',
             ],
             [
               'name' => 'createTargetIfMissing',
-              'short' => 'Create the target (heading path, block id, or frontmatter key) if it does not already exist.',
+              'title' => 'Create Target If Missing',
               'type' => '`$BOOLEAN`',
+              'short' => 'Create the target (heading path, block id, or frontmatter key) if it does not already exist.',
             ],
             [
               'name' => 'destination',
+              'title' => 'Destination',
+              'type' => '`$OBJECT`',
               'req' => true,
               'short' => 'For a heading move (operation `replace`, scope `parent`): where the section is re-parented.',
-              'type' => '`$OBJECT`',
-              'union' => [
-                'branches' => 3,
-                'count' => 1,
-                'depth' => 2,
-              ],
             ],
             [
               'name' => 'files',
+              'title' => 'Files',
               'type' => '`$ARRAY`',
             ],
             [
               'name' => 'id',
+              'title' => 'Id',
               'type' => '`$STRING`',
             ],
             [
               'name' => 'ifMatch',
-              'short' => 'Optimistic-concurrency token (the `version` from a prior document map).',
+              'title' => 'If Match',
               'type' => '`$STRING`',
+              'short' => 'Optimistic-concurrency token (the `version` from a prior document map).',
             ],
             [
               'name' => 'operation',
+              'title' => 'Operation',
+              'type' => '`$STRING`',
               'req' => true,
               'short' => 'What happens to the scoped span: replace it, insert before (`prepend`) or after (`append`), or `delete` it.',
-              'type' => '`$STRING`',
             ],
             [
               'name' => 'rejectIfContentPreexists',
-              'short' => 'Fail a `prepend`/`append` when the string content already appears in the target span (makes those operations idempotent on retry).',
+              'title' => 'Reject If Content Preexists',
               'type' => '`$BOOLEAN`',
+              'short' => 'Fail a `prepend`/`append` when the string content already appears in the target span (makes those operations idempotent on retry).',
             ],
             [
               'name' => 'scope',
-              'short' => 'Which part of the target the operation acts on (default `content`).',
+              'title' => 'Scope',
               'type' => '`$STRING`',
+              'short' => 'Which part of the target the operation acts on (default `content`).',
             ],
             [
               'name' => 'target',
+              'title' => 'Target',
+              'type' => '`$ANY`',
               'req' => true,
               'short' => 'The node to edit.',
-              'type' => '`$ANY`',
-              'union' => [
-                'branches' => 2,
-                'count' => 1,
-                'depth' => 0,
-              ],
             ],
             [
               'name' => 'targetType',
+              'title' => 'Target Type',
+              'type' => '`$STRING`',
               'req' => true,
               'short' => 'The kind of node to edit.',
-              'type' => '`$STRING`',
             ],
             [
               'name' => 'value',
-              'short' => 'Structured JSON payload: a frontmatter value (any JSON — string, number, boolean, array, object, null; for `prepend`/`append` this merges: list concat, dict merge, string concat), or table rows on a `block` target\'s `content` cell (a 2-D a…',
+              'title' => 'Value',
               'type' => '`$ANY`',
+              'short' => 'Structured JSON payload: a frontmatter value (any JSON — string, number, boolean, array, object, null; for `prepend`/`append` this merges: list concat, dict merge, string concat), or table rows on a `block` target\'s `content` cell (a 2-D a…',
             ],
             [
               'name' => 'within',
-              'short' => 'Refines a heading target to one of the section\'s direct-body top-level blocks (a paragraph, list, table, code fence, blockquote, …): 0 is the first block in document order, and a negative index counts from the end (-1 = last).',
+              'title' => 'Within',
               'type' => '`$INTEGER`',
+              'short' => 'Refines a heading target to one of the section\'s direct-body top-level blocks (a paragraph, list, table, code fence, blockquote, …): 0 is the first block in document order, and a negative index counts from the end (-1 = last).',
             ],
           ],
           'id' => [
@@ -1188,54 +1212,62 @@ class ObsidianConfig
               'name' => 'create',
               'points' => [
                 [
-                  'args' => [
-                    'header' => [
-                      [
-                        'example' => 'false',
-                        'kind' => 'header',
-                        'name' => 'create_target_if_missing',
-                        'orig' => 'create_target_if_missing',
-                        'type' => '`$STRING`',
-                      ],
-                      [
-                        'example' => '2',
-                        'kind' => 'header',
-                        'name' => 'markdown_patch_version',
-                        'orig' => 'markdown_patch_version',
-                        'type' => '`$STRING`',
-                      ],
-                      [
-                        'example' => 'false',
-                        'kind' => 'header',
-                        'name' => 'reject_if_content_preexist',
-                        'orig' => 'reject_if_content_preexist',
-                        'type' => '`$STRING`',
-                      ],
-                    ],
-                    'params' => [
-                      [
-                        'kind' => 'param',
-                        'name' => 'id',
-                        'orig' => 'filename',
-                        'reqd' => true,
-                        'type' => '`$STRING`',
-                      ],
-                    ],
-                  ],
                   'kind' => 'http',
                   'method' => 'POST',
                   'orig' => '/vault/{filename}',
-                  'rename' => [
-                    'param' => [
-                      'filename' => 'id',
-                    ],
-                  ],
                   'segments' => [
                     [
                       'lit' => 'vault',
                     ],
                     [
                       'var' => 'id',
+                    ],
+                  ],
+                  'parts' => [
+                    'vault',
+                    '{id}',
+                  ],
+                  'rename' => [
+                    'param' => [
+                      'filename' => 'id',
+                    ],
+                  ],
+                  'transform' => [
+                    'req' => '`reqdata`',
+                    'res' => '`body`',
+                  ],
+                  'args' => [
+                    'header' => [
+                      [
+                        'name' => 'create_target_if_missing',
+                        'orig' => 'create_target_if_missing',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                        'example' => 'false',
+                      ],
+                      [
+                        'name' => 'markdown_patch_version',
+                        'orig' => 'markdown_patch_version',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                        'example' => '2',
+                      ],
+                      [
+                        'name' => 'reject_if_content_preexist',
+                        'orig' => 'reject_if_content_preexist',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                        'example' => 'false',
+                      ],
+                    ],
+                    'params' => [
+                      [
+                        'name' => 'id',
+                        'orig' => 'filename',
+                        'type' => '`$STRING`',
+                        'kind' => 'param',
+                        'reqd' => true,
+                      ],
                     ],
                   ],
                   'select' => [
@@ -1245,14 +1277,6 @@ class ObsidianConfig
                       'markdown_patch_version',
                       'reject_if_content_preexist',
                     ],
-                  ],
-                  'transform' => [
-                    'req' => '`reqdata`',
-                    'res' => '`body`',
-                  ],
-                  'parts' => [
-                    'vault',
-                    '{id}',
                   ],
                 ],
               ],
@@ -1262,7 +1286,6 @@ class ObsidianConfig
               'name' => 'list',
               'points' => [
                 [
-                  'args' => [],
                   'kind' => 'http',
                   'method' => 'GET',
                   'orig' => '/vault/',
@@ -1271,14 +1294,16 @@ class ObsidianConfig
                       'lit' => 'vault',
                     ],
                   ],
-                  'select' => [],
+                  'parts' => [
+                    'vault',
+                  ],
+                  'rename' => [],
                   'transform' => [
                     'req' => '`reqdata`',
                     'res' => '`body.files`',
                   ],
-                  'parts' => [
-                    'vault',
-                  ],
+                  'args' => [],
+                  'select' => [],
                 ],
               ],
             ],
@@ -1287,47 +1312,55 @@ class ObsidianConfig
               'name' => 'load',
               'points' => [
                 [
-                  'args' => [
-                    'header' => [
-                      [
-                        'example' => '2',
-                        'kind' => 'header',
-                        'name' => 'markdown_patch_version',
-                        'orig' => 'markdown_patch_version',
-                        'type' => '`$STRING`',
-                      ],
-                      [
-                        'example' => 'content',
-                        'kind' => 'header',
-                        'name' => 'target_scope',
-                        'orig' => 'target_scope',
-                        'type' => '`$STRING`',
-                      ],
-                    ],
-                    'params' => [
-                      [
-                        'kind' => 'param',
-                        'name' => 'id',
-                        'orig' => 'filename',
-                        'reqd' => true,
-                        'type' => '`$STRING`',
-                      ],
-                    ],
-                  ],
                   'kind' => 'http',
                   'method' => 'GET',
                   'orig' => '/vault/{filename}',
-                  'rename' => [
-                    'param' => [
-                      'filename' => 'id',
-                    ],
-                  ],
                   'segments' => [
                     [
                       'lit' => 'vault',
                     ],
                     [
                       'var' => 'id',
+                    ],
+                  ],
+                  'parts' => [
+                    'vault',
+                    '{id}',
+                  ],
+                  'rename' => [
+                    'param' => [
+                      'filename' => 'id',
+                    ],
+                  ],
+                  'transform' => [
+                    'req' => '`reqdata`',
+                    'res' => '`body`',
+                  ],
+                  'args' => [
+                    'header' => [
+                      [
+                        'name' => 'markdown_patch_version',
+                        'orig' => 'markdown_patch_version',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                        'example' => '2',
+                      ],
+                      [
+                        'name' => 'target_scope',
+                        'orig' => 'target_scope',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                        'example' => 'content',
+                      ],
+                    ],
+                    'params' => [
+                      [
+                        'name' => 'id',
+                        'orig' => 'filename',
+                        'type' => '`$STRING`',
+                        'kind' => 'param',
+                        'reqd' => true,
+                      ],
                     ],
                   ],
                   'select' => [
@@ -1337,35 +1370,11 @@ class ObsidianConfig
                       'target_scope',
                     ],
                   ],
-                  'transform' => [
-                    'req' => '`reqdata`',
-                    'res' => '`body`',
-                  ],
-                  'parts' => [
-                    'vault',
-                    '{id}',
-                  ],
                 ],
                 [
-                  'args' => [
-                    'params' => [
-                      [
-                        'kind' => 'param',
-                        'name' => 'id',
-                        'orig' => 'path_to_directory',
-                        'reqd' => true,
-                        'type' => '`$STRING`',
-                      ],
-                    ],
-                  ],
                   'kind' => 'http',
                   'method' => 'GET',
                   'orig' => '/vault/{pathToDirectory}/',
-                  'rename' => [
-                    'param' => [
-                      'pathToDirectory' => 'id',
-                    ],
-                  ],
                   'segments' => [
                     [
                       'lit' => 'vault',
@@ -1374,18 +1383,34 @@ class ObsidianConfig
                       'var' => 'id',
                     ],
                   ],
-                  'select' => [
-                    'exist' => [
-                      'id',
+                  'parts' => [
+                    'vault',
+                    '{id}',
+                  ],
+                  'rename' => [
+                    'param' => [
+                      'pathToDirectory' => 'id',
                     ],
                   ],
                   'transform' => [
                     'req' => '`reqdata`',
                     'res' => '`body`',
                   ],
-                  'parts' => [
-                    'vault',
-                    '{id}',
+                  'args' => [
+                    'params' => [
+                      [
+                        'name' => 'id',
+                        'orig' => 'path_to_directory',
+                        'type' => '`$STRING`',
+                        'kind' => 'param',
+                        'reqd' => true,
+                      ],
+                    ],
+                  ],
+                  'select' => [
+                    'exist' => [
+                      'id',
+                    ],
                   ],
                 ],
               ],
@@ -1395,91 +1420,9 @@ class ObsidianConfig
               'name' => 'patch',
               'points' => [
                 [
-                  'args' => [
-                    'header' => [
-                      [
-                        'example' => 'false',
-                        'kind' => 'header',
-                        'name' => 'create_target_if_missing',
-                        'orig' => 'create_target_if_missing',
-                        'type' => '`$STRING`',
-                      ],
-                      [
-                        'kind' => 'header',
-                        'name' => 'destination',
-                        'orig' => 'destination',
-                        'type' => '`$STRING`',
-                      ],
-                      [
-                        'kind' => 'header',
-                        'name' => 'if_match',
-                        'orig' => 'if_match',
-                        'type' => '`$STRING`',
-                      ],
-                      [
-                        'example' => '2',
-                        'kind' => 'header',
-                        'name' => 'markdown_patch_version',
-                        'orig' => 'markdown_patch_version',
-                        'type' => '`$STRING`',
-                      ],
-                      [
-                        'kind' => 'header',
-                        'name' => 'operation',
-                        'orig' => 'operation',
-                        'type' => '`$STRING`',
-                      ],
-                      [
-                        'example' => 'false',
-                        'kind' => 'header',
-                        'name' => 'reject_if_content_preexist',
-                        'orig' => 'reject_if_content_preexist',
-                        'type' => '`$STRING`',
-                      ],
-                      [
-                        'kind' => 'header',
-                        'name' => 'target',
-                        'orig' => 'target',
-                        'type' => '`$STRING`',
-                      ],
-                      [
-                        'example' => 'content',
-                        'kind' => 'header',
-                        'name' => 'target_scope',
-                        'orig' => 'target_scope',
-                        'type' => '`$STRING`',
-                      ],
-                      [
-                        'kind' => 'header',
-                        'name' => 'target_type',
-                        'orig' => 'target_type',
-                        'type' => '`$STRING`',
-                      ],
-                      [
-                        'kind' => 'header',
-                        'name' => 'within',
-                        'orig' => 'within',
-                        'type' => '`$STRING`',
-                      ],
-                    ],
-                    'params' => [
-                      [
-                        'kind' => 'param',
-                        'name' => 'id',
-                        'orig' => 'filename',
-                        'reqd' => true,
-                        'type' => '`$STRING`',
-                      ],
-                    ],
-                  ],
                   'kind' => 'http',
                   'method' => 'PATCH',
                   'orig' => '/vault/{filename}',
-                  'rename' => [
-                    'param' => [
-                      'filename' => 'id',
-                    ],
-                  ],
                   'segments' => [
                     [
                       'lit' => 'vault',
@@ -1488,19 +1431,13 @@ class ObsidianConfig
                       'var' => 'id',
                     ],
                   ],
-                  'select' => [
-                    'exist' => [
-                      'create_target_if_missing',
-                      'destination',
-                      'id',
-                      'if_match',
-                      'markdown_patch_version',
-                      'operation',
-                      'reject_if_content_preexist',
-                      'target',
-                      'target_scope',
-                      'target_type',
-                      'within',
+                  'parts' => [
+                    'vault',
+                    '{id}',
+                  ],
+                  'rename' => [
+                    'param' => [
+                      'filename' => 'id',
                     ],
                   ],
                   'transform' => [
@@ -1519,9 +1456,97 @@ class ObsidianConfig
                     ],
                     'res' => '`body`',
                   ],
-                  'parts' => [
-                    'vault',
-                    '{id}',
+                  'args' => [
+                    'header' => [
+                      [
+                        'name' => 'create_target_if_missing',
+                        'orig' => 'create_target_if_missing',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                        'example' => 'false',
+                      ],
+                      [
+                        'name' => 'destination',
+                        'orig' => 'destination',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                      ],
+                      [
+                        'name' => 'if_match',
+                        'orig' => 'if_match',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                      ],
+                      [
+                        'name' => 'markdown_patch_version',
+                        'orig' => 'markdown_patch_version',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                        'example' => '2',
+                      ],
+                      [
+                        'name' => 'operation',
+                        'orig' => 'operation',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                      ],
+                      [
+                        'name' => 'reject_if_content_preexist',
+                        'orig' => 'reject_if_content_preexist',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                        'example' => 'false',
+                      ],
+                      [
+                        'name' => 'target',
+                        'orig' => 'target',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                      ],
+                      [
+                        'name' => 'target_scope',
+                        'orig' => 'target_scope',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                        'example' => 'content',
+                      ],
+                      [
+                        'name' => 'target_type',
+                        'orig' => 'target_type',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                      ],
+                      [
+                        'name' => 'within',
+                        'orig' => 'within',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                      ],
+                    ],
+                    'params' => [
+                      [
+                        'name' => 'id',
+                        'orig' => 'filename',
+                        'type' => '`$STRING`',
+                        'kind' => 'param',
+                        'reqd' => true,
+                      ],
+                    ],
+                  ],
+                  'select' => [
+                    'exist' => [
+                      'create_target_if_missing',
+                      'destination',
+                      'id',
+                      'if_match',
+                      'markdown_patch_version',
+                      'operation',
+                      'reject_if_content_preexist',
+                      'target',
+                      'target_scope',
+                      'target_type',
+                      'within',
+                    ],
                   ],
                 ],
               ],
@@ -1531,34 +1556,9 @@ class ObsidianConfig
               'name' => 'remove',
               'points' => [
                 [
-                  'args' => [
-                    'params' => [
-                      [
-                        'kind' => 'param',
-                        'name' => 'id',
-                        'orig' => 'filename',
-                        'reqd' => true,
-                        'type' => '`$STRING`',
-                      ],
-                    ],
-                    'query' => [
-                      [
-                        'example' => 'false',
-                        'kind' => 'query',
-                        'name' => 'permanent',
-                        'orig' => 'permanent',
-                        'type' => '`$STRING`',
-                      ],
-                    ],
-                  ],
                   'kind' => 'http',
                   'method' => 'DELETE',
                   'orig' => '/vault/{filename}',
-                  'rename' => [
-                    'param' => [
-                      'filename' => 'id',
-                    ],
-                  ],
                   'segments' => [
                     [
                       'lit' => 'vault',
@@ -1567,19 +1567,44 @@ class ObsidianConfig
                       'var' => 'id',
                     ],
                   ],
-                  'select' => [
-                    'exist' => [
-                      'id',
-                      'permanent',
+                  'parts' => [
+                    'vault',
+                    '{id}',
+                  ],
+                  'rename' => [
+                    'param' => [
+                      'filename' => 'id',
                     ],
                   ],
                   'transform' => [
                     'req' => '`reqdata`',
                     'res' => '`body`',
                   ],
-                  'parts' => [
-                    'vault',
-                    '{id}',
+                  'args' => [
+                    'params' => [
+                      [
+                        'name' => 'id',
+                        'orig' => 'filename',
+                        'type' => '`$STRING`',
+                        'kind' => 'param',
+                        'reqd' => true,
+                      ],
+                    ],
+                    'query' => [
+                      [
+                        'name' => 'permanent',
+                        'orig' => 'permanent',
+                        'type' => '`$STRING`',
+                        'kind' => 'query',
+                        'example' => 'false',
+                      ],
+                    ],
+                  ],
+                  'select' => [
+                    'exist' => [
+                      'id',
+                      'permanent',
+                    ],
                   ],
                 ],
               ],
@@ -1589,41 +1614,9 @@ class ObsidianConfig
               'name' => 'update',
               'points' => [
                 [
-                  'args' => [
-                    'header' => [
-                      [
-                        'example' => '2',
-                        'kind' => 'header',
-                        'name' => 'markdown_patch_version',
-                        'orig' => 'markdown_patch_version',
-                        'type' => '`$STRING`',
-                      ],
-                      [
-                        'example' => 'false',
-                        'kind' => 'header',
-                        'name' => 'reject_if_content_preexist',
-                        'orig' => 'reject_if_content_preexist',
-                        'type' => '`$STRING`',
-                      ],
-                    ],
-                    'params' => [
-                      [
-                        'kind' => 'param',
-                        'name' => 'id',
-                        'orig' => 'filename',
-                        'reqd' => true,
-                        'type' => '`$STRING`',
-                      ],
-                    ],
-                  ],
                   'kind' => 'http',
                   'method' => 'PUT',
                   'orig' => '/vault/{filename}',
-                  'rename' => [
-                    'param' => [
-                      'filename' => 'id',
-                    ],
-                  ],
                   'segments' => [
                     [
                       'lit' => 'vault',
@@ -1632,20 +1625,52 @@ class ObsidianConfig
                       'var' => 'id',
                     ],
                   ],
-                  'select' => [
-                    'exist' => [
-                      'id',
-                      'markdown_patch_version',
-                      'reject_if_content_preexist',
+                  'parts' => [
+                    'vault',
+                    '{id}',
+                  ],
+                  'rename' => [
+                    'param' => [
+                      'filename' => 'id',
                     ],
                   ],
                   'transform' => [
                     'req' => '`reqdata`',
                     'res' => '`body`',
                   ],
-                  'parts' => [
-                    'vault',
-                    '{id}',
+                  'args' => [
+                    'header' => [
+                      [
+                        'name' => 'markdown_patch_version',
+                        'orig' => 'markdown_patch_version',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                        'example' => '2',
+                      ],
+                      [
+                        'name' => 'reject_if_content_preexist',
+                        'orig' => 'reject_if_content_preexist',
+                        'type' => '`$STRING`',
+                        'kind' => 'header',
+                        'example' => 'false',
+                      ],
+                    ],
+                    'params' => [
+                      [
+                        'name' => 'id',
+                        'orig' => 'filename',
+                        'type' => '`$STRING`',
+                        'kind' => 'param',
+                        'reqd' => true,
+                      ],
+                    ],
+                  ],
+                  'select' => [
+                    'exist' => [
+                      'id',
+                      'markdown_patch_version',
+                      'reject_if_content_preexist',
+                    ],
                   ],
                 ],
               ],

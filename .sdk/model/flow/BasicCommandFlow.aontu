@@ -1,0 +1,34 @@
+# BasicCommandFlow
+
+main: kit: flow: BasicCommandFlow:
+{
+  entity: "command",
+  kind: "basic",
+  name: "BasicCommandFlow",
+  step: [
+    {
+      i: {
+        ref: "command_ref01"
+      }
+
+      m: {
+        command_id: "command01"
+      }
+
+      o: "create"
+    }
+
+    {
+      o: "list",
+      v: [
+        {
+          apply: "ItemExists",
+          def: {
+            ref: "command_ref01"
+          }
+        }
+      ]
+    }
+  ],
+  "key$": "BasicCommandFlow"
+}

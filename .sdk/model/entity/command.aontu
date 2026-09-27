@@ -1,0 +1,103 @@
+# Entity: command
+
+main: kit: entity: command: {
+
+  alias: field: {}
+
+  fields: {
+    id: {
+      h: "Id"
+      n: "id"
+      r: false
+      t: "`$STRING`"
+    }
+    name: {
+      h: "Name"
+      n: "name"
+      r: false
+      t: "`$STRING`"
+    }
+  }
+
+  id: {
+    field: "id"
+    name: "id"
+  }
+
+  name: "command"
+  op: {
+    create: {
+      name: "create"
+      points: [
+        {
+          co: {
+            id: "POST /commands/{commandId}/"
+            source: "openapi3"
+            version: 2
+          }
+          g: {
+            params: [
+              {
+                k: "param"
+                n: "id"
+                or: "command_id"
+                r: true
+                t: "`$STRING`"
+              }
+            ]
+          }
+          m: "POST"
+          o: "/commands/{commandId}/"
+          q: {
+            exist: [
+              "id"
+            ]
+          }
+          r: {
+            param: {
+              commandId: "id"
+            }
+          }
+          s: [
+            {
+              lit: "commands"
+            }
+            {
+              var: "id"
+            }
+          ]
+          t: {
+            req: "`reqdata`"
+            res: "`body`"
+          }
+        }
+      ]
+    }
+    list: {
+      name: "list"
+      points: [
+        {
+          co: {
+            id: "GET /commands/"
+            source: "openapi3"
+            version: 2
+          }
+          m: "GET"
+          o: "/commands/"
+          s: [
+            {
+              lit: "commands"
+            }
+          ]
+          t: {
+            req: "`reqdata`"
+            res: "`body.commands`"
+          }
+        }
+      ]
+    }
+  }
+
+
+
+}

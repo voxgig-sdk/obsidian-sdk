@@ -1,0 +1,86 @@
+# Entity: search
+
+main: kit: entity: search: {
+
+  alias: field: {}
+
+  name: "search"
+  op: {
+    create: {
+      name: "create"
+      points: [
+        {
+          co: {
+            id: "POST /search/simple/"
+            source: "openapi3"
+            version: 2
+          }
+          g: {
+            query: [
+              {
+                ex: 100
+                k: "query"
+                n: "context_length"
+                or: "context_length"
+                r: false
+                t: "`$NUMBER`"
+              }
+              {
+                k: "query"
+                n: "query"
+                or: "query"
+                r: true
+                t: "`$STRING`"
+              }
+            ]
+          }
+          m: "POST"
+          o: "/search/simple/"
+          q: {
+            "$action": "simple"
+            exist: [
+              "context_length"
+              "query"
+            ]
+          }
+          s: [
+            {
+              lit: "search"
+            }
+            {
+              lit: "simple"
+            }
+          ]
+          t: {
+            req: "`reqdata`"
+            res: "`body`"
+          }
+        }
+        {
+          co: {
+            id: "POST /search/"
+            source: "openapi3"
+            version: 2
+          }
+          m: "POST"
+          o: "/search/"
+          s: [
+            {
+              lit: "search"
+            }
+          ]
+          t: {
+            req: "`reqdata`"
+            res: "`body`"
+          }
+        }
+      ]
+    }
+  }
+
+  fields: {
+  }
+
+
+
+}

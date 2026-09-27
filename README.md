@@ -8,11 +8,9 @@ This is an unofficial SDK for the Local REST API for Obsidian public API, genera
 
 Learn more about Voxgig SDKs at [voxgig.com/sdk](https://voxgig.com/sdk/).
 
-Full documentation for this SDK: [https://voxgig-sdk.github.io/obsidian-sdk/](https://voxgig-sdk.github.io/obsidian-sdk/)
-
 > TypeScript, Python, PHP, Golang, Ruby, Lua, C SDKs, a CLI with an interactive REPL, and an MCP server for AI agents — all generated from one OpenAPI spec by [@voxgig/sdkgen](https://github.com/voxgig/sdkgen).
 
-> **Features:** `debug`, `idempotency`, `metrics`, `paging`, `ratelimit`, `retry`, `test`, `timeout` — opt-in,
+> **Features:** `undefined`, `undefined`, `undefined`, `undefined`, `undefined`, `undefined`, `undefined`, `undefined` — opt-in,
 > inactive until switched on, and configured per client. See the Features
 > section of any SDK README below for what each one does.
 
@@ -115,13 +113,13 @@ printf("%s\n", voxgig_to_json(commands));
 
 | Language | Package | Install |
 | --- | --- | --- |
-| TypeScript | `@voxgig-sdk/obsidian` | publish pending — [install from git tag](https://github.com/voxgig-sdk/obsidian-sdk/tags) |
-| Python | `voxgig-sdk-obsidian` | publish pending — [install from git tag](https://github.com/voxgig-sdk/obsidian-sdk/tags) |
-| PHP | `voxgig-sdk/obsidian` | publish pending — [install from git tag](https://github.com/voxgig-sdk/obsidian-sdk/tags) |
+| TypeScript | `@voxgig-sdk/obsidian-sdk` | publish pending — [install from git tag](https://github.com/voxgig-sdk/obsidian-sdk/tags) |
+| Python | `voxgig-sdk-obsidian-sdk` | publish pending — [install from git tag](https://github.com/voxgig-sdk/obsidian-sdk/tags) |
+| PHP | `voxgig-sdk/obsidian-sdk` | publish pending — [install from git tag](https://github.com/voxgig-sdk/obsidian-sdk/tags) |
 | Golang | `github.com/voxgig-sdk/obsidian-sdk/go` | `go get github.com/voxgig-sdk/obsidian-sdk/go@latest` |
-| Ruby | `voxgig-sdk-obsidian` | publish pending — [install from git tag](https://github.com/voxgig-sdk/obsidian-sdk/tags) |
-| Lua | `voxgig-sdk-obsidian` | publish pending — [install from git tag](https://github.com/voxgig-sdk/obsidian-sdk/tags) |
-| C | `voxgig-sdk-obsidian` | publish pending — [install from git tag](https://github.com/voxgig-sdk/obsidian-sdk/tags) |
+| Ruby | `voxgig-sdk-obsidian-sdk` | publish pending — [install from git tag](https://github.com/voxgig-sdk/obsidian-sdk/tags) |
+| Lua | `voxgig-sdk-obsidian-sdk` | publish pending — [install from git tag](https://github.com/voxgig-sdk/obsidian-sdk/tags) |
+| C | `voxgig-sdk-obsidian-sdk` | publish pending — [install from git tag](https://github.com/voxgig-sdk/obsidian-sdk/tags) |
 | Go CLI | `github.com/voxgig-sdk/obsidian-sdk/go-cli` | `go install github.com/voxgig-sdk/obsidian-sdk/go-cli/cmd/obsidian@latest` |
 | Go MCP server | `github.com/voxgig-sdk/obsidian-sdk/go-mcp` | `go get github.com/voxgig-sdk/obsidian-sdk/go-mcp@latest` |
 
@@ -130,7 +128,7 @@ printf("%s\n", voxgig_to_json(commands));
 ### TypeScript
 
 ```ts
-import { ObsidianSDK } from '@voxgig-sdk/obsidian'
+import { ObsidianSDK } from '@voxgig-sdk/obsidian-sdk'
 
 const client = new ObsidianSDK({
   apikey: process.env.OBSIDIAN_APIKEY,
@@ -410,14 +408,14 @@ forking the SDK.
 
 | Feature | Purpose |
 | --- | --- |
-| **DebugFeature** | Request/response capture ring buffer for debugging |
-| **IdempotencyFeature** | Idempotency keys for safe retries of mutating operations |
-| **MetricsFeature** | Statistics capture: per-operation counters and latency |
-| **PagingFeature** | Pagination signals for list operations |
-| **RatelimitFeature** | Client-side rate limiting via a token bucket |
-| **RetryFeature** | Automatic retry of transient failures with exponential backoff |
-| **TestFeature** | In-memory mock transport for testing without a live server |
-| **TimeoutFeature** | Per-request timeout with transport abort |
+| **DebugFeature** | Debug capture |
+| **IdempotencyFeature** | Idempotency |
+| **MetricsFeature** | Metrics |
+| **PagingFeature** | Paging |
+| **RatelimitFeature** | Rate limiting |
+| **RetryFeature** | Retry |
+| **TestFeature** | Test transport |
+| **TimeoutFeature** | Timeout |
 
 Pass custom features via the `extend` option at construction time.
 

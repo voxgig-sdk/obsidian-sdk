@@ -1,7 +1,7 @@
 // Typed models for the Obsidian SDK.
 //
-// GENERATED from the API model: main.kit.entity.<e>.fields[] and per-op
-// params (op.<name>.points[].args.params[]). Field/param types come from the
+// GENERATED from the API model: main.kit.entity.<e>.fields{} and per-op
+// params (op.<name>.points[].g.params[]). Field/param types come from the
 // canonical type sentinels via @voxgig/sdkgen canonToType (source of truth:
 // @voxgig/apidef VALID_CANON). Do not edit by hand.
 package entity
@@ -14,17 +14,6 @@ import (
 
 // Active is the typed data model for the active entity.
 type Active struct {
-	Content *string `json:"content,omitempty"`
-	CreateTargetIfMissing *bool `json:"createTargetIfMissing,omitempty"`
-	Destination map[string]any `json:"destination"`
-	IfMatch *string `json:"ifMatch,omitempty"`
-	Operation string `json:"operation"`
-	RejectIfContentPreexists *bool `json:"rejectIfContentPreexists,omitempty"`
-	Scope *string `json:"scope,omitempty"`
-	Target any `json:"target"`
-	TargetType string `json:"targetType"`
-	Value *any `json:"value,omitempty"`
-	Within *int `json:"within,omitempty"`
 }
 
 // ActiveLoadMatch is the typed request payload for Active.LoadTyped.
@@ -79,8 +68,6 @@ type ActiveRemoveMatch struct {
 
 // Command is the typed data model for the command entity.
 type Command struct {
-	Id *string `json:"id,omitempty"`
-	Name *string `json:"name,omitempty"`
 }
 
 // CommandListMatch is the typed request payload for Command.ListTyped.
@@ -97,8 +84,6 @@ type CommandCreateData struct {
 
 // Entity1 is the typed data model for the entity1 entity.
 type Entity1 struct {
-	Obsidian *string `json:"obsidian,omitempty"`
-	Self *string `json:"self,omitempty"`
 }
 
 // Entity1LoadMatch is the typed request payload for Entity1.LoadTyped.
@@ -109,10 +94,6 @@ type Entity1LoadMatch struct {
 
 // Mcp is the typed data model for the mcp entity.
 type Mcp struct {
-	Id *string `json:"id,omitempty"`
-	Jsonrpc string `json:"jsonrpc"`
-	Method string `json:"method"`
-	Params *map[string]any `json:"params,omitempty"`
 }
 
 // McpLoadMatch is the typed request payload for Mcp.LoadTyped.
@@ -133,7 +114,6 @@ type McpCreateData struct {
 
 // Open is the typed data model for the open entity.
 type Open struct {
-	Id *string `json:"id,omitempty"`
 }
 
 // OpenCreateData is the typed request payload for Open.CreateTyped.
@@ -160,8 +140,6 @@ type SystemLoadMatch struct {
 
 // Tag is the typed data model for the tag entity.
 type Tag struct {
-	Count *float64 `json:"count,omitempty"`
-	Name *string `json:"name,omitempty"`
 }
 
 // TagListMatch is the typed request payload for Tag.ListTyped.
@@ -172,19 +150,6 @@ type TagListMatch struct {
 
 // Vault is the typed data model for the vault entity.
 type Vault struct {
-	Content *string `json:"content,omitempty"`
-	CreateTargetIfMissing *bool `json:"createTargetIfMissing,omitempty"`
-	Destination map[string]any `json:"destination"`
-	Files *[]any `json:"files,omitempty"`
-	Id *string `json:"id,omitempty"`
-	IfMatch *string `json:"ifMatch,omitempty"`
-	Operation string `json:"operation"`
-	RejectIfContentPreexists *bool `json:"rejectIfContentPreexists,omitempty"`
-	Scope *string `json:"scope,omitempty"`
-	Target any `json:"target"`
-	TargetType string `json:"targetType"`
-	Value *any `json:"value,omitempty"`
-	Within *int `json:"within,omitempty"`
 }
 
 // VaultLoadMatch is the typed request payload for Vault.LoadTyped.

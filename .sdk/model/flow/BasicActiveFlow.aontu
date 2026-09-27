@@ -1,0 +1,64 @@
+# BasicActiveFlow
+
+main: kit: flow: BasicActiveFlow:
+{
+  entity: "active",
+  kind: "basic",
+  name: "BasicActiveFlow",
+  step: [
+    {
+      i: {
+        ref: "active_ref01"
+      }
+
+      o: "create"
+    }
+
+    {
+      i: {
+        ref: "active_ref01",
+        srcdatavar: "active_ref01_data",
+        suffix: "_up0",
+        textfield: "content"
+      }
+
+      o: "update",
+      s: [
+        {
+          apply: "TextFieldMark",
+          def: {
+            mark: "Mark01-active_ref01"
+          }
+        }
+      ]
+    }
+
+    {
+      i: {
+        ref: "active_ref01",
+        srcdatavar: "active_ref01_data",
+        suffix: "_dt0"
+      }
+
+      o: "load",
+      v: [
+        {
+          apply: "TextFieldMark",
+          def: {
+            mark: "Mark01-active_ref01"
+          }
+        }
+      ]
+    }
+
+    {
+      i: {
+        ref: "active_ref01",
+        suffix: "_rm0"
+      }
+
+      o: "remove"
+    }
+  ],
+  "key$": "BasicActiveFlow"
+}

@@ -25,10 +25,6 @@ import {
 } from '../../utility'
 
 
-// AFTER the imports on purpose: TypeScript hoists `import` above any
-// statement in the emitted CommonJS, so a loader placed above them would
-// run only after every imported module had already been evaluated - and
-// anything reading process.env at module scope would miss these values.
 loadEnvLocal(__dirname + '/../../../.env.local')
 
 
@@ -55,7 +51,7 @@ describe('Entity1Entity', async () => {
     
     const setup = basicSetup()
     if (setup.live) {
-      return runLiveEntity(setup, {"active":true,"alias":{"field":{}},"fields":[{"active":true,"name":"obsidian","req":false,"short":"Obsidian plugin API version","type":"`$STRING`","index$":0},{"active":true,"name":"self","req":false,"short":"Plugin version.","type":"`$STRING`","index$":1}],"name":"entity1","op":{"load":{"input":"data","name":"load","points":[{"active":true,"args":{},"contract":{"id":"GET /","json":"{\"parameters\":[],\"protocol\":\"http\",\"responses\":{\"200\":{\"content\":{\"application/json\":{\"schema\":{\"properties\":{\"authenticated\":{\"description\":\"Is your current request authenticated?\",\"type\":\"boolean\"},\"ok\":{\"description\":\"'OK'\",\"type\":\"string\"},\"service\":{\"description\":\"'Obsidian Local REST API'\",\"type\":\"string\"},\"versions\":{\"properties\":{\"obsidian\":{\"description\":\"Obsidian plugin API version\",\"type\":\"string\"},\"self\":{\"description\":\"Plugin version.\",\"type\":\"string\"}},\"type\":\"object\"}},\"type\":\"object\"}}},\"description\":\"Success\"}},\"security\":[{\"apiKeyAuth\":[]}],\"securitySchemes\":{\"apiKeyAuth\":{\"description\":\"Find your API Key in your Obsidian settings\\nin the \\\"Local REST API\\\" section under \\\"Plugins\\\".\\n\",\"scheme\":\"bearer\",\"type\":\"http\"}},\"securitySource\":\"definition\"}","source":"openapi3","version":1},"kind":"http","method":"GET","orig":"/","segments":[],"select":{},"transform":{"req":"`reqdata`","res":"`body.versions`"},"index$":0}],"key$":"load"}},"relations":{"ancestors":[]},"key$":"entity1","name__orig":"entity1","Name":"Entity1","name_":"entity1","name-":"entity1","NAME":"ENTITY1","index$":2}, {"active":true,"entity":"entity1","key$":"BasicEntity1Flow","kind":"basic","name":"BasicEntity1Flow","param":{},"step":[{"active":true,"data":{},"input":{"ref":"entity1_ref01","srcdatavar":"entity1_ref01_data","suffix":"_dt0"},"match":{},"op":"load","spec":[],"valid":[{"apply":"TextFieldMark","def":{"mark":"Mark01-entity1_ref01"}}],"index$":0}]}, 'Entity1')
+      return runLiveEntity(setup, {"active":true,"alias":{"field":{}},"fields":{"obsidian":{"a":true,"h":"Obsidian","n":"obsidian","r":false,"sh":"Obsidian plugin API version","t":"`$STRING`","key$":"obsidian","index$":0},"self":{"a":true,"h":"Self","n":"self","r":false,"sh":"Plugin version.","t":"`$STRING`","key$":"self","index$":1}},"name":"entity1","op":{"load":{"input":"data","name":"load","points":[{"a":true,"co":{"id":"GET /","source":"openapi3","version":2},"g":{},"k":"http","m":"GET","o":"/","q":{},"r":{},"s":[],"t":{"req":"`reqdata`","res":"`body.versions`"},"index$":0}],"key$":"load"}},"relations":{"ancestors":[]},"key$":"entity1","name__orig":"entity1","Name":"Entity1","name_":"entity1","name-":"entity1","NAME":"ENTITY1","index$":2}, {"active":true,"entity":"entity1","key$":"BasicEntity1Flow","kind":"basic","name":"BasicEntity1Flow","param":{},"step":[{"a":true,"d":{},"i":{"ref":"entity1_ref01","srcdatavar":"entity1_ref01_data","suffix":"_dt0"},"m":{},"o":"load","s":[],"v":[{"apply":"TextFieldMark","def":{"mark":"Mark01-entity1_ref01"}}],"index$":0}]}, 'Entity1', {"GET /":{"protocol":"http","parameters":[]}})
     }
     const client = setup.client
     const struct = setup.struct

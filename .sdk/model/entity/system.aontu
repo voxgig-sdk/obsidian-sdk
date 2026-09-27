@@ -1,0 +1,57 @@
+# Entity: system
+
+main: kit: entity: system: {
+
+  alias: field: {}
+
+  name: "system"
+  op: {
+    load: {
+      name: "load"
+      points: [
+        {
+          co: {
+            id: "GET /obsidian-local-rest-api.crt"
+            source: "openapi3"
+            version: 2
+          }
+          m: "GET"
+          o: "/obsidian-local-rest-api.crt"
+          s: [
+            {
+              lit: "obsidian-local-rest-api.crt"
+            }
+          ]
+          t: {
+            req: "`reqdata`"
+            res: "`body`"
+          }
+        }
+        {
+          co: {
+            id: "GET /openapi.yaml"
+            source: "openapi3"
+            version: 2
+          }
+          m: "GET"
+          o: "/openapi.yaml"
+          s: [
+            {
+              lit: "openapi.yaml"
+            }
+          ]
+          t: {
+            req: "`reqdata`"
+            res: "`body`"
+          }
+        }
+      ]
+    }
+  }
+
+  fields: {
+  }
+
+
+
+}

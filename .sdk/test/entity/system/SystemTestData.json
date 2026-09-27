@@ -20,53 +20,13 @@
   "requests": {
     "GET /obsidian-local-rest-api.crt": {
       "provenance": "operation-contract",
-      "contract": {
-        "parameters": [],
-        "protocol": "http",
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        },
-        "security": [
-          {
-            "apiKeyAuth": []
-          }
-        ],
-        "securitySchemes": {
-          "apiKeyAuth": {
-            "description": "Find your API Key in your Obsidian settings\nin the \"Local REST API\" section under \"Plugins\".\n",
-            "scheme": "bearer",
-            "type": "http"
-          }
-        },
-        "securitySource": "definition"
-      }
+      "version": 2,
+      "source": "openapi3"
     },
     "GET /openapi.yaml": {
       "provenance": "operation-contract",
-      "contract": {
-        "parameters": [],
-        "protocol": "http",
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        },
-        "security": [
-          {
-            "apiKeyAuth": []
-          }
-        ],
-        "securitySchemes": {
-          "apiKeyAuth": {
-            "description": "Find your API Key in your Obsidian settings\nin the \"Local REST API\" section under \"Plugins\".\n",
-            "scheme": "bearer",
-            "type": "http"
-          }
-        },
-        "securitySource": "definition"
-      }
+      "version": 2,
+      "source": "openapi3"
     }
   }
 }

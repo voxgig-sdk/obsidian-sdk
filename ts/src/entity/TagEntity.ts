@@ -19,7 +19,6 @@ import type {
   TagListMatch,
 } from '../ObsidianTypes'
 
-// TODO: needs Entity superclass
 class TagEntity extends ObsidianEntityBase<Tag> {
 
   constructor(client: ObsidianSDK, entopts: any) {

@@ -25,10 +25,6 @@ import {
 } from '../../utility'
 
 
-// AFTER the imports on purpose: TypeScript hoists `import` above any
-// statement in the emitted CommonJS, so a loader placed above them would
-// run only after every imported module had already been evaluated - and
-// anything reading process.env at module scope would miss these values.
 loadEnvLocal(__dirname + '/../../../.env.local')
 
 
@@ -55,7 +51,7 @@ describe('OpenEntity', async () => {
     
     const setup = basicSetup()
     if (setup.live) {
-      return runLiveEntity(setup, {"active":true,"alias":{"field":{}},"fields":[{"active":true,"name":"id","req":false,"type":"`$STRING`","index$":0}],"id":{"field":"id","name":"id"},"name":"open","op":{"create":{"input":"data","name":"create","points":[{"active":true,"args":{"params":[{"active":true,"kind":"param","name":"id","orig":"filename","reqd":true,"type":"`$STRING`","index$":0}],"query":[{"active":true,"kind":"query","name":"new_leaf","orig":"new_leaf","reqd":false,"type":"`$BOOLEAN`","index$":0}]},"contract":{"id":"POST /open/{filename}","json":"{\"parameters\":[{\"description\":\"Path to the file to return (relative to your vault root).\\n\",\"in\":\"path\",\"name\":\"filename\",\"required\":true,\"schema\":{\"format\":\"path\",\"type\":\"string\"}},{\"description\":\"Open this as a new leaf?\",\"in\":\"query\",\"name\":\"newLeaf\",\"required\":false,\"schema\":{\"type\":\"boolean\"}}],\"protocol\":\"http\",\"responses\":{\"200\":{\"description\":\"Success\"}},\"security\":[{\"apiKeyAuth\":[]}],\"securitySchemes\":{\"apiKeyAuth\":{\"description\":\"Find your API Key in your Obsidian settings\\nin the \\\"Local REST API\\\" section under \\\"Plugins\\\".\\n\",\"scheme\":\"bearer\",\"type\":\"http\"}},\"securitySource\":\"definition\"}","source":"openapi3","version":1},"kind":"http","method":"POST","orig":"/open/{filename}","rename":{"param":{"filename":"id"}},"segments":[{"lit":"open"},{"var":"id"}],"select":{"exist":["id","new_leaf"]},"transform":{"req":"`reqdata`","res":"`body`"},"index$":0}],"key$":"create"}},"relations":{"ancestors":[]},"key$":"open","name__orig":"open","Name":"Open","name_":"open","name-":"open","NAME":"OPEN","index$":4}, {"active":true,"entity":"open","key$":"BasicOpenFlow","kind":"basic","name":"BasicOpenFlow","param":{},"step":[{"active":true,"data":{},"input":{"ref":"open_ref01"},"match":{"filename":"filename01"},"op":"create","spec":[],"valid":[],"index$":0}]}, 'Open')
+      return runLiveEntity(setup, {"active":true,"alias":{"field":{}},"fields":{"id":{"a":true,"h":"Id","n":"id","r":false,"t":"`$STRING`","key$":"id","index$":0}},"id":{"field":"id","name":"id"},"name":"open","op":{"create":{"input":"data","name":"create","points":[{"a":true,"co":{"id":"POST /open/{filename}","source":"openapi3","version":2},"g":{"params":[{"a":true,"k":"param","n":"id","or":"filename","r":true,"t":"`$STRING`","index$":0}],"query":[{"a":true,"k":"query","n":"new_leaf","or":"new_leaf","r":false,"t":"`$BOOLEAN`","index$":0}]},"k":"http","m":"POST","o":"/open/{filename}","q":{"exist":["id","new_leaf"]},"r":{"param":{"filename":"id"}},"s":[{"lit":"open"},{"var":"id"}],"t":{"req":"`reqdata`","res":"`body`"},"index$":0}],"key$":"create"}},"relations":{"ancestors":[]},"key$":"open","name__orig":"open","Name":"Open","name_":"open","name-":"open","NAME":"OPEN","index$":4}, {"active":true,"entity":"open","key$":"BasicOpenFlow","kind":"basic","name":"BasicOpenFlow","param":{},"step":[{"a":true,"d":{},"i":{"ref":"open_ref01"},"m":{"filename":"filename01"},"o":"create","s":[],"v":[],"index$":0}]}, 'Open', {"POST /open/{filename}":{"protocol":"http","parameters":[{"description":"Path to the file to return (relative to your vault root).\n","in":"path","name":"filename","required":true,"schema":{"format":"path","type":"string"},"index$":0},{"description":"Open this as a new leaf?","in":"query","name":"newLeaf","required":false,"schema":{"type":"boolean"},"index$":1}]}})
     }
     const client = setup.client
     const struct = setup.struct
@@ -101,7 +97,7 @@ function basicSetup(extra?: any) {
   const transform = struct.transform
 
   let idmap = transform(
-    ['open01','open02','open03'],
+    ['open01','open02','open03','filename01'],
     {
       '`$PACK`': ['', {
         '`$KEY`': '`$COPY`',

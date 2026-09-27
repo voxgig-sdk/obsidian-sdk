@@ -176,72 +176,73 @@ func MakeConfig() map[string]any {
 				"fields": []any{
 					map[string]any{
 						"name": "content",
-						"short": "String payload: a heading/block body or label, a new block id for a block `marker` rename (letters, numbers, hyphens, and underscores only), or a new frontmatter key name for a frontmatter `marker` rename.",
+						"title": "Content",
 						"type": "`$STRING`",
+						"short": "String payload: a heading/block body or label, a new block id for a block `marker` rename (letters, numbers, hyphens, and underscores only), or a new frontmatter key name for a frontmatter `marker` rename.",
 					},
 					map[string]any{
 						"name": "createTargetIfMissing",
-						"short": "Create the target (heading path, block id, or frontmatter key) if it does not already exist.",
+						"title": "Create Target If Missing",
 						"type": "`$BOOLEAN`",
+						"short": "Create the target (heading path, block id, or frontmatter key) if it does not already exist.",
 					},
 					map[string]any{
 						"name": "destination",
+						"title": "Destination",
+						"type": "`$OBJECT`",
 						"req": true,
 						"short": "For a heading move (operation `replace`, scope `parent`): where the section is re-parented.",
-						"type": "`$OBJECT`",
-						"union": map[string]any{
-							"branches": 3,
-							"count": 1,
-							"depth": 2,
-						},
 					},
 					map[string]any{
 						"name": "ifMatch",
-						"short": "Optimistic-concurrency token (the `version` from a prior document map).",
+						"title": "If Match",
 						"type": "`$STRING`",
+						"short": "Optimistic-concurrency token (the `version` from a prior document map).",
 					},
 					map[string]any{
 						"name": "operation",
+						"title": "Operation",
+						"type": "`$STRING`",
 						"req": true,
 						"short": "What happens to the scoped span: replace it, insert before (`prepend`) or after (`append`), or `delete` it.",
-						"type": "`$STRING`",
 					},
 					map[string]any{
 						"name": "rejectIfContentPreexists",
-						"short": "Fail a `prepend`/`append` when the string content already appears in the target span (makes those operations idempotent on retry).",
+						"title": "Reject If Content Preexists",
 						"type": "`$BOOLEAN`",
+						"short": "Fail a `prepend`/`append` when the string content already appears in the target span (makes those operations idempotent on retry).",
 					},
 					map[string]any{
 						"name": "scope",
-						"short": "Which part of the target the operation acts on (default `content`).",
+						"title": "Scope",
 						"type": "`$STRING`",
+						"short": "Which part of the target the operation acts on (default `content`).",
 					},
 					map[string]any{
 						"name": "target",
+						"title": "Target",
+						"type": "`$ANY`",
 						"req": true,
 						"short": "The node to edit.",
-						"type": "`$ANY`",
-						"union": map[string]any{
-							"branches": 2,
-							"count": 1,
-							"depth": 0,
-						},
 					},
 					map[string]any{
 						"name": "targetType",
+						"title": "Target Type",
+						"type": "`$STRING`",
 						"req": true,
 						"short": "The kind of node to edit.",
-						"type": "`$STRING`",
 					},
 					map[string]any{
 						"name": "value",
-						"short": "Structured JSON payload: a frontmatter value (any JSON — string, number, boolean, array, object, null; for `prepend`/`append` this merges: list concat, dict merge, string concat), or table rows on a `block` target's `content` cell (a 2-D a…",
+						"title": "Value",
 						"type": "`$ANY`",
+						"short": "Structured JSON payload: a frontmatter value (any JSON — string, number, boolean, array, object, null; for `prepend`/`append` this merges: list concat, dict merge, string concat), or table rows on a `block` target's `content` cell (a 2-D a…",
 					},
 					map[string]any{
 						"name": "within",
-						"short": "Refines a heading target to one of the section's direct-body top-level blocks (a paragraph, list, table, code fence, blockquote, …): 0 is the first block in document order, and a negative index counts from the end (-1 = last).",
+						"title": "Within",
 						"type": "`$INTEGER`",
+						"short": "Refines a heading target to one of the section's direct-body top-level blocks (a paragraph, list, table, code fence, blockquote, …): 0 is the first block in document order, and a negative index counts from the end (-1 = last).",
 					},
 				},
 				"name": "active",
@@ -251,31 +252,6 @@ func MakeConfig() map[string]any {
 						"name": "create",
 						"points": []any{
 							map[string]any{
-								"args": map[string]any{
-									"header": []any{
-										map[string]any{
-											"example": "false",
-											"kind": "header",
-											"name": "create_target_if_missing",
-											"orig": "create_target_if_missing",
-											"type": "`$STRING`",
-										},
-										map[string]any{
-											"example": "2",
-											"kind": "header",
-											"name": "markdown_patch_version",
-											"orig": "markdown_patch_version",
-											"type": "`$STRING`",
-										},
-										map[string]any{
-											"example": "false",
-											"kind": "header",
-											"name": "reject_if_content_preexist",
-											"orig": "reject_if_content_preexist",
-											"type": "`$STRING`",
-										},
-									},
-								},
 								"kind": "http",
 								"method": "POST",
 								"orig": "/active/",
@@ -284,19 +260,45 @@ func MakeConfig() map[string]any {
 										"lit": "active",
 									},
 								},
+								"parts": []any{
+									"active",
+								},
+								"rename": map[string]any{},
+								"transform": map[string]any{
+									"req": "`reqdata`",
+									"res": "`body`",
+								},
+								"args": map[string]any{
+									"header": []any{
+										map[string]any{
+											"name": "create_target_if_missing",
+											"orig": "create_target_if_missing",
+											"type": "`$STRING`",
+											"kind": "header",
+											"example": "false",
+										},
+										map[string]any{
+											"name": "markdown_patch_version",
+											"orig": "markdown_patch_version",
+											"type": "`$STRING`",
+											"kind": "header",
+											"example": "2",
+										},
+										map[string]any{
+											"name": "reject_if_content_preexist",
+											"orig": "reject_if_content_preexist",
+											"type": "`$STRING`",
+											"kind": "header",
+											"example": "false",
+										},
+									},
+								},
 								"select": map[string]any{
 									"exist": []any{
 										"create_target_if_missing",
 										"markdown_patch_version",
 										"reject_if_content_preexist",
 									},
-								},
-								"transform": map[string]any{
-									"req": "`reqdata`",
-									"res": "`body`",
-								},
-								"parts": []any{
-									"active",
 								},
 							},
 						},
@@ -306,24 +308,6 @@ func MakeConfig() map[string]any {
 						"name": "load",
 						"points": []any{
 							map[string]any{
-								"args": map[string]any{
-									"header": []any{
-										map[string]any{
-											"example": "2",
-											"kind": "header",
-											"name": "markdown_patch_version",
-											"orig": "markdown_patch_version",
-											"type": "`$STRING`",
-										},
-										map[string]any{
-											"example": "content",
-											"kind": "header",
-											"name": "target_scope",
-											"orig": "target_scope",
-											"type": "`$STRING`",
-										},
-									},
-								},
 								"kind": "http",
 								"method": "GET",
 								"orig": "/active/",
@@ -332,18 +316,37 @@ func MakeConfig() map[string]any {
 										"lit": "active",
 									},
 								},
+								"parts": []any{
+									"active",
+								},
+								"rename": map[string]any{},
+								"transform": map[string]any{
+									"req": "`reqdata`",
+									"res": "`body`",
+								},
+								"args": map[string]any{
+									"header": []any{
+										map[string]any{
+											"name": "markdown_patch_version",
+											"orig": "markdown_patch_version",
+											"type": "`$STRING`",
+											"kind": "header",
+											"example": "2",
+										},
+										map[string]any{
+											"name": "target_scope",
+											"orig": "target_scope",
+											"type": "`$STRING`",
+											"kind": "header",
+											"example": "content",
+										},
+									},
+								},
 								"select": map[string]any{
 									"exist": []any{
 										"markdown_patch_version",
 										"target_scope",
 									},
-								},
-								"transform": map[string]any{
-									"req": "`reqdata`",
-									"res": "`body`",
-								},
-								"parts": []any{
-									"active",
 								},
 							},
 						},
@@ -353,74 +356,6 @@ func MakeConfig() map[string]any {
 						"name": "patch",
 						"points": []any{
 							map[string]any{
-								"args": map[string]any{
-									"header": []any{
-										map[string]any{
-											"example": "false",
-											"kind": "header",
-											"name": "create_target_if_missing",
-											"orig": "create_target_if_missing",
-											"type": "`$STRING`",
-										},
-										map[string]any{
-											"kind": "header",
-											"name": "destination",
-											"orig": "destination",
-											"type": "`$STRING`",
-										},
-										map[string]any{
-											"kind": "header",
-											"name": "if_match",
-											"orig": "if_match",
-											"type": "`$STRING`",
-										},
-										map[string]any{
-											"example": "2",
-											"kind": "header",
-											"name": "markdown_patch_version",
-											"orig": "markdown_patch_version",
-											"type": "`$STRING`",
-										},
-										map[string]any{
-											"kind": "header",
-											"name": "operation",
-											"orig": "operation",
-											"type": "`$STRING`",
-										},
-										map[string]any{
-											"example": "false",
-											"kind": "header",
-											"name": "reject_if_content_preexist",
-											"orig": "reject_if_content_preexist",
-											"type": "`$STRING`",
-										},
-										map[string]any{
-											"kind": "header",
-											"name": "target",
-											"orig": "target",
-											"type": "`$STRING`",
-										},
-										map[string]any{
-											"example": "content",
-											"kind": "header",
-											"name": "target_scope",
-											"orig": "target_scope",
-											"type": "`$STRING`",
-										},
-										map[string]any{
-											"kind": "header",
-											"name": "target_type",
-											"orig": "target_type",
-											"type": "`$STRING`",
-										},
-										map[string]any{
-											"kind": "header",
-											"name": "within",
-											"orig": "within",
-											"type": "`$STRING`",
-										},
-									},
-								},
 								"kind": "http",
 								"method": "PATCH",
 								"orig": "/active/",
@@ -429,20 +364,10 @@ func MakeConfig() map[string]any {
 										"lit": "active",
 									},
 								},
-								"select": map[string]any{
-									"exist": []any{
-										"create_target_if_missing",
-										"destination",
-										"if_match",
-										"markdown_patch_version",
-										"operation",
-										"reject_if_content_preexist",
-										"target",
-										"target_scope",
-										"target_type",
-										"within",
-									},
+								"parts": []any{
+									"active",
 								},
+								"rename": map[string]any{},
 								"transform": map[string]any{
 									"req": map[string]any{
 										"content": "`reqdata.content`",
@@ -459,8 +384,87 @@ func MakeConfig() map[string]any {
 									},
 									"res": "`body`",
 								},
-								"parts": []any{
-									"active",
+								"args": map[string]any{
+									"header": []any{
+										map[string]any{
+											"name": "create_target_if_missing",
+											"orig": "create_target_if_missing",
+											"type": "`$STRING`",
+											"kind": "header",
+											"example": "false",
+										},
+										map[string]any{
+											"name": "destination",
+											"orig": "destination",
+											"type": "`$STRING`",
+											"kind": "header",
+										},
+										map[string]any{
+											"name": "if_match",
+											"orig": "if_match",
+											"type": "`$STRING`",
+											"kind": "header",
+										},
+										map[string]any{
+											"name": "markdown_patch_version",
+											"orig": "markdown_patch_version",
+											"type": "`$STRING`",
+											"kind": "header",
+											"example": "2",
+										},
+										map[string]any{
+											"name": "operation",
+											"orig": "operation",
+											"type": "`$STRING`",
+											"kind": "header",
+										},
+										map[string]any{
+											"name": "reject_if_content_preexist",
+											"orig": "reject_if_content_preexist",
+											"type": "`$STRING`",
+											"kind": "header",
+											"example": "false",
+										},
+										map[string]any{
+											"name": "target",
+											"orig": "target",
+											"type": "`$STRING`",
+											"kind": "header",
+										},
+										map[string]any{
+											"name": "target_scope",
+											"orig": "target_scope",
+											"type": "`$STRING`",
+											"kind": "header",
+											"example": "content",
+										},
+										map[string]any{
+											"name": "target_type",
+											"orig": "target_type",
+											"type": "`$STRING`",
+											"kind": "header",
+										},
+										map[string]any{
+											"name": "within",
+											"orig": "within",
+											"type": "`$STRING`",
+											"kind": "header",
+										},
+									},
+								},
+								"select": map[string]any{
+									"exist": []any{
+										"create_target_if_missing",
+										"destination",
+										"if_match",
+										"markdown_patch_version",
+										"operation",
+										"reject_if_content_preexist",
+										"target",
+										"target_scope",
+										"target_type",
+										"within",
+									},
 								},
 							},
 						},
@@ -470,17 +474,6 @@ func MakeConfig() map[string]any {
 						"name": "remove",
 						"points": []any{
 							map[string]any{
-								"args": map[string]any{
-									"query": []any{
-										map[string]any{
-											"example": "false",
-											"kind": "query",
-											"name": "permanent",
-											"orig": "permanent",
-											"type": "`$STRING`",
-										},
-									},
-								},
 								"kind": "http",
 								"method": "DELETE",
 								"orig": "/active/",
@@ -489,17 +482,29 @@ func MakeConfig() map[string]any {
 										"lit": "active",
 									},
 								},
-								"select": map[string]any{
-									"exist": []any{
-										"permanent",
-									},
+								"parts": []any{
+									"active",
 								},
+								"rename": map[string]any{},
 								"transform": map[string]any{
 									"req": "`reqdata`",
 									"res": "`body`",
 								},
-								"parts": []any{
-									"active",
+								"args": map[string]any{
+									"query": []any{
+										map[string]any{
+											"name": "permanent",
+											"orig": "permanent",
+											"type": "`$STRING`",
+											"kind": "query",
+											"example": "false",
+										},
+									},
+								},
+								"select": map[string]any{
+									"exist": []any{
+										"permanent",
+									},
 								},
 							},
 						},
@@ -509,24 +514,6 @@ func MakeConfig() map[string]any {
 						"name": "update",
 						"points": []any{
 							map[string]any{
-								"args": map[string]any{
-									"header": []any{
-										map[string]any{
-											"example": "2",
-											"kind": "header",
-											"name": "markdown_patch_version",
-											"orig": "markdown_patch_version",
-											"type": "`$STRING`",
-										},
-										map[string]any{
-											"example": "false",
-											"kind": "header",
-											"name": "reject_if_content_preexist",
-											"orig": "reject_if_content_preexist",
-											"type": "`$STRING`",
-										},
-									},
-								},
 								"kind": "http",
 								"method": "PUT",
 								"orig": "/active/",
@@ -535,18 +522,37 @@ func MakeConfig() map[string]any {
 										"lit": "active",
 									},
 								},
+								"parts": []any{
+									"active",
+								},
+								"rename": map[string]any{},
+								"transform": map[string]any{
+									"req": "`reqdata`",
+									"res": "`body`",
+								},
+								"args": map[string]any{
+									"header": []any{
+										map[string]any{
+											"name": "markdown_patch_version",
+											"orig": "markdown_patch_version",
+											"type": "`$STRING`",
+											"kind": "header",
+											"example": "2",
+										},
+										map[string]any{
+											"name": "reject_if_content_preexist",
+											"orig": "reject_if_content_preexist",
+											"type": "`$STRING`",
+											"kind": "header",
+											"example": "false",
+										},
+									},
+								},
 								"select": map[string]any{
 									"exist": []any{
 										"markdown_patch_version",
 										"reject_if_content_preexist",
 									},
-								},
-								"transform": map[string]any{
-									"req": "`reqdata`",
-									"res": "`body`",
-								},
-								"parts": []any{
-									"active",
 								},
 							},
 						},
@@ -560,10 +566,12 @@ func MakeConfig() map[string]any {
 				"fields": []any{
 					map[string]any{
 						"name": "id",
+						"title": "Id",
 						"type": "`$STRING`",
 					},
 					map[string]any{
 						"name": "name",
+						"title": "Name",
 						"type": "`$STRING`",
 					},
 				},
@@ -578,25 +586,9 @@ func MakeConfig() map[string]any {
 						"name": "create",
 						"points": []any{
 							map[string]any{
-								"args": map[string]any{
-									"params": []any{
-										map[string]any{
-											"kind": "param",
-											"name": "id",
-											"orig": "command_id",
-											"reqd": true,
-											"type": "`$STRING`",
-										},
-									},
-								},
 								"kind": "http",
 								"method": "POST",
 								"orig": "/commands/{commandId}/",
-								"rename": map[string]any{
-									"param": map[string]any{
-										"commandId": "id",
-									},
-								},
 								"segments": []any{
 									map[string]any{
 										"lit": "commands",
@@ -605,18 +597,34 @@ func MakeConfig() map[string]any {
 										"var": "id",
 									},
 								},
-								"select": map[string]any{
-									"exist": []any{
-										"id",
+								"parts": []any{
+									"commands",
+									"{id}",
+								},
+								"rename": map[string]any{
+									"param": map[string]any{
+										"commandId": "id",
 									},
 								},
 								"transform": map[string]any{
 									"req": "`reqdata`",
 									"res": "`body`",
 								},
-								"parts": []any{
-									"commands",
-									"{id}",
+								"args": map[string]any{
+									"params": []any{
+										map[string]any{
+											"name": "id",
+											"orig": "command_id",
+											"type": "`$STRING`",
+											"kind": "param",
+											"reqd": true,
+										},
+									},
+								},
+								"select": map[string]any{
+									"exist": []any{
+										"id",
+									},
 								},
 							},
 						},
@@ -626,7 +634,6 @@ func MakeConfig() map[string]any {
 						"name": "list",
 						"points": []any{
 							map[string]any{
-								"args": map[string]any{},
 								"kind": "http",
 								"method": "GET",
 								"orig": "/commands/",
@@ -635,14 +642,16 @@ func MakeConfig() map[string]any {
 										"lit": "commands",
 									},
 								},
-								"select": map[string]any{},
+								"parts": []any{
+									"commands",
+								},
+								"rename": map[string]any{},
 								"transform": map[string]any{
 									"req": "`reqdata`",
 									"res": "`body.commands`",
 								},
-								"parts": []any{
-									"commands",
-								},
+								"args": map[string]any{},
+								"select": map[string]any{},
 							},
 						},
 					},
@@ -655,13 +664,15 @@ func MakeConfig() map[string]any {
 				"fields": []any{
 					map[string]any{
 						"name": "obsidian",
-						"short": "Obsidian plugin API version",
+						"title": "Obsidian",
 						"type": "`$STRING`",
+						"short": "Obsidian plugin API version",
 					},
 					map[string]any{
 						"name": "self",
-						"short": "Plugin version.",
+						"title": "Self",
 						"type": "`$STRING`",
+						"short": "Plugin version.",
 					},
 				},
 				"name": "entity1",
@@ -671,17 +682,18 @@ func MakeConfig() map[string]any {
 						"name": "load",
 						"points": []any{
 							map[string]any{
-								"args": map[string]any{},
 								"kind": "http",
 								"method": "GET",
 								"orig": "/",
 								"segments": []any{},
-								"select": map[string]any{},
+								"parts": []any{},
+								"rename": map[string]any{},
 								"transform": map[string]any{
 									"req": "`reqdata`",
 									"res": "`body.versions`",
 								},
-								"parts": []any{},
+								"args": map[string]any{},
+								"select": map[string]any{},
 							},
 						},
 					},
@@ -694,30 +706,29 @@ func MakeConfig() map[string]any {
 				"fields": []any{
 					map[string]any{
 						"name": "id",
-						"short": "Request identifier.",
+						"title": "Id",
 						"type": "`$STRING`",
-						"union": map[string]any{
-							"branches": 2,
-							"count": 1,
-							"depth": 0,
-						},
+						"short": "Request identifier.",
 					},
 					map[string]any{
 						"name": "jsonrpc",
+						"title": "Jsonrpc",
+						"type": "`$STRING`",
 						"req": true,
 						"short": "JSON-RPC version.",
-						"type": "`$STRING`",
 					},
 					map[string]any{
 						"name": "method",
+						"title": "Method",
+						"type": "`$STRING`",
 						"req": true,
 						"short": "MCP method to invoke.",
-						"type": "`$STRING`",
 					},
 					map[string]any{
 						"name": "params",
-						"short": "Method-specific parameters.",
+						"title": "Params",
 						"type": "`$OBJECT`",
+						"short": "Method-specific parameters.",
 					},
 				},
 				"id": map[string]any{
@@ -731,22 +742,6 @@ func MakeConfig() map[string]any {
 						"name": "create",
 						"points": []any{
 							map[string]any{
-								"args": map[string]any{
-									"header": []any{
-										map[string]any{
-											"kind": "header",
-											"name": "mcp_protocol_version",
-											"orig": "mcp_protocol_version",
-											"type": "`$STRING`",
-										},
-										map[string]any{
-											"kind": "header",
-											"name": "mcp_session_id",
-											"orig": "mcp_session_id",
-											"type": "`$STRING`",
-										},
-									},
-								},
 								"kind": "http",
 								"method": "POST",
 								"orig": "/mcp/",
@@ -755,18 +750,35 @@ func MakeConfig() map[string]any {
 										"lit": "mcp",
 									},
 								},
+								"parts": []any{
+									"mcp",
+								},
+								"rename": map[string]any{},
+								"transform": map[string]any{
+									"req": "`reqdata`",
+									"res": "`body`",
+								},
+								"args": map[string]any{
+									"header": []any{
+										map[string]any{
+											"name": "mcp_protocol_version",
+											"orig": "mcp_protocol_version",
+											"type": "`$STRING`",
+											"kind": "header",
+										},
+										map[string]any{
+											"name": "mcp_session_id",
+											"orig": "mcp_session_id",
+											"type": "`$STRING`",
+											"kind": "header",
+										},
+									},
+								},
 								"select": map[string]any{
 									"exist": []any{
 										"mcp_protocol_version",
 										"mcp_session_id",
 									},
-								},
-								"transform": map[string]any{
-									"req": "`reqdata`",
-									"res": "`body`",
-								},
-								"parts": []any{
-									"mcp",
 								},
 							},
 						},
@@ -776,23 +788,6 @@ func MakeConfig() map[string]any {
 						"name": "load",
 						"points": []any{
 							map[string]any{
-								"args": map[string]any{
-									"header": []any{
-										map[string]any{
-											"kind": "header",
-											"name": "mcp_protocol_version",
-											"orig": "mcp_protocol_version",
-											"type": "`$STRING`",
-										},
-										map[string]any{
-											"kind": "header",
-											"name": "mcp_session_id",
-											"orig": "mcp_session_id",
-											"reqd": true,
-											"type": "`$STRING`",
-										},
-									},
-								},
 								"kind": "http",
 								"method": "GET",
 								"orig": "/mcp/",
@@ -801,18 +796,36 @@ func MakeConfig() map[string]any {
 										"lit": "mcp",
 									},
 								},
+								"parts": []any{
+									"mcp",
+								},
+								"rename": map[string]any{},
+								"transform": map[string]any{
+									"req": "`reqdata`",
+									"res": "`body`",
+								},
+								"args": map[string]any{
+									"header": []any{
+										map[string]any{
+											"name": "mcp_protocol_version",
+											"orig": "mcp_protocol_version",
+											"type": "`$STRING`",
+											"kind": "header",
+										},
+										map[string]any{
+											"name": "mcp_session_id",
+											"orig": "mcp_session_id",
+											"type": "`$STRING`",
+											"kind": "header",
+											"reqd": true,
+										},
+									},
+								},
 								"select": map[string]any{
 									"exist": []any{
 										"mcp_protocol_version",
 										"mcp_session_id",
 									},
-								},
-								"transform": map[string]any{
-									"req": "`reqdata`",
-									"res": "`body`",
-								},
-								"parts": []any{
-									"mcp",
 								},
 							},
 						},
@@ -826,6 +839,7 @@ func MakeConfig() map[string]any {
 				"fields": []any{
 					map[string]any{
 						"name": "id",
+						"title": "Id",
 						"type": "`$STRING`",
 					},
 				},
@@ -840,33 +854,9 @@ func MakeConfig() map[string]any {
 						"name": "create",
 						"points": []any{
 							map[string]any{
-								"args": map[string]any{
-									"params": []any{
-										map[string]any{
-											"kind": "param",
-											"name": "id",
-											"orig": "filename",
-											"reqd": true,
-											"type": "`$STRING`",
-										},
-									},
-									"query": []any{
-										map[string]any{
-											"kind": "query",
-											"name": "new_leaf",
-											"orig": "new_leaf",
-											"type": "`$BOOLEAN`",
-										},
-									},
-								},
 								"kind": "http",
 								"method": "POST",
 								"orig": "/open/{filename}",
-								"rename": map[string]any{
-									"param": map[string]any{
-										"filename": "id",
-									},
-								},
 								"segments": []any{
 									map[string]any{
 										"lit": "open",
@@ -875,19 +865,43 @@ func MakeConfig() map[string]any {
 										"var": "id",
 									},
 								},
-								"select": map[string]any{
-									"exist": []any{
-										"id",
-										"new_leaf",
+								"parts": []any{
+									"open",
+									"{id}",
+								},
+								"rename": map[string]any{
+									"param": map[string]any{
+										"filename": "id",
 									},
 								},
 								"transform": map[string]any{
 									"req": "`reqdata`",
 									"res": "`body`",
 								},
-								"parts": []any{
-									"open",
-									"{id}",
+								"args": map[string]any{
+									"params": []any{
+										map[string]any{
+											"name": "id",
+											"orig": "filename",
+											"type": "`$STRING`",
+											"kind": "param",
+											"reqd": true,
+										},
+									},
+									"query": []any{
+										map[string]any{
+											"name": "new_leaf",
+											"orig": "new_leaf",
+											"type": "`$BOOLEAN`",
+											"kind": "query",
+										},
+									},
+								},
+								"select": map[string]any{
+									"exist": []any{
+										"id",
+										"new_leaf",
+									},
 								},
 							},
 						},
@@ -906,24 +920,6 @@ func MakeConfig() map[string]any {
 						"name": "create",
 						"points": []any{
 							map[string]any{
-								"args": map[string]any{
-									"query": []any{
-										map[string]any{
-											"example": 100,
-											"kind": "query",
-											"name": "context_length",
-											"orig": "context_length",
-											"type": "`$NUMBER`",
-										},
-										map[string]any{
-											"kind": "query",
-											"name": "query",
-											"orig": "query",
-											"reqd": true,
-											"type": "`$STRING`",
-										},
-									},
-								},
 								"kind": "http",
 								"method": "POST",
 								"orig": "/search/simple/",
@@ -935,6 +931,33 @@ func MakeConfig() map[string]any {
 										"lit": "simple",
 									},
 								},
+								"parts": []any{
+									"search",
+									"simple",
+								},
+								"rename": map[string]any{},
+								"transform": map[string]any{
+									"req": "`reqdata`",
+									"res": "`body`",
+								},
+								"args": map[string]any{
+									"query": []any{
+										map[string]any{
+											"name": "context_length",
+											"orig": "context_length",
+											"type": "`$NUMBER`",
+											"kind": "query",
+											"example": 100,
+										},
+										map[string]any{
+											"name": "query",
+											"orig": "query",
+											"type": "`$STRING`",
+											"kind": "query",
+											"reqd": true,
+										},
+									},
+								},
 								"select": map[string]any{
 									"$action": "simple",
 									"exist": []any{
@@ -942,17 +965,8 @@ func MakeConfig() map[string]any {
 										"query",
 									},
 								},
-								"transform": map[string]any{
-									"req": "`reqdata`",
-									"res": "`body`",
-								},
-								"parts": []any{
-									"search",
-									"simple",
-								},
 							},
 							map[string]any{
-								"args": map[string]any{},
 								"kind": "http",
 								"method": "POST",
 								"orig": "/search/",
@@ -961,14 +975,16 @@ func MakeConfig() map[string]any {
 										"lit": "search",
 									},
 								},
-								"select": map[string]any{},
+								"parts": []any{
+									"search",
+								},
+								"rename": map[string]any{},
 								"transform": map[string]any{
 									"req": "`reqdata`",
 									"res": "`body`",
 								},
-								"parts": []any{
-									"search",
-								},
+								"args": map[string]any{},
+								"select": map[string]any{},
 							},
 						},
 					},
@@ -986,7 +1002,6 @@ func MakeConfig() map[string]any {
 						"name": "load",
 						"points": []any{
 							map[string]any{
-								"args": map[string]any{},
 								"kind": "http",
 								"method": "GET",
 								"orig": "/obsidian-local-rest-api.crt",
@@ -995,17 +1010,18 @@ func MakeConfig() map[string]any {
 										"lit": "obsidian-local-rest-api.crt",
 									},
 								},
-								"select": map[string]any{},
+								"parts": []any{
+									"obsidian-local-rest-api.crt",
+								},
+								"rename": map[string]any{},
 								"transform": map[string]any{
 									"req": "`reqdata`",
 									"res": "`body`",
 								},
-								"parts": []any{
-									"obsidian-local-rest-api.crt",
-								},
+								"args": map[string]any{},
+								"select": map[string]any{},
 							},
 							map[string]any{
-								"args": map[string]any{},
 								"kind": "http",
 								"method": "GET",
 								"orig": "/openapi.yaml",
@@ -1014,14 +1030,16 @@ func MakeConfig() map[string]any {
 										"lit": "openapi.yaml",
 									},
 								},
-								"select": map[string]any{},
+								"parts": []any{
+									"openapi.yaml",
+								},
+								"rename": map[string]any{},
 								"transform": map[string]any{
 									"req": "`reqdata`",
 									"res": "`body`",
 								},
-								"parts": []any{
-									"openapi.yaml",
-								},
+								"args": map[string]any{},
+								"select": map[string]any{},
 							},
 						},
 					},
@@ -1034,13 +1052,15 @@ func MakeConfig() map[string]any {
 				"fields": []any{
 					map[string]any{
 						"name": "count",
-						"short": "Number of times this tag is used across the vault.",
+						"title": "Count",
 						"type": "`$NUMBER`",
+						"short": "Number of times this tag is used across the vault.",
 					},
 					map[string]any{
 						"name": "name",
-						"short": "Tag name without the leading `#`.",
+						"title": "Name",
 						"type": "`$STRING`",
+						"short": "Tag name without the leading `#`.",
 					},
 				},
 				"name": "tag",
@@ -1050,7 +1070,6 @@ func MakeConfig() map[string]any {
 						"name": "list",
 						"points": []any{
 							map[string]any{
-								"args": map[string]any{},
 								"kind": "http",
 								"method": "GET",
 								"orig": "/tags/",
@@ -1059,14 +1078,16 @@ func MakeConfig() map[string]any {
 										"lit": "tags",
 									},
 								},
-								"select": map[string]any{},
+								"parts": []any{
+									"tags",
+								},
+								"rename": map[string]any{},
 								"transform": map[string]any{
 									"req": "`reqdata`",
 									"res": "`body.tags`",
 								},
-								"parts": []any{
-									"tags",
-								},
+								"args": map[string]any{},
+								"select": map[string]any{},
 							},
 						},
 					},
@@ -1079,80 +1100,83 @@ func MakeConfig() map[string]any {
 				"fields": []any{
 					map[string]any{
 						"name": "content",
-						"short": "String payload: a heading/block body or label, a new block id for a block `marker` rename (letters, numbers, hyphens, and underscores only), or a new frontmatter key name for a frontmatter `marker` rename.",
+						"title": "Content",
 						"type": "`$STRING`",
+						"short": "String payload: a heading/block body or label, a new block id for a block `marker` rename (letters, numbers, hyphens, and underscores only), or a new frontmatter key name for a frontmatter `marker` rename.",
 					},
 					map[string]any{
 						"name": "createTargetIfMissing",
-						"short": "Create the target (heading path, block id, or frontmatter key) if it does not already exist.",
+						"title": "Create Target If Missing",
 						"type": "`$BOOLEAN`",
+						"short": "Create the target (heading path, block id, or frontmatter key) if it does not already exist.",
 					},
 					map[string]any{
 						"name": "destination",
+						"title": "Destination",
+						"type": "`$OBJECT`",
 						"req": true,
 						"short": "For a heading move (operation `replace`, scope `parent`): where the section is re-parented.",
-						"type": "`$OBJECT`",
-						"union": map[string]any{
-							"branches": 3,
-							"count": 1,
-							"depth": 2,
-						},
 					},
 					map[string]any{
 						"name": "files",
+						"title": "Files",
 						"type": "`$ARRAY`",
 					},
 					map[string]any{
 						"name": "id",
+						"title": "Id",
 						"type": "`$STRING`",
 					},
 					map[string]any{
 						"name": "ifMatch",
-						"short": "Optimistic-concurrency token (the `version` from a prior document map).",
+						"title": "If Match",
 						"type": "`$STRING`",
+						"short": "Optimistic-concurrency token (the `version` from a prior document map).",
 					},
 					map[string]any{
 						"name": "operation",
+						"title": "Operation",
+						"type": "`$STRING`",
 						"req": true,
 						"short": "What happens to the scoped span: replace it, insert before (`prepend`) or after (`append`), or `delete` it.",
-						"type": "`$STRING`",
 					},
 					map[string]any{
 						"name": "rejectIfContentPreexists",
-						"short": "Fail a `prepend`/`append` when the string content already appears in the target span (makes those operations idempotent on retry).",
+						"title": "Reject If Content Preexists",
 						"type": "`$BOOLEAN`",
+						"short": "Fail a `prepend`/`append` when the string content already appears in the target span (makes those operations idempotent on retry).",
 					},
 					map[string]any{
 						"name": "scope",
-						"short": "Which part of the target the operation acts on (default `content`).",
+						"title": "Scope",
 						"type": "`$STRING`",
+						"short": "Which part of the target the operation acts on (default `content`).",
 					},
 					map[string]any{
 						"name": "target",
+						"title": "Target",
+						"type": "`$ANY`",
 						"req": true,
 						"short": "The node to edit.",
-						"type": "`$ANY`",
-						"union": map[string]any{
-							"branches": 2,
-							"count": 1,
-							"depth": 0,
-						},
 					},
 					map[string]any{
 						"name": "targetType",
+						"title": "Target Type",
+						"type": "`$STRING`",
 						"req": true,
 						"short": "The kind of node to edit.",
-						"type": "`$STRING`",
 					},
 					map[string]any{
 						"name": "value",
-						"short": "Structured JSON payload: a frontmatter value (any JSON — string, number, boolean, array, object, null; for `prepend`/`append` this merges: list concat, dict merge, string concat), or table rows on a `block` target's `content` cell (a 2-D a…",
+						"title": "Value",
 						"type": "`$ANY`",
+						"short": "Structured JSON payload: a frontmatter value (any JSON — string, number, boolean, array, object, null; for `prepend`/`append` this merges: list concat, dict merge, string concat), or table rows on a `block` target's `content` cell (a 2-D a…",
 					},
 					map[string]any{
 						"name": "within",
-						"short": "Refines a heading target to one of the section's direct-body top-level blocks (a paragraph, list, table, code fence, blockquote, …): 0 is the first block in document order, and a negative index counts from the end (-1 = last).",
+						"title": "Within",
 						"type": "`$INTEGER`",
+						"short": "Refines a heading target to one of the section's direct-body top-level blocks (a paragraph, list, table, code fence, blockquote, …): 0 is the first block in document order, and a negative index counts from the end (-1 = last).",
 					},
 				},
 				"id": map[string]any{
@@ -1166,54 +1190,62 @@ func MakeConfig() map[string]any {
 						"name": "create",
 						"points": []any{
 							map[string]any{
-								"args": map[string]any{
-									"header": []any{
-										map[string]any{
-											"example": "false",
-											"kind": "header",
-											"name": "create_target_if_missing",
-											"orig": "create_target_if_missing",
-											"type": "`$STRING`",
-										},
-										map[string]any{
-											"example": "2",
-											"kind": "header",
-											"name": "markdown_patch_version",
-											"orig": "markdown_patch_version",
-											"type": "`$STRING`",
-										},
-										map[string]any{
-											"example": "false",
-											"kind": "header",
-											"name": "reject_if_content_preexist",
-											"orig": "reject_if_content_preexist",
-											"type": "`$STRING`",
-										},
-									},
-									"params": []any{
-										map[string]any{
-											"kind": "param",
-											"name": "id",
-											"orig": "filename",
-											"reqd": true,
-											"type": "`$STRING`",
-										},
-									},
-								},
 								"kind": "http",
 								"method": "POST",
 								"orig": "/vault/{filename}",
-								"rename": map[string]any{
-									"param": map[string]any{
-										"filename": "id",
-									},
-								},
 								"segments": []any{
 									map[string]any{
 										"lit": "vault",
 									},
 									map[string]any{
 										"var": "id",
+									},
+								},
+								"parts": []any{
+									"vault",
+									"{id}",
+								},
+								"rename": map[string]any{
+									"param": map[string]any{
+										"filename": "id",
+									},
+								},
+								"transform": map[string]any{
+									"req": "`reqdata`",
+									"res": "`body`",
+								},
+								"args": map[string]any{
+									"header": []any{
+										map[string]any{
+											"name": "create_target_if_missing",
+											"orig": "create_target_if_missing",
+											"type": "`$STRING`",
+											"kind": "header",
+											"example": "false",
+										},
+										map[string]any{
+											"name": "markdown_patch_version",
+											"orig": "markdown_patch_version",
+											"type": "`$STRING`",
+											"kind": "header",
+											"example": "2",
+										},
+										map[string]any{
+											"name": "reject_if_content_preexist",
+											"orig": "reject_if_content_preexist",
+											"type": "`$STRING`",
+											"kind": "header",
+											"example": "false",
+										},
+									},
+									"params": []any{
+										map[string]any{
+											"name": "id",
+											"orig": "filename",
+											"type": "`$STRING`",
+											"kind": "param",
+											"reqd": true,
+										},
 									},
 								},
 								"select": map[string]any{
@@ -1223,14 +1255,6 @@ func MakeConfig() map[string]any {
 										"markdown_patch_version",
 										"reject_if_content_preexist",
 									},
-								},
-								"transform": map[string]any{
-									"req": "`reqdata`",
-									"res": "`body`",
-								},
-								"parts": []any{
-									"vault",
-									"{id}",
 								},
 							},
 						},
@@ -1240,7 +1264,6 @@ func MakeConfig() map[string]any {
 						"name": "list",
 						"points": []any{
 							map[string]any{
-								"args": map[string]any{},
 								"kind": "http",
 								"method": "GET",
 								"orig": "/vault/",
@@ -1249,14 +1272,16 @@ func MakeConfig() map[string]any {
 										"lit": "vault",
 									},
 								},
-								"select": map[string]any{},
+								"parts": []any{
+									"vault",
+								},
+								"rename": map[string]any{},
 								"transform": map[string]any{
 									"req": "`reqdata`",
 									"res": "`body.files`",
 								},
-								"parts": []any{
-									"vault",
-								},
+								"args": map[string]any{},
+								"select": map[string]any{},
 							},
 						},
 					},
@@ -1265,47 +1290,55 @@ func MakeConfig() map[string]any {
 						"name": "load",
 						"points": []any{
 							map[string]any{
-								"args": map[string]any{
-									"header": []any{
-										map[string]any{
-											"example": "2",
-											"kind": "header",
-											"name": "markdown_patch_version",
-											"orig": "markdown_patch_version",
-											"type": "`$STRING`",
-										},
-										map[string]any{
-											"example": "content",
-											"kind": "header",
-											"name": "target_scope",
-											"orig": "target_scope",
-											"type": "`$STRING`",
-										},
-									},
-									"params": []any{
-										map[string]any{
-											"kind": "param",
-											"name": "id",
-											"orig": "filename",
-											"reqd": true,
-											"type": "`$STRING`",
-										},
-									},
-								},
 								"kind": "http",
 								"method": "GET",
 								"orig": "/vault/{filename}",
-								"rename": map[string]any{
-									"param": map[string]any{
-										"filename": "id",
-									},
-								},
 								"segments": []any{
 									map[string]any{
 										"lit": "vault",
 									},
 									map[string]any{
 										"var": "id",
+									},
+								},
+								"parts": []any{
+									"vault",
+									"{id}",
+								},
+								"rename": map[string]any{
+									"param": map[string]any{
+										"filename": "id",
+									},
+								},
+								"transform": map[string]any{
+									"req": "`reqdata`",
+									"res": "`body`",
+								},
+								"args": map[string]any{
+									"header": []any{
+										map[string]any{
+											"name": "markdown_patch_version",
+											"orig": "markdown_patch_version",
+											"type": "`$STRING`",
+											"kind": "header",
+											"example": "2",
+										},
+										map[string]any{
+											"name": "target_scope",
+											"orig": "target_scope",
+											"type": "`$STRING`",
+											"kind": "header",
+											"example": "content",
+										},
+									},
+									"params": []any{
+										map[string]any{
+											"name": "id",
+											"orig": "filename",
+											"type": "`$STRING`",
+											"kind": "param",
+											"reqd": true,
+										},
 									},
 								},
 								"select": map[string]any{
@@ -1315,35 +1348,11 @@ func MakeConfig() map[string]any {
 										"target_scope",
 									},
 								},
-								"transform": map[string]any{
-									"req": "`reqdata`",
-									"res": "`body`",
-								},
-								"parts": []any{
-									"vault",
-									"{id}",
-								},
 							},
 							map[string]any{
-								"args": map[string]any{
-									"params": []any{
-										map[string]any{
-											"kind": "param",
-											"name": "id",
-											"orig": "path_to_directory",
-											"reqd": true,
-											"type": "`$STRING`",
-										},
-									},
-								},
 								"kind": "http",
 								"method": "GET",
 								"orig": "/vault/{pathToDirectory}/",
-								"rename": map[string]any{
-									"param": map[string]any{
-										"pathToDirectory": "id",
-									},
-								},
 								"segments": []any{
 									map[string]any{
 										"lit": "vault",
@@ -1352,18 +1361,34 @@ func MakeConfig() map[string]any {
 										"var": "id",
 									},
 								},
-								"select": map[string]any{
-									"exist": []any{
-										"id",
+								"parts": []any{
+									"vault",
+									"{id}",
+								},
+								"rename": map[string]any{
+									"param": map[string]any{
+										"pathToDirectory": "id",
 									},
 								},
 								"transform": map[string]any{
 									"req": "`reqdata`",
 									"res": "`body`",
 								},
-								"parts": []any{
-									"vault",
-									"{id}",
+								"args": map[string]any{
+									"params": []any{
+										map[string]any{
+											"name": "id",
+											"orig": "path_to_directory",
+											"type": "`$STRING`",
+											"kind": "param",
+											"reqd": true,
+										},
+									},
+								},
+								"select": map[string]any{
+									"exist": []any{
+										"id",
+									},
 								},
 							},
 						},
@@ -1373,91 +1398,9 @@ func MakeConfig() map[string]any {
 						"name": "patch",
 						"points": []any{
 							map[string]any{
-								"args": map[string]any{
-									"header": []any{
-										map[string]any{
-											"example": "false",
-											"kind": "header",
-											"name": "create_target_if_missing",
-											"orig": "create_target_if_missing",
-											"type": "`$STRING`",
-										},
-										map[string]any{
-											"kind": "header",
-											"name": "destination",
-											"orig": "destination",
-											"type": "`$STRING`",
-										},
-										map[string]any{
-											"kind": "header",
-											"name": "if_match",
-											"orig": "if_match",
-											"type": "`$STRING`",
-										},
-										map[string]any{
-											"example": "2",
-											"kind": "header",
-											"name": "markdown_patch_version",
-											"orig": "markdown_patch_version",
-											"type": "`$STRING`",
-										},
-										map[string]any{
-											"kind": "header",
-											"name": "operation",
-											"orig": "operation",
-											"type": "`$STRING`",
-										},
-										map[string]any{
-											"example": "false",
-											"kind": "header",
-											"name": "reject_if_content_preexist",
-											"orig": "reject_if_content_preexist",
-											"type": "`$STRING`",
-										},
-										map[string]any{
-											"kind": "header",
-											"name": "target",
-											"orig": "target",
-											"type": "`$STRING`",
-										},
-										map[string]any{
-											"example": "content",
-											"kind": "header",
-											"name": "target_scope",
-											"orig": "target_scope",
-											"type": "`$STRING`",
-										},
-										map[string]any{
-											"kind": "header",
-											"name": "target_type",
-											"orig": "target_type",
-											"type": "`$STRING`",
-										},
-										map[string]any{
-											"kind": "header",
-											"name": "within",
-											"orig": "within",
-											"type": "`$STRING`",
-										},
-									},
-									"params": []any{
-										map[string]any{
-											"kind": "param",
-											"name": "id",
-											"orig": "filename",
-											"reqd": true,
-											"type": "`$STRING`",
-										},
-									},
-								},
 								"kind": "http",
 								"method": "PATCH",
 								"orig": "/vault/{filename}",
-								"rename": map[string]any{
-									"param": map[string]any{
-										"filename": "id",
-									},
-								},
 								"segments": []any{
 									map[string]any{
 										"lit": "vault",
@@ -1466,19 +1409,13 @@ func MakeConfig() map[string]any {
 										"var": "id",
 									},
 								},
-								"select": map[string]any{
-									"exist": []any{
-										"create_target_if_missing",
-										"destination",
-										"id",
-										"if_match",
-										"markdown_patch_version",
-										"operation",
-										"reject_if_content_preexist",
-										"target",
-										"target_scope",
-										"target_type",
-										"within",
+								"parts": []any{
+									"vault",
+									"{id}",
+								},
+								"rename": map[string]any{
+									"param": map[string]any{
+										"filename": "id",
 									},
 								},
 								"transform": map[string]any{
@@ -1497,9 +1434,97 @@ func MakeConfig() map[string]any {
 									},
 									"res": "`body`",
 								},
-								"parts": []any{
-									"vault",
-									"{id}",
+								"args": map[string]any{
+									"header": []any{
+										map[string]any{
+											"name": "create_target_if_missing",
+											"orig": "create_target_if_missing",
+											"type": "`$STRING`",
+											"kind": "header",
+											"example": "false",
+										},
+										map[string]any{
+											"name": "destination",
+											"orig": "destination",
+											"type": "`$STRING`",
+											"kind": "header",
+										},
+										map[string]any{
+											"name": "if_match",
+											"orig": "if_match",
+											"type": "`$STRING`",
+											"kind": "header",
+										},
+										map[string]any{
+											"name": "markdown_patch_version",
+											"orig": "markdown_patch_version",
+											"type": "`$STRING`",
+											"kind": "header",
+											"example": "2",
+										},
+										map[string]any{
+											"name": "operation",
+											"orig": "operation",
+											"type": "`$STRING`",
+											"kind": "header",
+										},
+										map[string]any{
+											"name": "reject_if_content_preexist",
+											"orig": "reject_if_content_preexist",
+											"type": "`$STRING`",
+											"kind": "header",
+											"example": "false",
+										},
+										map[string]any{
+											"name": "target",
+											"orig": "target",
+											"type": "`$STRING`",
+											"kind": "header",
+										},
+										map[string]any{
+											"name": "target_scope",
+											"orig": "target_scope",
+											"type": "`$STRING`",
+											"kind": "header",
+											"example": "content",
+										},
+										map[string]any{
+											"name": "target_type",
+											"orig": "target_type",
+											"type": "`$STRING`",
+											"kind": "header",
+										},
+										map[string]any{
+											"name": "within",
+											"orig": "within",
+											"type": "`$STRING`",
+											"kind": "header",
+										},
+									},
+									"params": []any{
+										map[string]any{
+											"name": "id",
+											"orig": "filename",
+											"type": "`$STRING`",
+											"kind": "param",
+											"reqd": true,
+										},
+									},
+								},
+								"select": map[string]any{
+									"exist": []any{
+										"create_target_if_missing",
+										"destination",
+										"id",
+										"if_match",
+										"markdown_patch_version",
+										"operation",
+										"reject_if_content_preexist",
+										"target",
+										"target_scope",
+										"target_type",
+										"within",
+									},
 								},
 							},
 						},
@@ -1509,34 +1534,9 @@ func MakeConfig() map[string]any {
 						"name": "remove",
 						"points": []any{
 							map[string]any{
-								"args": map[string]any{
-									"params": []any{
-										map[string]any{
-											"kind": "param",
-											"name": "id",
-											"orig": "filename",
-											"reqd": true,
-											"type": "`$STRING`",
-										},
-									},
-									"query": []any{
-										map[string]any{
-											"example": "false",
-											"kind": "query",
-											"name": "permanent",
-											"orig": "permanent",
-											"type": "`$STRING`",
-										},
-									},
-								},
 								"kind": "http",
 								"method": "DELETE",
 								"orig": "/vault/{filename}",
-								"rename": map[string]any{
-									"param": map[string]any{
-										"filename": "id",
-									},
-								},
 								"segments": []any{
 									map[string]any{
 										"lit": "vault",
@@ -1545,19 +1545,44 @@ func MakeConfig() map[string]any {
 										"var": "id",
 									},
 								},
-								"select": map[string]any{
-									"exist": []any{
-										"id",
-										"permanent",
+								"parts": []any{
+									"vault",
+									"{id}",
+								},
+								"rename": map[string]any{
+									"param": map[string]any{
+										"filename": "id",
 									},
 								},
 								"transform": map[string]any{
 									"req": "`reqdata`",
 									"res": "`body`",
 								},
-								"parts": []any{
-									"vault",
-									"{id}",
+								"args": map[string]any{
+									"params": []any{
+										map[string]any{
+											"name": "id",
+											"orig": "filename",
+											"type": "`$STRING`",
+											"kind": "param",
+											"reqd": true,
+										},
+									},
+									"query": []any{
+										map[string]any{
+											"name": "permanent",
+											"orig": "permanent",
+											"type": "`$STRING`",
+											"kind": "query",
+											"example": "false",
+										},
+									},
+								},
+								"select": map[string]any{
+									"exist": []any{
+										"id",
+										"permanent",
+									},
 								},
 							},
 						},
@@ -1567,41 +1592,9 @@ func MakeConfig() map[string]any {
 						"name": "update",
 						"points": []any{
 							map[string]any{
-								"args": map[string]any{
-									"header": []any{
-										map[string]any{
-											"example": "2",
-											"kind": "header",
-											"name": "markdown_patch_version",
-											"orig": "markdown_patch_version",
-											"type": "`$STRING`",
-										},
-										map[string]any{
-											"example": "false",
-											"kind": "header",
-											"name": "reject_if_content_preexist",
-											"orig": "reject_if_content_preexist",
-											"type": "`$STRING`",
-										},
-									},
-									"params": []any{
-										map[string]any{
-											"kind": "param",
-											"name": "id",
-											"orig": "filename",
-											"reqd": true,
-											"type": "`$STRING`",
-										},
-									},
-								},
 								"kind": "http",
 								"method": "PUT",
 								"orig": "/vault/{filename}",
-								"rename": map[string]any{
-									"param": map[string]any{
-										"filename": "id",
-									},
-								},
 								"segments": []any{
 									map[string]any{
 										"lit": "vault",
@@ -1610,20 +1603,52 @@ func MakeConfig() map[string]any {
 										"var": "id",
 									},
 								},
-								"select": map[string]any{
-									"exist": []any{
-										"id",
-										"markdown_patch_version",
-										"reject_if_content_preexist",
+								"parts": []any{
+									"vault",
+									"{id}",
+								},
+								"rename": map[string]any{
+									"param": map[string]any{
+										"filename": "id",
 									},
 								},
 								"transform": map[string]any{
 									"req": "`reqdata`",
 									"res": "`body`",
 								},
-								"parts": []any{
-									"vault",
-									"{id}",
+								"args": map[string]any{
+									"header": []any{
+										map[string]any{
+											"name": "markdown_patch_version",
+											"orig": "markdown_patch_version",
+											"type": "`$STRING`",
+											"kind": "header",
+											"example": "2",
+										},
+										map[string]any{
+											"name": "reject_if_content_preexist",
+											"orig": "reject_if_content_preexist",
+											"type": "`$STRING`",
+											"kind": "header",
+											"example": "false",
+										},
+									},
+									"params": []any{
+										map[string]any{
+											"name": "id",
+											"orig": "filename",
+											"type": "`$STRING`",
+											"kind": "param",
+											"reqd": true,
+										},
+									},
+								},
+								"select": map[string]any{
+									"exist": []any{
+										"id",
+										"markdown_patch_version",
+										"reject_if_content_preexist",
+									},
 								},
 							},
 						},

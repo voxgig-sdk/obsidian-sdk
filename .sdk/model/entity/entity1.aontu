@@ -1,0 +1,48 @@
+# Entity: entity1
+
+main: kit: entity: entity1: {
+
+  alias: field: {}
+
+  fields: {
+    obsidian: {
+      h: "Obsidian"
+      n: "obsidian"
+      r: false
+      sh: "Obsidian plugin API version"
+      t: "`$STRING`"
+    }
+    self: {
+      h: "Self"
+      n: "self"
+      r: false
+      sh: "Plugin version."
+      t: "`$STRING`"
+    }
+  }
+
+  name: "entity1"
+  op: {
+    load: {
+      name: "load"
+      points: [
+        {
+          co: {
+            id: "GET /"
+            source: "openapi3"
+            version: 2
+          }
+          m: "GET"
+          o: "/"
+          t: {
+            req: "`reqdata`"
+            res: "`body.versions`"
+          }
+        }
+      ]
+    }
+  }
+
+
+
+}

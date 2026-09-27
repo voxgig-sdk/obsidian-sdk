@@ -1,0 +1,598 @@
+# Entity: vault
+
+main: kit: entity: vault: {
+
+  alias: field: {}
+
+  fields: {
+    content: {
+      h: "Content"
+      n: "content"
+      r: false
+      sh: "String payload: a heading/block body or label, a new block id for a block `marker` rename (letters, numbers, hyphens, and underscores only), or a new frontmatter key name for a frontmatter `marker` rename."
+      t: "`$STRING`"
+    }
+    createTargetIfMissing: {
+      h: "Create Target If Missing"
+      n: "createTargetIfMissing"
+      r: false
+      sh: "Create the target (heading path, block id, or frontmatter key) if it does not already exist."
+      t: "`$BOOLEAN`"
+    }
+    destination: {
+      h: "Destination"
+      n: "destination"
+      r: true
+      sh: "For a heading move (operation `replace`, scope `parent`): where the section is re-parented."
+      t: "`$OBJECT`"
+      union: {
+        branches: 3
+        count: 1
+        depth: 2
+      }
+    }
+    files: {
+      h: "Files"
+      n: "files"
+      r: false
+      t: "`$ARRAY`"
+    }
+    id: {
+      h: "Id"
+      n: "id"
+      r: false
+      t: "`$STRING`"
+    }
+    ifMatch: {
+      h: "If Match"
+      n: "ifMatch"
+      r: false
+      sh: "Optimistic-concurrency token (the `version` from a prior document map)."
+      t: "`$STRING`"
+    }
+    operation: {
+      h: "Operation"
+      n: "operation"
+      r: true
+      sh: "What happens to the scoped span: replace it, insert before (`prepend`) or after (`append`), or `delete` it."
+      t: "`$STRING`"
+    }
+    rejectIfContentPreexists: {
+      h: "Reject If Content Preexists"
+      n: "rejectIfContentPreexists"
+      r: false
+      sh: "Fail a `prepend`/`append` when the string content already appears in the target span (makes those operations idempotent on retry)."
+      t: "`$BOOLEAN`"
+    }
+    scope: {
+      h: "Scope"
+      n: "scope"
+      r: false
+      sh: "Which part of the target the operation acts on (default `content`)."
+      t: "`$STRING`"
+    }
+    target: {
+      h: "Target"
+      n: "target"
+      r: true
+      sh: "The node to edit."
+      t: "`$ANY`"
+      union: {
+        branches: 2
+        count: 1
+        depth: 0
+      }
+    }
+    targetType: {
+      h: "Target Type"
+      n: "targetType"
+      r: true
+      sh: "The kind of node to edit."
+      t: "`$STRING`"
+    }
+    value: {
+      h: "Value"
+      n: "value"
+      r: false
+      sh: "Structured JSON payload: a frontmatter value (any JSON — string, number, boolean, array, object, null; for `prepend`/`append` this merges: list concat, dict merge, string concat), or table rows on a `block` target's `content` cell (a 2-D a…"
+      t: "`$ANY`"
+    }
+    within: {
+      h: "Within"
+      n: "within"
+      r: false
+      sh: "Refines a heading target to one of the section's direct-body top-level blocks (a paragraph, list, table, code fence, blockquote, …): 0 is the first block in document order, and a negative index counts from the end (-1 = last)."
+      t: "`$INTEGER`"
+    }
+  }
+
+  id: {
+    field: "id"
+    name: "id"
+  }
+
+  name: "vault"
+  op: {
+    create: {
+      name: "create"
+      points: [
+        {
+          co: {
+            id: "POST /vault/{filename}"
+            source: "openapi3"
+            version: 2
+          }
+          g: {
+            header: [
+              {
+                ex: "false"
+                k: "header"
+                n: "create_target_if_missing"
+                or: "create_target_if_missing"
+                r: false
+                t: "`$STRING`"
+              }
+              {
+                ex: "2"
+                k: "header"
+                n: "markdown_patch_version"
+                or: "markdown_patch_version"
+                r: false
+                t: "`$STRING`"
+              }
+              {
+                ex: "false"
+                k: "header"
+                n: "reject_if_content_preexist"
+                or: "reject_if_content_preexist"
+                r: false
+                t: "`$STRING`"
+              }
+            ]
+            params: [
+              {
+                k: "param"
+                n: "id"
+                or: "filename"
+                r: true
+                t: "`$STRING`"
+              }
+            ]
+          }
+          m: "POST"
+          o: "/vault/{filename}"
+          q: {
+            exist: [
+              "create_target_if_missing"
+              "id"
+              "markdown_patch_version"
+              "reject_if_content_preexist"
+            ]
+          }
+          r: {
+            param: {
+              filename: "id"
+            }
+          }
+          s: [
+            {
+              lit: "vault"
+            }
+            {
+              var: "id"
+            }
+          ]
+          t: {
+            req: "`reqdata`"
+            res: "`body`"
+          }
+        }
+      ]
+    }
+    list: {
+      name: "list"
+      points: [
+        {
+          co: {
+            id: "GET /vault/"
+            source: "openapi3"
+            version: 2
+          }
+          m: "GET"
+          o: "/vault/"
+          s: [
+            {
+              lit: "vault"
+            }
+          ]
+          t: {
+            req: "`reqdata`"
+            res: "`body.files`"
+          }
+        }
+      ]
+    }
+    load: {
+      name: "load"
+      points: [
+        {
+          co: {
+            id: "GET /vault/{filename}"
+            source: "openapi3"
+            version: 2
+          }
+          g: {
+            header: [
+              {
+                ex: "2"
+                k: "header"
+                n: "markdown_patch_version"
+                or: "markdown_patch_version"
+                r: false
+                t: "`$STRING`"
+              }
+              {
+                ex: "content"
+                k: "header"
+                n: "target_scope"
+                or: "target_scope"
+                r: false
+                t: "`$STRING`"
+              }
+            ]
+            params: [
+              {
+                k: "param"
+                n: "id"
+                or: "filename"
+                r: true
+                t: "`$STRING`"
+              }
+            ]
+          }
+          m: "GET"
+          o: "/vault/{filename}"
+          q: {
+            exist: [
+              "id"
+              "markdown_patch_version"
+              "target_scope"
+            ]
+          }
+          r: {
+            param: {
+              filename: "id"
+            }
+          }
+          s: [
+            {
+              lit: "vault"
+            }
+            {
+              var: "id"
+            }
+          ]
+          t: {
+            req: "`reqdata`"
+            res: "`body`"
+          }
+        }
+        {
+          co: {
+            id: "GET /vault/{pathToDirectory}/"
+            source: "openapi3"
+            version: 2
+          }
+          g: {
+            params: [
+              {
+                k: "param"
+                n: "id"
+                or: "path_to_directory"
+                r: true
+                t: "`$STRING`"
+              }
+            ]
+          }
+          m: "GET"
+          o: "/vault/{pathToDirectory}/"
+          q: {
+            exist: [
+              "id"
+            ]
+          }
+          r: {
+            param: {
+              pathToDirectory: "id"
+            }
+          }
+          s: [
+            {
+              lit: "vault"
+            }
+            {
+              var: "id"
+            }
+          ]
+          t: {
+            req: "`reqdata`"
+            res: "`body`"
+          }
+        }
+      ]
+    }
+    patch: {
+      name: "patch"
+      points: [
+        {
+          co: {
+            id: "PATCH /vault/{filename}"
+            source: "openapi3"
+            version: 2
+          }
+          g: {
+            header: [
+              {
+                ex: "false"
+                k: "header"
+                n: "create_target_if_missing"
+                or: "create_target_if_missing"
+                r: false
+                t: "`$STRING`"
+              }
+              {
+                k: "header"
+                n: "destination"
+                or: "destination"
+                r: false
+                t: "`$STRING`"
+              }
+              {
+                k: "header"
+                n: "if_match"
+                or: "if_match"
+                r: false
+                t: "`$STRING`"
+              }
+              {
+                ex: "2"
+                k: "header"
+                n: "markdown_patch_version"
+                or: "markdown_patch_version"
+                r: false
+                t: "`$STRING`"
+              }
+              {
+                k: "header"
+                n: "operation"
+                or: "operation"
+                r: false
+                t: "`$STRING`"
+              }
+              {
+                ex: "false"
+                k: "header"
+                n: "reject_if_content_preexist"
+                or: "reject_if_content_preexist"
+                r: false
+                t: "`$STRING`"
+              }
+              {
+                k: "header"
+                n: "target"
+                or: "target"
+                r: false
+                t: "`$STRING`"
+              }
+              {
+                ex: "content"
+                k: "header"
+                n: "target_scope"
+                or: "target_scope"
+                r: false
+                t: "`$STRING`"
+              }
+              {
+                k: "header"
+                n: "target_type"
+                or: "target_type"
+                r: false
+                t: "`$STRING`"
+              }
+              {
+                k: "header"
+                n: "within"
+                or: "within"
+                r: false
+                t: "`$STRING`"
+              }
+            ]
+            params: [
+              {
+                k: "param"
+                n: "id"
+                or: "filename"
+                r: true
+                t: "`$STRING`"
+              }
+            ]
+          }
+          m: "PATCH"
+          o: "/vault/{filename}"
+          q: {
+            exist: [
+              "create_target_if_missing"
+              "destination"
+              "id"
+              "if_match"
+              "markdown_patch_version"
+              "operation"
+              "reject_if_content_preexist"
+              "target"
+              "target_scope"
+              "target_type"
+              "within"
+            ]
+          }
+          r: {
+            param: {
+              filename: "id"
+            }
+          }
+          s: [
+            {
+              lit: "vault"
+            }
+            {
+              var: "id"
+            }
+          ]
+          t: {
+            req: {
+              content: "`reqdata.content`"
+              createTargetIfMissing: "`reqdata.create_target_if_missing`"
+              destination: "`reqdata.destination`"
+              ifMatch: "`reqdata.if_match`"
+              operation: "`reqdata.operation`"
+              rejectIfContentPreexists: "`reqdata.reject_if_content_preexist`"
+              scope: "`reqdata.scope`"
+              target: "`reqdata.target`"
+              targetType: "`reqdata.target_type`"
+              value: "`reqdata.value`"
+              within: "`reqdata.within`"
+            }
+            res: "`body`"
+          }
+        }
+      ]
+    }
+    remove: {
+      name: "remove"
+      points: [
+        {
+          co: {
+            id: "DELETE /vault/{filename}"
+            source: "openapi3"
+            version: 2
+          }
+          g: {
+            params: [
+              {
+                k: "param"
+                n: "id"
+                or: "filename"
+                r: true
+                t: "`$STRING`"
+              }
+            ]
+            query: [
+              {
+                ex: "false"
+                k: "query"
+                n: "permanent"
+                or: "permanent"
+                r: false
+                t: "`$STRING`"
+              }
+            ]
+          }
+          m: "DELETE"
+          o: "/vault/{filename}"
+          q: {
+            exist: [
+              "id"
+              "permanent"
+            ]
+          }
+          r: {
+            param: {
+              filename: "id"
+            }
+          }
+          s: [
+            {
+              lit: "vault"
+            }
+            {
+              var: "id"
+            }
+          ]
+          t: {
+            req: "`reqdata`"
+            res: "`body`"
+          }
+        }
+      ]
+    }
+    update: {
+      name: "update"
+      points: [
+        {
+          co: {
+            id: "PUT /vault/{filename}"
+            source: "openapi3"
+            version: 2
+          }
+          g: {
+            header: [
+              {
+                ex: "2"
+                k: "header"
+                n: "markdown_patch_version"
+                or: "markdown_patch_version"
+                r: false
+                t: "`$STRING`"
+              }
+              {
+                ex: "false"
+                k: "header"
+                n: "reject_if_content_preexist"
+                or: "reject_if_content_preexist"
+                r: false
+                t: "`$STRING`"
+              }
+            ]
+            params: [
+              {
+                k: "param"
+                n: "id"
+                or: "filename"
+                r: true
+                t: "`$STRING`"
+              }
+            ]
+          }
+          m: "PUT"
+          o: "/vault/{filename}"
+          q: {
+            exist: [
+              "id"
+              "markdown_patch_version"
+              "reject_if_content_preexist"
+            ]
+          }
+          r: {
+            param: {
+              filename: "id"
+            }
+          }
+          s: [
+            {
+              lit: "vault"
+            }
+            {
+              var: "id"
+            }
+          ]
+          t: {
+            req: "`reqdata`"
+            res: "`body`"
+          }
+        }
+      ]
+    }
+  }
+
+
+
+}

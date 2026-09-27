@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TagEntity = void 0;
 const ObsidianEntityBase_1 = require("../ObsidianEntityBase");
-// TODO: needs Entity superclass
 class TagEntity extends ObsidianEntityBase_1.ObsidianEntityBase {
     constructor(client, entopts) {
         super(client, entopts);

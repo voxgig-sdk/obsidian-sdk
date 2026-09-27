@@ -47,12 +47,6 @@ const ReadmeRef = cmp(function ReadmeRef(props: any) {
   const ident = cIdent(model)
   const Name = model.const.Name
   const entity = getModelPath(model, `main.${KIT}.entity`)
-  // GATED BY THE TARGET, not the raw active-feature map. A feature applies
-  // where its `needs` are a subset of the target's `provides`, and the code
-  // path has always honoured that - Config and Main take targetFeatures. The
-  // REFERENCE did not, so every target's README advertised `secrets` whether
-  // or not that target's container carries a vendored sekreto, and a reader
-  // who set the option got nothing back.
   const feature = targetFeatures(model, target)
 
   const publishedEntities = each(entity).filter((e: any) => e.active !== false)
@@ -180,7 +174,7 @@ Prepare a fetch definition without sending. Returns the fetchdef and sets
     // Entity reference sections
     publishedEntities.map((ent: any) => {
       const opnames = Object.keys(ent.op || {})
-      const fields = ent.fields || []
+      const fields = Object.values(ent.fields || {})
       const idF = entityIdField(ent)
       const evar = cVarName(ent.name)
       const acc = `${ident}_${evar}`
@@ -213,9 +207,9 @@ Entity* ${evar} = ${acc}(client, NULL);
 | --- | --- | --- | --- |
 `)
         each(fields, (field: any) => {
-          const req = field.req ? 'Yes' : 'No'
-          const desc = field.short || ''
-          Content(`| \`${field.name}\` | \`${cType(field.type)}\` | ${req} | ${desc} |
+          const req = field.r ? 'Yes' : 'No'
+          const desc = field.sh || ''
+          Content(`| \`${field.n}\` | \`${cType(field.t)}\` | ${req} | ${desc} |
 `)
         })
 
@@ -240,7 +234,7 @@ Entity* ${evar} = ${acc}(client, NULL);
               if (fop.active === false) return '-'
               return 'Yes'
             })
-            Content(`| \`${field.name}\` | ${cols.join(' | ')} |
+            Content(`| \`${field.n}\` | ${cols.join(' | ')} |
 `)
           })
 
@@ -394,9 +388,6 @@ ${Name}SDK* client = ${ident}_sdk_new(cmap(1,
 \`\`\`
 
 `)
-      // The shared feature reference: options, defaults, usage and the
-      // considerations. Model facts, identical in every target, so they are
-      // written once in cmp/ReadmeRefFeatures.ts rather than here.
       ReadmeRefFeatures({ target })
     }
 

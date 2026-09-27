@@ -1,0 +1,22 @@
+# BasicTagFlow
+
+main: kit: flow: BasicTagFlow:
+{
+  entity: "tag",
+  kind: "basic",
+  name: "BasicTagFlow",
+  step: [
+    {
+      o: "list",
+      v: [
+        {
+          apply: "ItemExists",
+          def: {
+            ref: "tag_ref01"
+          }
+        }
+      ]
+    }
+  ],
+  "key$": "BasicTagFlow"
+}

@@ -25,10 +25,6 @@ import {
 } from '../../utility'
 
 
-// AFTER the imports on purpose: TypeScript hoists `import` above any
-// statement in the emitted CommonJS, so a loader placed above them would
-// run only after every imported module had already been evaluated - and
-// anything reading process.env at module scope would miss these values.
 loadEnvLocal(__dirname + '/../../../.env.local')
 
 
@@ -55,7 +51,7 @@ describe('TagEntity', async () => {
     
     const setup = basicSetup()
     if (setup.live) {
-      return runLiveEntity(setup, {"active":true,"alias":{"field":{}},"fields":[{"active":true,"name":"count","req":false,"short":"Number of times this tag is used across the vault.","type":"`$NUMBER`","index$":0},{"active":true,"name":"name","req":false,"short":"Tag name without the leading `#`.","type":"`$STRING`","index$":1}],"name":"tag","op":{"list":{"input":"data","name":"list","points":[{"active":true,"args":{},"contract":{"id":"GET /tags/","json":"{\"parameters\":[],\"protocol\":\"http\",\"responses\":{\"200\":{\"content\":{\"application/json\":{\"example\":{\"tags\":[{\"count\":3,\"name\":\"project\"},{\"count\":1,\"name\":\"important\"},{\"count\":2,\"name\":\"work\"},{\"count\":2,\"name\":\"work/tasks\"}]},\"schema\":{\"properties\":{\"tags\":{\"items\":{\"properties\":{\"count\":{\"description\":\"Number of times this tag is used across the vault.\",\"type\":\"number\"},\"name\":{\"description\":\"Tag name without the leading `#`.\",\"type\":\"string\"}},\"type\":\"object\"},\"type\":\"array\"}},\"type\":\"object\"}}},\"description\":\"A list of tags with their usage counts.\"}},\"security\":[{\"apiKeyAuth\":[]}],\"securitySchemes\":{\"apiKeyAuth\":{\"description\":\"Find your API Key in your Obsidian settings\\nin the \\\"Local REST API\\\" section under \\\"Plugins\\\".\\n\",\"scheme\":\"bearer\",\"type\":\"http\"}},\"securitySource\":\"definition\"}","source":"openapi3","version":1},"kind":"http","method":"GET","orig":"/tags/","segments":[{"lit":"tags"}],"select":{},"transform":{"req":"`reqdata`","res":"`body.tags`"},"index$":0}],"key$":"list"}},"relations":{"ancestors":[]},"key$":"tag","name__orig":"tag","Name":"Tag","name_":"tag","name-":"tag","NAME":"TAG","index$":7}, {"active":true,"entity":"tag","key$":"BasicTagFlow","kind":"basic","name":"BasicTagFlow","param":{},"step":[{"active":true,"data":{},"input":{},"match":{},"op":"list","spec":[],"valid":[{"apply":"ItemExists","def":{"ref":"tag_ref01"}}],"index$":0}]}, 'Tag')
+      return runLiveEntity(setup, {"active":true,"alias":{"field":{}},"fields":{"count":{"a":true,"h":"Count","n":"count","r":false,"sh":"Number of times this tag is used across the vault.","t":"`$NUMBER`","key$":"count","index$":0},"name":{"a":true,"h":"Name","n":"name","r":false,"sh":"Tag name without the leading `#`.","t":"`$STRING`","key$":"name","index$":1}},"name":"tag","op":{"list":{"input":"data","name":"list","points":[{"a":true,"co":{"id":"GET /tags/","source":"openapi3","version":2},"g":{},"k":"http","m":"GET","o":"/tags/","q":{},"r":{},"s":[{"lit":"tags"}],"t":{"req":"`reqdata`","res":"`body.tags`"},"index$":0}],"key$":"list"}},"relations":{"ancestors":[]},"key$":"tag","name__orig":"tag","Name":"Tag","name_":"tag","name-":"tag","NAME":"TAG","index$":7}, {"active":true,"entity":"tag","key$":"BasicTagFlow","kind":"basic","name":"BasicTagFlow","param":{},"step":[{"a":true,"d":{},"i":{},"m":{},"o":"list","s":[],"v":[{"apply":"ItemExists","def":{"ref":"tag_ref01"}}],"index$":0}]}, 'Tag', {"GET /tags/":{"protocol":"http","parameters":[]}})
     }
     const client = setup.client
     const struct = setup.struct

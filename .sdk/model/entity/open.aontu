@@ -1,0 +1,84 @@
+# Entity: open
+
+main: kit: entity: open: {
+
+  alias: field: {}
+
+  fields: {
+    id: {
+      h: "Id"
+      n: "id"
+      r: false
+      t: "`$STRING`"
+    }
+  }
+
+  id: {
+    field: "id"
+    name: "id"
+  }
+
+  name: "open"
+  op: {
+    create: {
+      name: "create"
+      points: [
+        {
+          co: {
+            id: "POST /open/{filename}"
+            source: "openapi3"
+            version: 2
+          }
+          g: {
+            params: [
+              {
+                k: "param"
+                n: "id"
+                or: "filename"
+                r: true
+                t: "`$STRING`"
+              }
+            ]
+            query: [
+              {
+                k: "query"
+                n: "new_leaf"
+                or: "new_leaf"
+                r: false
+                t: "`$BOOLEAN`"
+              }
+            ]
+          }
+          m: "POST"
+          o: "/open/{filename}"
+          q: {
+            exist: [
+              "id"
+              "new_leaf"
+            ]
+          }
+          r: {
+            param: {
+              filename: "id"
+            }
+          }
+          s: [
+            {
+              lit: "open"
+            }
+            {
+              var: "id"
+            }
+          ]
+          t: {
+            req: "`reqdata`"
+            res: "`body`"
+          }
+        }
+      ]
+    }
+  }
+
+
+
+}

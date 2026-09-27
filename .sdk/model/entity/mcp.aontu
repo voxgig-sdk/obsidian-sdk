@@ -1,0 +1,148 @@
+# Entity: mcp
+
+main: kit: entity: mcp: {
+
+  alias: field: {}
+
+  fields: {
+    id: {
+      h: "Id"
+      n: "id"
+      r: false
+      sh: "Request identifier."
+      t: "`$STRING`"
+      union: {
+        branches: 2
+        count: 1
+        depth: 0
+      }
+    }
+    jsonrpc: {
+      h: "Jsonrpc"
+      n: "jsonrpc"
+      r: true
+      sh: "JSON-RPC version."
+      t: "`$STRING`"
+    }
+    method: {
+      h: "Method"
+      n: "method"
+      r: true
+      sh: "MCP method to invoke."
+      t: "`$STRING`"
+    }
+    params: {
+      h: "Params"
+      n: "params"
+      r: false
+      sh: "Method-specific parameters."
+      t: "`$OBJECT`"
+    }
+  }
+
+  id: {
+    field: "id"
+    name: "id"
+  }
+
+  name: "mcp"
+  op: {
+    create: {
+      name: "create"
+      points: [
+        {
+          co: {
+            id: "POST /mcp/"
+            source: "openapi3"
+            version: 2
+          }
+          g: {
+            header: [
+              {
+                k: "header"
+                n: "mcp_protocol_version"
+                or: "mcp_protocol_version"
+                r: false
+                t: "`$STRING`"
+              }
+              {
+                k: "header"
+                n: "mcp_session_id"
+                or: "mcp_session_id"
+                r: false
+                t: "`$STRING`"
+              }
+            ]
+          }
+          m: "POST"
+          o: "/mcp/"
+          q: {
+            exist: [
+              "mcp_protocol_version"
+              "mcp_session_id"
+            ]
+          }
+          s: [
+            {
+              lit: "mcp"
+            }
+          ]
+          t: {
+            req: "`reqdata`"
+            res: "`body`"
+          }
+        }
+      ]
+    }
+    load: {
+      name: "load"
+      points: [
+        {
+          co: {
+            id: "GET /mcp/"
+            source: "openapi3"
+            version: 2
+          }
+          g: {
+            header: [
+              {
+                k: "header"
+                n: "mcp_protocol_version"
+                or: "mcp_protocol_version"
+                r: false
+                t: "`$STRING`"
+              }
+              {
+                k: "header"
+                n: "mcp_session_id"
+                or: "mcp_session_id"
+                r: true
+                t: "`$STRING`"
+              }
+            ]
+          }
+          m: "GET"
+          o: "/mcp/"
+          q: {
+            exist: [
+              "mcp_protocol_version"
+              "mcp_session_id"
+            ]
+          }
+          s: [
+            {
+              lit: "mcp"
+            }
+          ]
+          t: {
+            req: "`reqdata`"
+            res: "`body`"
+          }
+        }
+      ]
+    }
+  }
+
+
+
+}

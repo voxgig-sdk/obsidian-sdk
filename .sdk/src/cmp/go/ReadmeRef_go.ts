@@ -44,12 +44,6 @@ const ReadmeRef = cmp(function ReadmeRef(props: any) {
   const { model } = props.ctx$
 
   const entity = getModelPath(model, `main.${KIT}.entity`)
-  // GATED BY THE TARGET, not the raw active-feature map. A feature applies
-  // where its `needs` are a subset of the target's `provides`, and the code
-  // path has always honoured that - Config and Main take targetFeatures. The
-  // REFERENCE did not, so every target's README advertised `secrets` whether
-  // or not that target's container carries a vendored sekreto, and a reader
-  // who set the option got nothing back.
   const feature = targetFeatures(model, target)
 
   const publishedEntities = each(entity).filter((e: any) => e.active !== false)
@@ -119,7 +113,6 @@ client := sdk.TestSDK(testopts, sdkopts)
 `)
 
 
-    // Entity factory methods
     publishedEntities.map((ent: any) => {
       Content(`#### \`${ent.Name}(data map[string]any) ${model.const.Name}Entity\`
 
@@ -165,17 +158,14 @@ same parameters as \`Direct()\`.
 `)
 
 
-    // Entity reference sections
     publishedEntities.map((ent: any) => {
       // ACTIVE ops only — an inactive op generates no method, so an example
       // calling it would not compile.
       const opnames = entityOps(ent)
-      const fields = ent.fields || []
+      const fields = Object.values(ent.fields || {})
       // Model-driven id key: null when this entity has no id-like field, in
       // which case load/remove pass a nil match and update omits the id.
       const idF = entityIdField(ent)
-      // camelCase Go identifier (a `status_embed_config` entity must not bind
-      // a snake_case Go variable).
       const eVar = goVarName(ent.name)
 
       Content(`
@@ -199,7 +189,6 @@ fmt.Println(${eVar}.GetName()) // "${ent.name}"
 `)
 
 
-      // Field schema
       if (fields.length > 0) {
         Content(`### Fields
 
@@ -207,16 +196,15 @@ fmt.Println(${eVar}.GetName()) // "${ent.name}"
 | --- | --- | --- | --- |
 `)
         each(fields, (field: any) => {
-          const req = field.req ? 'Yes' : 'No'
-          const desc = field.short || ''
-          Content(`| \`${field.name}\` | \`${canonToType(field.type, target.name)}\` | ${req} | ${desc} |
+          const req = field.r ? 'Yes' : 'No'
+          const desc = field.sh || ''
+          Content(`| \`${field.n}\` | \`${canonToType(field.t, target.name)}\` | ${req} | ${desc} |
 `)
         })
 
         Content(`
 `)
 
-        // Field operations breakdown
         const hasFieldOps = fields.some((f: any) => f.op && Object.keys(f.op).length > 0)
         if (hasFieldOps) {
           // Only emit columns for operations this entity actually exposes —
@@ -237,7 +225,7 @@ fmt.Println(${eVar}.GetName()) // "${ent.name}"
               if (fop.active === false) return '-'
               return 'Yes'
             })
-            Content(`| \`${field.name}\` | ${cols.join(' | ')} |
+            Content(`| \`${field.n}\` | ${cols.join(' | ')} |
 `)
           })
 
@@ -247,7 +235,6 @@ fmt.Println(${eVar}.GetName()) // "${ent.name}"
       }
 
 
-      // Operation details
       if (opnames.length > 0) {
         Content(`### Operations
 
@@ -352,7 +339,6 @@ fmt.Println(result)
       }
 
 
-      // Common methods
       Content(`### Common Methods
 
 #### \`Data(args ...any) any\`
@@ -378,7 +364,6 @@ Return the entity name.
     })
 
 
-    // Features section
     const activeFeatures = each(feature).filter((f: any) => f.active)
     if (activeFeatures.length > 0) {
       Content(`
@@ -414,9 +399,6 @@ client := sdk.New${model.const.Name}SDK(map[string]any{
 \`\`\`
 
 `)
-      // The shared feature reference: options, defaults, usage and the
-      // considerations. Model facts, identical in every target, so they are
-      // written once in cmp/ReadmeRefFeatures.ts rather than here.
       ReadmeRefFeatures({ target })
     }
 

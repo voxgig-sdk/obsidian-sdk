@@ -1,0 +1,53 @@
+# Entity: tag
+
+main: kit: entity: tag: {
+
+  alias: field: {}
+
+  fields: {
+    count: {
+      h: "Count"
+      n: "count"
+      r: false
+      sh: "Number of times this tag is used across the vault."
+      t: "`$NUMBER`"
+    }
+    name: {
+      h: "Name"
+      n: "name"
+      r: false
+      sh: "Tag name without the leading `#`."
+      t: "`$STRING`"
+    }
+  }
+
+  name: "tag"
+  op: {
+    list: {
+      name: "list"
+      points: [
+        {
+          co: {
+            id: "GET /tags/"
+            source: "openapi3"
+            version: 2
+          }
+          m: "GET"
+          o: "/tags/"
+          s: [
+            {
+              lit: "tags"
+            }
+          ]
+          t: {
+            req: "`reqdata`"
+            res: "`body.tags`"
+          }
+        }
+      ]
+    }
+  }
+
+
+
+}
