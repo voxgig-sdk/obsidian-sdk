@@ -74,6 +74,21 @@ typedef struct {
   int64_t within;  // optional
 } ActiveUpdateData;
 
+// ActivePatchData is the typed request payload for Active.patch.
+typedef struct {
+  char*content;  // optional
+  bool createtargetifmissing;  // optional
+  voxgig_value*destination;  // optional
+  char*ifmatch;  // optional
+  char*operation;  // optional
+  bool rejectifcontentpreexists;  // optional
+  char*scope;  // optional
+  voxgig_value*target;  // optional
+  char*targettype;  // optional
+  voxgig_value*value;  // optional
+  int64_t within;  // optional
+} ActivePatchData;
+
 // ActiveRemoveMatch is the typed request payload for Active.remove.
 typedef struct {
   char*permanent;  // optional
@@ -99,14 +114,18 @@ typedef struct {
 
 // Entity1 is the typed data model for the entity1 entity.
 typedef struct {
-  char*obsidian;  // optional
-  char*self;  // optional
+  bool authenticated;  // optional
+  char*ok;  // optional
+  char*service;  // optional
+  voxgig_value*versions;  // optional
 } Entity1;
 
 // Entity1LoadMatch is the typed request payload for Entity1.load.
 typedef struct {
-  char*obsidian;  // optional
-  char*self;  // optional
+  bool authenticated;  // optional
+  char*ok;  // optional
+  char*service;  // optional
+  voxgig_value*versions;  // optional
 } Entity1LoadMatch;
 
 // Mcp is the typed data model for the mcp entity.
@@ -248,6 +267,23 @@ typedef struct {
   voxgig_value*value;  // optional
   int64_t within;  // optional
 } VaultUpdateData;
+
+// VaultPatchData is the typed request payload for Vault.patch.
+typedef struct {
+  char*id;
+  char*content;  // optional
+  bool createtargetifmissing;  // optional
+  voxgig_value*destination;  // optional
+  voxgig_value*files;  // optional
+  char*ifmatch;  // optional
+  char*operation;  // optional
+  bool rejectifcontentpreexists;  // optional
+  char*scope;  // optional
+  voxgig_value*target;  // optional
+  char*targettype;  // optional
+  voxgig_value*value;  // optional
+  int64_t within;  // optional
+} VaultPatchData;
 
 // VaultRemoveMatch is the typed request payload for Vault.remove.
 typedef struct {

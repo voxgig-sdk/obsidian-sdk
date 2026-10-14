@@ -36,8 +36,22 @@ export interface ActiveCreateData {
     targetType: string;
     value?: any;
     within?: number;
+    $body?: Uint8Array | ArrayBuffer | Blob | ReadableStream | AsyncIterable<Uint8Array> | string;
 }
 export interface ActiveUpdateData {
+    content?: string;
+    createTargetIfMissing?: boolean;
+    destination?: Record<string, any>;
+    ifMatch?: string;
+    operation?: string;
+    rejectIfContentPreexists?: boolean;
+    scope?: string;
+    target?: any;
+    targetType?: string;
+    value?: any;
+    within?: number;
+}
+export interface ActivePatchData {
     content?: string;
     createTargetIfMissing?: boolean;
     destination?: Record<string, any>;
@@ -66,12 +80,16 @@ export interface CommandCreateData {
     name?: string;
 }
 export interface Entity1 {
-    obsidian?: string;
-    self?: string;
+    authenticated?: boolean;
+    ok?: string;
+    service?: string;
+    versions?: Record<string, any>;
 }
 export interface Entity1LoadMatch {
-    obsidian?: string;
-    self?: string;
+    authenticated?: boolean;
+    ok?: string;
+    service?: string;
+    versions?: Record<string, any>;
 }
 export interface Mcp {
     id?: string;
@@ -163,8 +181,24 @@ export interface VaultCreateData {
     targetType: string;
     value?: any;
     within?: number;
+    $body?: Uint8Array | ArrayBuffer | Blob | ReadableStream | AsyncIterable<Uint8Array> | string;
 }
 export interface VaultUpdateData {
+    id: string;
+    content?: string;
+    createTargetIfMissing?: boolean;
+    destination?: Record<string, any>;
+    files?: any[];
+    ifMatch?: string;
+    operation?: string;
+    rejectIfContentPreexists?: boolean;
+    scope?: string;
+    target?: any;
+    targetType?: string;
+    value?: any;
+    within?: number;
+}
+export interface VaultPatchData {
     id: string;
     content?: string;
     createTargetIfMissing?: boolean;

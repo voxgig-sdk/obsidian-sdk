@@ -16,6 +16,26 @@ import (
 	vs "github.com/voxgig-sdk/obsidian-sdk/go/utility/struct"
 )
 
+// main.kit.test.live.strict is true (the default is true): a live
+// request that fails, or a live test missing an input it needs,
+// fails the test.
+// An account with no record for a test to read skips it either way.
+const vaultEntityLiveStrict = true
+
+
+type vaultFailHook struct {
+	sdk.BaseFeature
+	unexpected int
+}
+
+func (f *vaultFailHook) PreSpec(ctx *sdk.Context) {
+	panic("vault hook failed")
+}
+
+func (f *vaultFailHook) PreUnexpected(ctx *sdk.Context) {
+	f.unexpected++
+}
+
 func TestVaultEntity(t *testing.T) {
 	t.Run("instance", func(t *testing.T) {
 		testsdk := sdk.TestSDK(nil, nil)
@@ -43,8 +63,11 @@ func TestVaultEntity(t *testing.T) {
 		// Fallback: streaming inactive -> yields the materialised list items.
 		base := sdk.TestSDK(seed, nil)
 		var seen []any
-		for item := range base.Vault(nil).Stream("list", nil, nil) {
-			seen = append(seen, item)
+		for si := range base.Vault(nil).Stream("list", nil, nil) {
+			if si.Err != nil {
+				t.Fatalf("stream failed: %v", si.Err)
+			}
+			seen = append(seen, si.Item)
 		}
 		if len(seen) != 3 {
 			t.Fatalf("expected 3 streamed items, got %d", len(seen))
@@ -60,11 +83,14 @@ func TestVaultEntity(t *testing.T) {
 				"feature": map[string]any{"streaming": map[string]any{"active": true}},
 			})
 			var got []any
-			for item := range streamSdk.Vault(nil).Stream("list", nil, nil) {
-				if sub, ok := item.([]any); ok {
+			for si := range streamSdk.Vault(nil).Stream("list", nil, nil) {
+				if si.Err != nil {
+					t.Fatalf("stream failed: %v", si.Err)
+				}
+				if sub, ok := si.Item.([]any); ok {
 					got = append(got, sub...)
 				} else {
-					got = append(got, item)
+					got = append(got, si.Item)
 				}
 			}
 			if len(got) != 3 {
@@ -73,7 +99,91 @@ func TestVaultEntity(t *testing.T) {
 		}
 	})
 
-	t.Run("basic", func(t *testing.T) {
+	t.Run("stream-error", func(t *testing.T) {
+		offline := map[string]any{"net": map[string]any{"offline": true}}
+		var streamerr error
+		for si := range sdk.TestSDK(offline, nil).Vault(nil).Stream("list", nil, nil) {
+			if si.Err != nil {
+				streamerr = si.Err
+			}
+		}
+		if nil == streamerr || !strings.Contains(streamerr.Error(), "offline") {
+			t.Fatalf("expected the transport failure as a stream value, got %v", streamerr)
+		}
+
+		quiet := map[string]any{"ctrl": map[string]any{"throw": false}}
+		for si := range sdk.TestSDK(offline, nil).Vault(nil).Stream("list", nil, quiet) {
+			if si.Err != nil {
+				t.Fatalf("throw false: expected no error value, got %v", si.Err)
+			}
+		}
+
+		if fhHasFeature("rbac") {
+			denied := sdk.TestSDK(nil, map[string]any{
+				"feature": map[string]any{"rbac": map[string]any{"active": true, "deny": true}},
+			})
+			var denyerr error
+			for si := range denied.Vault(nil).Stream("list", nil, nil) {
+				if si.Err != nil {
+					denyerr = si.Err
+				}
+			}
+			if sdkerr, ok := denyerr.(*core.ObsidianError); !ok || "rbac_denied" != sdkerr.Code {
+				t.Fatalf("expected the rbac denial as a stream value, got %v", denyerr)
+			}
+		}
+	})
+
+	t.Run("stream-ctrl", func(t *testing.T) {
+		explain := map[string]any{}
+		ctrl := map[string]any{"explain": explain}
+		for range sdk.TestSDK(nil, nil).Vault(nil).Stream("list", nil, map[string]any{"ctrl": ctrl}) {
+		}
+		if _, has := ctrl["stream"]; has || 1 != len(ctrl) {
+			t.Fatalf("the stream changed the caller's ctrl")
+		}
+		if 0 == len(explain) {
+			t.Fatalf("the caller's explain record was not filled")
+		}
+	})
+
+	t.Run("unexpected", func(t *testing.T) {
+		hook := &vaultFailHook{
+			BaseFeature: sdk.BaseFeature{Version: "0.0.1", Name: "failhook", Active: true}}
+		client := sdk.TestSDK(nil, map[string]any{"extend": []any{hook}})
+
+		_, err := client.Vault(nil).List(nil, nil)
+		if nil == err || !strings.Contains(err.Error(), "hook failed") {
+			t.Fatalf("expected the hook's failure, got %v", err)
+		}
+		if 0 == hook.unexpected {
+			t.Fatalf("PreUnexpected did not fire")
+		}
+
+		fired := hook.unexpected
+		if _, err := client.Vault(nil).List(nil, map[string]any{"throw": false}); nil != err {
+			t.Fatalf("throw false: expected no error, got %v", err)
+		}
+		if fired == hook.unexpected {
+			t.Fatalf("throw false: PreUnexpected did not fire")
+		}
+	})
+
+	t.Run("validate", func(t *testing.T) {
+		if !fhHasFeature("validate") {
+			t.Skip("feature not present in this SDK: validate")
+		}
+		client := sdk.TestSDK(nil, map[string]any{
+			"feature": map[string]any{"validate": map[string]any{"active": true}},
+		})
+		_, err := client.Vault(nil).List(map[string]any{"content": 1}, nil)
+		if sdkerr, ok := err.(*core.ObsidianError); !ok || "validate_failed" != sdkerr.Code {
+			t.Fatalf("expected validate_failed, got %v", err)
+		}
+	})
+
+	t.Run("basic", func(tt *testing.T) {
+		var t testing.TB = tt
 		setup := vaultBasicSetup(nil)
 		// Per-op sdk-test-control.json skip — basic test exercises a flow
 		// with multiple ops; skipping any op skips the whole flow.
@@ -81,7 +191,7 @@ func TestVaultEntity(t *testing.T) {
 		if setup.live {
 			_mode = "live"
 		}
-		for _, _op := range []string{"create", "list", "update", "load", "remove"} {
+		for _, _op := range []string{"list", "update", "load", "remove"} {
 			if _shouldSkip, _reason := isControlSkipped("entityOp", "vault." + _op, _mode); _shouldSkip {
 				if _reason == "" {
 					_reason = "skipped via sdk-test-control.json"
@@ -90,47 +200,33 @@ func TestVaultEntity(t *testing.T) {
 				return
 			}
 		}
-		// The basic flow consumes synthetic IDs from the fixture. In live mode
-		// without an *_ENTID env override, those IDs hit the live API and 4xx.
-		if setup.syntheticOnly {
-			t.Skip("live entity test uses synthetic IDs from fixture — set OBSIDIAN_TEST_VAULT_ENTID JSON to run live")
-			return
+		if setup.live {
+			liveMiss(t, vaultEntityLiveStrict, "Live entity test blocked: %s", "the flow updates a vault record it did not create")
 		}
 		client := setup.client
+		_ = client
 
-		// CREATE
-		vaultRef01Ent := client.Vault(nil)
-		vaultRef01Data := core.ToMapAny(vs.GetProp(
-			vs.GetPath(setup.data, []any{"new", "vault"}), "vault_ref01"))
-		vaultRef01Data["filename"] = setup.idmap["filename01"]
-
-		vaultRef01DataResult, err := vaultRef01Ent.Create(vaultRef01Data, nil)
-		if err != nil {
-			t.Fatalf("create failed: %v", err)
+		// Bootstrap entity data from existing test data (no create step in flow).
+		vaultRef01DataRaw := vs.Items(core.ToMapAny(vs.GetPath(setup.data, "existing.vault")))
+		var vaultRef01Data map[string]any
+		if len(vaultRef01DataRaw) > 0 {
+			vaultRef01Data = core.ToMapAny(vaultRef01DataRaw[0][1])
 		}
-		vaultRef01Data = core.ToMapAny(entityData(vaultRef01DataResult))
-		if vaultRef01Data == nil {
-			t.Fatal("expected create result to be a map")
-		}
-		if vaultRef01Data["id"] == nil {
-			t.Fatal("expected created entity to have an id")
-		}
+		// Discard guards against Go's unused-var check when the flow's steps
+		// happen not to consume the bootstrap data (e.g. list-only flows).
+		_ = vaultRef01Data
 
 		// LIST
+		vaultRef01Ent := client.Vault(nil)
 		vaultRef01Match := map[string]any{}
 
 		vaultRef01ListResult, err := vaultRef01Ent.List(vaultRef01Match, nil)
 		if err != nil {
 			t.Fatalf("list failed: %v", err)
 		}
-		vaultRef01List, vaultRef01ListOk := vaultRef01ListResult.([]any)
+		_, vaultRef01ListOk := vaultRef01ListResult.([]any)
 		if !vaultRef01ListOk {
 			t.Fatalf("expected list result to be an array, got %T", vaultRef01ListResult)
-		}
-
-		foundItem := vs.Select(entityListToData(vaultRef01List), map[string]any{"id": vaultRef01Data["id"]})
-		if vs.IsEmpty(foundItem) {
-			t.Fatal("expected to find created entity in list")
 		}
 
 		// UPDATE
@@ -173,32 +269,6 @@ func TestVaultEntity(t *testing.T) {
 			t.Fatal("expected load result id to match")
 		}
 
-		// REMOVE
-		vaultRef01MatchRm0 := map[string]any{
-			"id": vaultRef01Data["id"],
-		}
-		_, err = vaultRef01Ent.Remove(vaultRef01MatchRm0, nil)
-		if err != nil {
-			t.Fatalf("remove failed: %v", err)
-		}
-
-		// LIST
-		vaultRef01MatchRt0 := map[string]any{}
-
-		vaultRef01ListRt0Result, err := vaultRef01Ent.List(vaultRef01MatchRt0, nil)
-		if err != nil {
-			t.Fatalf("list failed: %v", err)
-		}
-		vaultRef01ListRt0, vaultRef01ListRt0Ok := vaultRef01ListRt0Result.([]any)
-		if !vaultRef01ListRt0Ok {
-			t.Fatalf("expected list result to be an array, got %T", vaultRef01ListRt0Result)
-		}
-
-		notFoundItem := vs.Select(entityListToData(vaultRef01ListRt0), map[string]any{"id": vaultRef01Data["id"]})
-		if !vs.IsEmpty(notFoundItem) {
-			t.Fatal("expected removed entity to not be in list")
-		}
-
 	})
 }
 
@@ -227,7 +297,7 @@ func vaultBasicSetup(extra map[string]any) *entityTestSetup {
 
 	// Generate idmap via transform, matching TS pattern.
 	idmap, _ := vs.Transform(
-		[]any{"vault01", "vault02", "vault03", "filename01"},
+		[]any{"vault01", "vault02", "vault03"},
 		map[string]any{
 			"`$PACK`": []any{"", map[string]any{
 				"`$KEY`": "`$COPY`",
@@ -236,9 +306,8 @@ func vaultBasicSetup(extra map[string]any) *entityTestSetup {
 		},
 	)
 
-	// Detect ENTID env override before envOverride consumes it. When live
-	// mode is on without a real override, the basic test runs against synthetic
-	// IDs from the fixture and 4xx's. Surface this so the test can skip.
+	// Whether *_ENTID supplied the idmap, read before envOverride consumes it:
+	// without it, the ids a live flow binds are the fixture's synthetic ones.
 	entidEnvRaw := os.Getenv("OBSIDIAN_TEST_VAULT_ENTID")
 	idmapOverridden := entidEnvRaw != "" && strings.HasPrefix(strings.TrimSpace(entidEnvRaw), "{")
 

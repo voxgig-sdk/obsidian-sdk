@@ -5,7 +5,7 @@
 The C SDK for the Obsidian API — an entity-oriented client following idiomatic C conventions (explicit structs, function-pointer vtables, and a trailing `PNError**` out-param for errors).
 
 The SDK exposes the API as capitalised, semantic **Entities** — for example `obsidian_active(client, NULL)` — each
-carrying a small, uniform set of operations (`list`, `load`, `create`, `update`, `remove`, `patch`) instead of raw URL
+carrying a small, uniform set of operations (`list`, `load`, `create`, `update`, `patch`, `remove`) instead of raw URL
 paths and query strings. You work with named resources and verbs, which
 keeps the cognitive load low.
 
@@ -15,7 +15,7 @@ keeps the cognitive load low.
 
 ## Install
 C has no central package registry — a release is the git tag
-(`c/vX.Y.Z`, see [Releases](https://github.com/voxgig-sdk/obsidian-sdk/releases)). Build from a
+(`c/vX.Y.Z`, see [Tags](https://github.com/voxgig-sdk/obsidian-sdk/tags)). Build from a
 source checkout with the bundled `Makefile`; the voxgig struct library is
 vendored under `utility/struct`, so there are no external dependencies to
 fetch:
@@ -50,31 +50,100 @@ PNError* err = NULL;
 
 ### 3. Load an active
 
-`load()` returns the bare record and sets `*err` on failure.
+`load()` returns the entity and sets `*err` on failure; `vt->data` reads
+its record.
 
 ```c
 Entity* active = obsidian_active(client, NULL);
-voxgig_value* active_rec = active->vt->load(active, NULL, NULL, &err);
+Entity* loaded = active->vt->load(active, NULL, NULL, &err);
 if (err) {
     fprintf(stderr, "load failed: %s\n", err->msg);
 } else {
-    printf("%s\n", voxgig_to_json(active_rec));
+    printf("%s\n", voxgig_to_json(loaded->vt->data(loaded, NULL)));
 }
 ```
 
 ### 4. Create, update, and remove
 
 ```c
-// Create — returns the bare created record
-voxgig_value* created = active->vt->create(active, cmap(4, "destination", v_map(), "operation", v_str("example_operation"), "target", v_str("example_target"), "targetType", v_str("example_targetType")), NULL, &err);
+// Create — returns the created entity, or NULL with *err set
+Entity* created = active->vt->create(active, cmap(4, "destination", v_map(), "operation", v_str("example_operation"), "target", v_str("example_target"), "targetType", v_str("example_targetType")), NULL, &err);
 
 // Update
 active->vt->update(active, cmap(2, "content", v_str("example_content"), "createTargetIfMissing", v_bool(true)), NULL, &err);
+
+// Patch — sends only the fields given
+active->vt->patch(active, cmap(2, "content", v_str("example_content"), "createTargetIfMissing", v_bool(true)), NULL, &err);
 
 // Remove
 active->vt->remove(active, NULL, NULL, &err);
 ```
 
+
+## Use with Station
+
+This SDK ships as a [voxgig/station](https://github.com/voxgig/station)
+plugin: bind it to a local `Station` and outbound configuration,
+credentials, and observability move to one place. The feature is
+present but **off by default** — nothing changes until you bind.
+
+### Declarative: `station.json` + `station.sdk()`
+
+Declare an instance in `station.json` at the repo root (committable —
+names and stores, never values):
+
+```json
+{ "station": 1,
+  "profiles": { "default": {
+    "sdk": { "obsidian": { } } } } }
+```
+
+Then get the client where you need it:
+
+1. `station = Station.open()` — reads and validates `station.json`;
+   constructs nothing.
+2. `client = station.sdk('obsidian')` — built on first ask and cached,
+   so the same name returns the same client.
+
+In this language an import runs no code, so register the factory
+once at startup — `Station.provide('obsidian', ...)`, one line — and
+every other line of configuration stays in `station.json`.
+
+A second instance of the same API is one more key — `"obsidian$test"`
+beside `"obsidian"` — and `station.sdk('obsidian$test')` returns it.
+SDK features are configured in the same file too: fleet-wide, per api,
+or per instance. `station.check()` resolves and constructs every
+active instance without sending a request — run it in CI.
+
+### The secret name derives from the instance
+
+The credential comes from [sekreto](https://github.com/voxgig/sekreto)
+under a name derived from the **instance** name — the instance token
+lowercased, plus `.apikey`. The untagged instance `obsidian` derives
+`obsidian.apikey` — by default the `OBSIDIAN_APIKEY` environment
+variable this README already documents, unchanged. A tagged instance
+derives its own: `obsidian$test` → `obsidian_test.apikey` →
+`OBSIDIAN_TEST_APIKEY` — each instance is a separate credentialed use
+of the API, and its env var is derivable from the name you chose. To
+pin a name instead, set `secret` on the instance block, or at the
+api level for several instances sharing one key. Point a profile at a
+vault later and application code does not change; sekreto's own
+documentation covers the stores. The key stays out of `options()` and
+`prepare()` output; `station.tap(...)` shows live traffic.
+
+### Imperative: inverted binding — the retrofit path
+
+Bind through the constructor this SDK already has (inverted
+binding): open a station, then construct with station-built options —
+`station.options()` merges the handle, the activation entry, and the
+correct feature order into the plain options the constructor accepts.
+
+With no `station.json` at all this runs solo with everything
+defaulted — the two-line form is how an existing application starts.
+
+Station failures surface through this SDK's own error path
+(`err.code`, `station_*`); the codes are catalogued in
+[station error codes](https://github.com/voxgig/sdkgen/blob/main/docs/reference/station-errors.md).
 
 ## Error handling
 
@@ -82,15 +151,16 @@ Entity operations reject on failure, so wrap them in `try` / `catch`:
 
 ```ts
 try {
-  const commands = await client.Command().list()
-  console.log(commands)
+  const entity1 = await client.Entity1().load()
+  console.log(entity1.data())
 } catch (err) {
-  console.error('list failed:', err)
+  console.error('load failed:', err)
 }
 ```
 
 The low-level `direct()` method does **not** throw — it returns the
-value or an `Error`, so check the result before using it:
+result envelope. Branch on `ok`; on failure `status` holds the HTTP status
+(for error responses) and `err` holds the error:
 
 ```ts
 const result = await client.direct({
@@ -99,8 +169,8 @@ const result = await client.direct({
   params: { id: 'example_id' },
 })
 
-if (result instanceof Error) {
-  throw result
+if (!result.ok) {
+  console.error('request failed:', result.status, result.err)
 }
 ```
 
@@ -153,10 +223,10 @@ Create a mock client for unit testing — no server required:
 ObsidianSDK* client = test_sdk(NULL, NULL);
 PNError* err = NULL;
 
-// Entity ops return the bare record and set *err on failure.
-Entity* command = obsidian_command(client, NULL);
-voxgig_value* command_rec = command->vt->list(command, NULL, NULL, &err);
-// command_rec contains the mock response record
+// Entity ops return the entity and set *err on failure.
+Entity* entity1 = obsidian_entity1(client, NULL);
+Entity* result = entity1->vt->load(entity1, NULL, NULL, &err);
+// result->vt->data(result, NULL) is the mock response record
 ```
 
 ### Use a custom fetch function
@@ -257,11 +327,12 @@ All entities share the same `EntityVT` vtable, reached via `e->vt->...`.
 
 | Method | Signature | Description |
 | --- | --- | --- |
-| `load` | `(Entity*, reqmatch, ctrl, PNError**) -> voxgig_value*` | Load a single entity by match criteria. |
-| `list` | `(Entity*, reqmatch, ctrl, PNError**) -> voxgig_value*` | List entities matching the criteria (a List). |
-| `create` | `(Entity*, reqdata, ctrl, PNError**) -> voxgig_value*` | Create a new entity. |
-| `update` | `(Entity*, reqdata, ctrl, PNError**) -> voxgig_value*` | Update an existing entity. |
-| `remove` | `(Entity*, reqmatch, ctrl, PNError**) -> voxgig_value*` | Remove an entity. |
+| `load` | `(Entity*, reqmatch, ctrl, PNError**) -> Entity*` | Load a single entity by match criteria. |
+| `list` | `(Entity*, reqmatch, ctrl, PNError**) -> Entity**` | List entities matching the criteria: a `NULL`-terminated array, one per record. |
+| `create` | `(Entity*, reqdata, ctrl, PNError**) -> Entity*` | Create a new entity. |
+| `update` | `(Entity*, reqdata, ctrl, PNError**) -> Entity*` | Update an existing entity. |
+| `patch` | `(Entity*, reqdata, ctrl, PNError**) -> Entity*` | Change part of an existing entity. |
+| `remove` | `(Entity*, reqmatch, ctrl, PNError**) -> Entity*` | Remove an entity, which is returned marked as deleted. |
 | `data` | `(Entity*, args) -> voxgig_value*` | Get entity data (pass a map to set). |
 | `matchv` | `(Entity*, args) -> voxgig_value*` | Get entity match criteria (pass a map to set). |
 | `make` | `(Entity*) -> Entity*` | Create a new instance with the same options. |
@@ -269,10 +340,10 @@ All entities share the same `EntityVT` vtable, reached via `e->vt->...`.
 
 ### Result shape
 
-Entity operations return the bare result data (a `voxgig_value` map for
-single-entity ops, a List for `list`) and set `*err` to a `PNError*` on
-failure. Always initialise `PNError* err = NULL;` and check it after the
-call.
+Entity operations return the entity, and `list` a `NULL`-terminated array
+of entities, one per record; `vt->data` reads an entity's record. On
+failure they return `NULL` and set `*err` to a `PNError*`. Always
+initialise `PNError* err = NULL;` and check it after the call.
 
 The `sdk_direct()` escape hatch never sets `*err` for a non-2xx response —
 it returns a result map you branch on via `getp(result, "ok")`:
@@ -323,8 +394,10 @@ API path: `/commands/{commandId}/`
 
 | Field | Description |
 | --- | --- |
-| `obsidian` | Obsidian plugin API version |
-| `self` | Plugin version. |
+| `authenticated` | Is your current request authenticated? |
+| `ok` | 'OK' |
+| `service` | 'Obsidian Local REST API' |
+| `versions` |  |
 
 Operations: Load.
 
@@ -417,10 +490,11 @@ Create an instance: `Entity* active = obsidian_active(client, NULL);`
 
 | Method | Description |
 | --- | --- |
-| `vt->create(e, reqdata, ctrl, &err)` | Create a new entity with the given data. |
-| `vt->load(e, reqmatch, ctrl, &err)` | Load a single entity by match criteria. |
-| `vt->remove(e, reqmatch, ctrl, &err)` | Remove the matching entity. |
-| `vt->update(e, reqdata, ctrl, &err)` | Update an existing entity. |
+| `Entity* vt->create(e, reqdata, ctrl, &err)` | Create a new entity with the given data. |
+| `Entity* vt->load(e, reqmatch, ctrl, &err)` | Load a single entity by match criteria. |
+| `Entity* vt->patch(e, reqdata, ctrl, &err)` | Change part of an existing entity. |
+| `Entity* vt->remove(e, reqmatch, ctrl, &err)` | Remove the matching entity, which is returned marked as deleted. |
+| `Entity* vt->update(e, reqdata, ctrl, &err)` | Update an existing entity. |
 
 #### Fields
 
@@ -442,14 +516,17 @@ Create an instance: `Entity* active = obsidian_active(client, NULL);`
 
 ```c
 Entity* active = obsidian_active(client, NULL);
-voxgig_value* active_rec = active->vt->load(active, NULL, NULL, &err);
+Entity* loaded = active->vt->load(active, NULL, NULL, &err);
+if (loaded) {
+    printf("%s\n", voxgig_to_json(loaded->vt->data(loaded, NULL)));
+}
 ```
 
 #### Example: Create
 
 ```c
 Entity* active = obsidian_active(client, NULL);
-voxgig_value* active_rec = active->vt->create(active, cmap(4,
+Entity* created = active->vt->create(active, cmap(4,
     "destination", v_map(),  // voxgig_value* (map)
     "operation", v_str("example_operation"),  // char*
     "target", v_str("example_target"),  // voxgig_value*
@@ -466,8 +543,8 @@ Create an instance: `Entity* command = obsidian_command(client, NULL);`
 
 | Method | Description |
 | --- | --- |
-| `vt->create(e, reqdata, ctrl, &err)` | Create a new entity with the given data. |
-| `vt->list(e, reqmatch, ctrl, &err)` | List entities, optionally matching the given criteria. |
+| `Entity* vt->create(e, reqdata, ctrl, &err)` | Create a new entity with the given data. |
+| `Entity** vt->list(e, reqmatch, ctrl, &err)` | List entities, optionally matching the given criteria: a `NULL`-terminated array, one per record. |
 
 #### Fields
 
@@ -480,14 +557,17 @@ Create an instance: `Entity* command = obsidian_command(client, NULL);`
 
 ```c
 Entity* command = obsidian_command(client, NULL);
-voxgig_value* commands = command->vt->list(command, NULL, NULL, &err);
+Entity** commands = command->vt->list(command, NULL, NULL, &err);
+for (size_t i = 0; commands && commands[i]; i++) {
+    printf("%s\n", voxgig_to_json(commands[i]->vt->data(commands[i], NULL)));
+}
 ```
 
 #### Example: Create
 
 ```c
 Entity* command = obsidian_command(client, NULL);
-voxgig_value* command_rec = command->vt->create(command, cmap(1,
+Entity* created = command->vt->create(command, cmap(1,
     "id", v_str("example_id"))  // char*
 , NULL, &err);
 ```
@@ -501,20 +581,25 @@ Create an instance: `Entity* entity1 = obsidian_entity1(client, NULL);`
 
 | Method | Description |
 | --- | --- |
-| `vt->load(e, reqmatch, ctrl, &err)` | Load a single entity by match criteria. |
+| `Entity* vt->load(e, reqmatch, ctrl, &err)` | Load a single entity by match criteria. |
 
 #### Fields
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `obsidian` | `char*` | Obsidian plugin API version |
-| `self` | `char*` | Plugin version. |
+| `authenticated` | `bool` | Is your current request authenticated? |
+| `ok` | `char*` | 'OK' |
+| `service` | `char*` | 'Obsidian Local REST API' |
+| `versions` | `voxgig_value* (map)` |  |
 
 #### Example: Load
 
 ```c
 Entity* entity1 = obsidian_entity1(client, NULL);
-voxgig_value* entity1_rec = entity1->vt->load(entity1, NULL, NULL, &err);
+Entity* loaded = entity1->vt->load(entity1, NULL, NULL, &err);
+if (loaded) {
+    printf("%s\n", voxgig_to_json(loaded->vt->data(loaded, NULL)));
+}
 ```
 
 
@@ -526,8 +611,8 @@ Create an instance: `Entity* mcp = obsidian_mcp(client, NULL);`
 
 | Method | Description |
 | --- | --- |
-| `vt->create(e, reqdata, ctrl, &err)` | Create a new entity with the given data. |
-| `vt->load(e, reqmatch, ctrl, &err)` | Load a single entity by match criteria. |
+| `Entity* vt->create(e, reqdata, ctrl, &err)` | Create a new entity with the given data. |
+| `Entity* vt->load(e, reqmatch, ctrl, &err)` | Load a single entity by match criteria. |
 
 #### Fields
 
@@ -542,14 +627,17 @@ Create an instance: `Entity* mcp = obsidian_mcp(client, NULL);`
 
 ```c
 Entity* mcp = obsidian_mcp(client, NULL);
-voxgig_value* mcp_rec = mcp->vt->load(mcp, cmap(1, "id", v_str("mcp_id")), NULL, &err);
+Entity* loaded = mcp->vt->load(mcp, cmap(1, "id", v_str("mcp_id")), NULL, &err);
+if (loaded) {
+    printf("%s\n", voxgig_to_json(loaded->vt->data(loaded, NULL)));
+}
 ```
 
 #### Example: Create
 
 ```c
 Entity* mcp = obsidian_mcp(client, NULL);
-voxgig_value* mcp_rec = mcp->vt->create(mcp, cmap(2,
+Entity* created = mcp->vt->create(mcp, cmap(2,
     "jsonrpc", v_str("example_jsonrpc"),  // char*
     "method", v_str("example_method"))  // char*
 , NULL, &err);
@@ -564,7 +652,7 @@ Create an instance: `Entity* open = obsidian_open(client, NULL);`
 
 | Method | Description |
 | --- | --- |
-| `vt->create(e, reqdata, ctrl, &err)` | Create a new entity with the given data. |
+| `Entity* vt->create(e, reqdata, ctrl, &err)` | Create a new entity with the given data. |
 
 #### Fields
 
@@ -576,7 +664,7 @@ Create an instance: `Entity* open = obsidian_open(client, NULL);`
 
 ```c
 Entity* open = obsidian_open(client, NULL);
-voxgig_value* open_rec = open->vt->create(open, cmap(1,
+Entity* created = open->vt->create(open, cmap(1,
     "id", v_str("example_id"))  // char*
 , NULL, &err);
 ```
@@ -590,13 +678,13 @@ Create an instance: `Entity* search = obsidian_search(client, NULL);`
 
 | Method | Description |
 | --- | --- |
-| `vt->create(e, reqdata, ctrl, &err)` | Create a new entity with the given data. |
+| `Entity* vt->create(e, reqdata, ctrl, &err)` | Create a new entity with the given data. |
 
 #### Example: Create
 
 ```c
 Entity* search = obsidian_search(client, NULL);
-voxgig_value* search_rec = search->vt->create(search, NULL, NULL, &err);
+Entity* created = search->vt->create(search, NULL, NULL, &err);
 ```
 
 
@@ -608,13 +696,16 @@ Create an instance: `Entity* system = obsidian_system(client, NULL);`
 
 | Method | Description |
 | --- | --- |
-| `vt->load(e, reqmatch, ctrl, &err)` | Load a single entity by match criteria. |
+| `Entity* vt->load(e, reqmatch, ctrl, &err)` | Load a single entity by match criteria. |
 
 #### Example: Load
 
 ```c
 Entity* system = obsidian_system(client, NULL);
-voxgig_value* system_rec = system->vt->load(system, NULL, NULL, &err);
+Entity* loaded = system->vt->load(system, NULL, NULL, &err);
+if (loaded) {
+    printf("%s\n", voxgig_to_json(loaded->vt->data(loaded, NULL)));
+}
 ```
 
 
@@ -626,7 +717,7 @@ Create an instance: `Entity* tag = obsidian_tag(client, NULL);`
 
 | Method | Description |
 | --- | --- |
-| `vt->list(e, reqmatch, ctrl, &err)` | List entities, optionally matching the given criteria. |
+| `Entity** vt->list(e, reqmatch, ctrl, &err)` | List entities, optionally matching the given criteria: a `NULL`-terminated array, one per record. |
 
 #### Fields
 
@@ -639,7 +730,10 @@ Create an instance: `Entity* tag = obsidian_tag(client, NULL);`
 
 ```c
 Entity* tag = obsidian_tag(client, NULL);
-voxgig_value* tags = tag->vt->list(tag, NULL, NULL, &err);
+Entity** tags = tag->vt->list(tag, NULL, NULL, &err);
+for (size_t i = 0; tags && tags[i]; i++) {
+    printf("%s\n", voxgig_to_json(tags[i]->vt->data(tags[i], NULL)));
+}
 ```
 
 
@@ -651,11 +745,12 @@ Create an instance: `Entity* vault = obsidian_vault(client, NULL);`
 
 | Method | Description |
 | --- | --- |
-| `vt->create(e, reqdata, ctrl, &err)` | Create a new entity with the given data. |
-| `vt->list(e, reqmatch, ctrl, &err)` | List entities, optionally matching the given criteria. |
-| `vt->load(e, reqmatch, ctrl, &err)` | Load a single entity by match criteria. |
-| `vt->remove(e, reqmatch, ctrl, &err)` | Remove the matching entity. |
-| `vt->update(e, reqdata, ctrl, &err)` | Update an existing entity. |
+| `Entity* vt->create(e, reqdata, ctrl, &err)` | Create a new entity with the given data. |
+| `Entity** vt->list(e, reqmatch, ctrl, &err)` | List entities, optionally matching the given criteria: a `NULL`-terminated array, one per record. |
+| `Entity* vt->load(e, reqmatch, ctrl, &err)` | Load a single entity by match criteria. |
+| `Entity* vt->patch(e, reqdata, ctrl, &err)` | Change part of an existing entity. |
+| `Entity* vt->remove(e, reqmatch, ctrl, &err)` | Remove the matching entity, which is returned marked as deleted. |
+| `Entity* vt->update(e, reqdata, ctrl, &err)` | Update an existing entity. |
 
 #### Fields
 
@@ -679,21 +774,27 @@ Create an instance: `Entity* vault = obsidian_vault(client, NULL);`
 
 ```c
 Entity* vault = obsidian_vault(client, NULL);
-voxgig_value* vault_rec = vault->vt->load(vault, cmap(1, "id", v_str("vault_id")), NULL, &err);
+Entity* loaded = vault->vt->load(vault, cmap(1, "id", v_str("vault_id")), NULL, &err);
+if (loaded) {
+    printf("%s\n", voxgig_to_json(loaded->vt->data(loaded, NULL)));
+}
 ```
 
 #### Example: List
 
 ```c
 Entity* vault = obsidian_vault(client, NULL);
-voxgig_value* vaults = vault->vt->list(vault, NULL, NULL, &err);
+Entity** vaults = vault->vt->list(vault, NULL, NULL, &err);
+for (size_t i = 0; vaults && vaults[i]; i++) {
+    printf("%s\n", voxgig_to_json(vaults[i]->vt->data(vaults[i], NULL)));
+}
 ```
 
 #### Example: Create
 
 ```c
 Entity* vault = obsidian_vault(client, NULL);
-voxgig_value* vault_rec = vault->vt->create(vault, cmap(5,
+Entity* created = vault->vt->create(vault, cmap(5,
     "id", v_str("example_id"),  // char*
     "destination", v_map(),  // voxgig_value* (map)
     "operation", v_str("example_operation"),  // char*
@@ -704,7 +805,7 @@ voxgig_value* vault_rec = vault->vt->create(vault, cmap(5,
 
 ## Features
 
-This SDK ships 8 optional features. Each is **inactive until you
+This SDK ships 9 optional features. Each is **inactive until you
 switch it on**, so an SDK you have not configured behaves exactly as if none of
 them existed — no retries, no cache, no logging, no measurable overhead.
 
@@ -719,10 +820,11 @@ above:
 | [`paging`](#paging) | Paging |
 | [`ratelimit`](#ratelimit) | Rate limiting |
 | [`retry`](#retry) | Retry |
+| [`station`](#station) | Station control surface binding for outbound integrations |
 | [`test`](#test) | Test transport |
 | [`timeout`](#timeout) | Timeout |
 
-> **Order matters for `ratelimit`, `retry`, `timeout`.** These wrap the
+> **Order matters for `ratelimit`, `retry`, `station`, `timeout`.** These wrap the
 > transport, so each one wraps whatever is already installed: the order you
 > activate them in IS the nesting order. Activating them as an ordered list
 > rather than a map is what fixes that order.
@@ -810,6 +912,27 @@ Retry.
 Set `feature.retry.active` to enable it, then override any of the options above.
 
 `retry` wraps the transport, so its position among the other
+transport features decides what it sees. A feature activated later wraps one
+activated earlier.
+
+### station
+
+Station control surface binding for outbound integrations.
+
+| Option | Default |
+|---|---|
+| `active` | `false` |
+| `capture` | `'meta'` |
+| `fromEnv` | `true` |
+| `instance` | `''` |
+| `profile` | `''` |
+| `register` | `true` |
+| `secret` | `''` |
+| `url` | `''` |
+
+Set `feature.station.active` to enable it, then override any of the options above.
+
+`station` wraps the transport, so its position among the other
 transport features decides what it sees. A feature activated later wraps one
 activated earlier.
 
@@ -902,6 +1025,7 @@ The SDK ships with built-in features:
 - **PagingFeature**: Paging
 - **RatelimitFeature**: Rate limiting
 - **RetryFeature**: Retry
+- **StationFeature**: Station control surface binding for outbound integrations
 - **TestFeature**: Test transport
 - **TimeoutFeature**: Timeout
 
@@ -950,16 +1074,16 @@ accessor. Include it and link against `libsdk.a`.
 
 ### Entity state
 
-Entity instances are stateful. After a successful `list`, the entity
+Entity instances are stateful. After a successful `load`, the entity
 stores the returned data and match criteria internally. Subsequent
 calls on the same instance can rely on this state.
 
 ```ts
-const command = client.Command()
-await command.list()
+const entity1 = client.Entity1()
+await entity1.load()
 
-// command.data() now returns the command data from the last `list`
-// command.match() returns the last match criteria
+// entity1.data() now returns the entity1 data from the last `load`
+// entity1.match() returns the last match criteria
 ```
 
 Call `make()` to create a fresh instance with the same configuration

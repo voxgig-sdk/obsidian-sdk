@@ -138,13 +138,13 @@ Entity* active = obsidian_active(client, NULL);
 
 ### Operations
 
-#### `vt->create(Entity* e, voxgig_value* reqdata, voxgig_value* ctrl, PNError** err)`
+#### `Entity* vt->create(Entity* e, voxgig_value* reqdata, voxgig_value* ctrl, PNError** err)`
 
-Create a new entity with the given data. Returns the created entity data and sets `*err` on failure.
+Create a new entity with the given data. Returns the created entity, or `NULL` with `*err` set on failure.
 
 ```c
 Entity* active = obsidian_active(client, NULL);
-voxgig_value* result = active->vt->create(active, cmap(4,
+Entity* result = active->vt->create(active, cmap(4,
     "destination", v_map(),  // voxgig_value* (map)
     "operation", v_str("example_operation"),  // char*
     "target", v_str("example_target"),  // voxgig_value*
@@ -152,31 +152,48 @@ voxgig_value* result = active->vt->create(active, cmap(4,
 , NULL, &err);
 ```
 
-#### `vt->load(Entity* e, voxgig_value* reqmatch, voxgig_value* ctrl, PNError** err)`
+Sends its body unencoded, as `text/markdown`: pass it as `$body`, a string value holding the bytes, such as `voxgig_new_string_n`.
 
-Load a single entity matching the given criteria. Returns the entity data and sets `*err` on failure.
+#### `Entity* vt->load(Entity* e, voxgig_value* reqmatch, voxgig_value* ctrl, PNError** err)`
+
+Load a single entity matching the given criteria. Returns the entity, whose record `vt->data` reads, or `NULL` with `*err` set on failure.
 
 ```c
 Entity* active = obsidian_active(client, NULL);
-voxgig_value* result = active->vt->load(active, NULL, NULL, &err);
+Entity* result = active->vt->load(active, NULL, NULL, &err);
+if (result) {
+    printf("%s\n", voxgig_to_json(result->vt->data(result, NULL)));
+}
 ```
 
-#### `vt->remove(Entity* e, voxgig_value* reqmatch, voxgig_value* ctrl, PNError** err)`
+#### `Entity* vt->patch(Entity* e, voxgig_value* reqdata, voxgig_value* ctrl, PNError** err)`
 
-Remove the entity matching the given criteria. Sets `*err` on failure.
+Change part of an existing entity: only the fields given are sent. The data must include the entity id. Returns the patched entity, or `NULL` with `*err` set on failure.
 
 ```c
 Entity* active = obsidian_active(client, NULL);
-voxgig_value* result = active->vt->remove(active, NULL, NULL, &err);
+Entity* result = active->vt->patch(active, NULL, NULL, &err);
 ```
 
-#### `vt->update(Entity* e, voxgig_value* reqdata, voxgig_value* ctrl, PNError** err)`
+#### `Entity* vt->remove(Entity* e, voxgig_value* reqmatch, voxgig_value* ctrl, PNError** err)`
 
-Update an existing entity. The data must include the entity id. Returns the updated entity data.
+Remove the entity matching the given criteria. Returns the entity, marked as deleted, or `NULL` with `*err` set on failure.
 
 ```c
 Entity* active = obsidian_active(client, NULL);
-voxgig_value* result = active->vt->update(active, NULL, NULL, &err);
+Entity* result = active->vt->remove(active, NULL, NULL, &err);
+if (result) {
+    printf("%s\n", voxgig_to_json(result->vt->data(result, NULL)));
+}
+```
+
+#### `Entity* vt->update(Entity* e, voxgig_value* reqdata, voxgig_value* ctrl, PNError** err)`
+
+Update an existing entity. The data must include the entity id. Returns the updated entity, or `NULL` with `*err` set on failure.
+
+```c
+Entity* active = obsidian_active(client, NULL);
+Entity* result = active->vt->update(active, NULL, NULL, &err);
 ```
 
 ### Common Methods
@@ -215,26 +232,26 @@ Entity* command = obsidian_command(client, NULL);
 
 ### Operations
 
-#### `vt->create(Entity* e, voxgig_value* reqdata, voxgig_value* ctrl, PNError** err)`
+#### `Entity* vt->create(Entity* e, voxgig_value* reqdata, voxgig_value* ctrl, PNError** err)`
 
-Create a new entity with the given data. Returns the created entity data and sets `*err` on failure.
+Create a new entity with the given data. Returns the created entity, or `NULL` with `*err` set on failure.
 
 ```c
 Entity* command = obsidian_command(client, NULL);
-voxgig_value* result = command->vt->create(command, cmap(1,
+Entity* result = command->vt->create(command, cmap(1,
     "id", v_str("example_id"))  // char*
 , NULL, &err);
 ```
 
-#### `vt->list(Entity* e, voxgig_value* reqmatch, voxgig_value* ctrl, PNError** err)`
+#### `Entity** vt->list(Entity* e, voxgig_value* reqmatch, voxgig_value* ctrl, PNError** err)`
 
-List entities matching the given criteria. The match is optional — pass `NULL` to list all records. Returns a List.
+List entities matching the given criteria. The match is optional — pass `NULL` to list all records. Returns a `NULL`-terminated array of entities, one per record, or `NULL` with `*err` set on failure.
 
 ```c
 Entity* command = obsidian_command(client, NULL);
-voxgig_value* results = command->vt->list(command, NULL, NULL, &err);
-for (size_t i = 0; i < (size_t)voxgig_size(results); i++) {
-    printf("%s\n", voxgig_to_json(voxgig_getelem(results, v_int(i), NULL)));
+Entity** results = command->vt->list(command, NULL, NULL, &err);
+for (size_t i = 0; results && results[i]; i++) {
+    printf("%s\n", voxgig_to_json(results[i]->vt->data(results[i], NULL)));
 }
 ```
 
@@ -269,18 +286,23 @@ Entity* entity1 = obsidian_entity1(client, NULL);
 
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `obsidian` | `char*` | No | Obsidian plugin API version |
-| `self` | `char*` | No | Plugin version. |
+| `authenticated` | `bool` | No | Is your current request authenticated? |
+| `ok` | `char*` | No | 'OK' |
+| `service` | `char*` | No | 'Obsidian Local REST API' |
+| `versions` | `voxgig_value* (map)` | No |  |
 
 ### Operations
 
-#### `vt->load(Entity* e, voxgig_value* reqmatch, voxgig_value* ctrl, PNError** err)`
+#### `Entity* vt->load(Entity* e, voxgig_value* reqmatch, voxgig_value* ctrl, PNError** err)`
 
-Load a single entity matching the given criteria. Returns the entity data and sets `*err` on failure.
+Load a single entity matching the given criteria. Returns the entity, whose record `vt->data` reads, or `NULL` with `*err` set on failure.
 
 ```c
 Entity* entity1 = obsidian_entity1(client, NULL);
-voxgig_value* result = entity1->vt->load(entity1, NULL, NULL, &err);
+Entity* result = entity1->vt->load(entity1, NULL, NULL, &err);
+if (result) {
+    printf("%s\n", voxgig_to_json(result->vt->data(result, NULL)));
+}
 ```
 
 ### Common Methods
@@ -321,25 +343,28 @@ Entity* mcp = obsidian_mcp(client, NULL);
 
 ### Operations
 
-#### `vt->create(Entity* e, voxgig_value* reqdata, voxgig_value* ctrl, PNError** err)`
+#### `Entity* vt->create(Entity* e, voxgig_value* reqdata, voxgig_value* ctrl, PNError** err)`
 
-Create a new entity with the given data. Returns the created entity data and sets `*err` on failure.
+Create a new entity with the given data. Returns the created entity, or `NULL` with `*err` set on failure.
 
 ```c
 Entity* mcp = obsidian_mcp(client, NULL);
-voxgig_value* result = mcp->vt->create(mcp, cmap(2,
+Entity* result = mcp->vt->create(mcp, cmap(2,
     "jsonrpc", v_str("example_jsonrpc"),  // char*
     "method", v_str("example_method"))  // char*
 , NULL, &err);
 ```
 
-#### `vt->load(Entity* e, voxgig_value* reqmatch, voxgig_value* ctrl, PNError** err)`
+#### `Entity* vt->load(Entity* e, voxgig_value* reqmatch, voxgig_value* ctrl, PNError** err)`
 
-Load a single entity matching the given criteria. Returns the entity data and sets `*err` on failure.
+Load a single entity matching the given criteria. Returns the entity, whose record `vt->data` reads, or `NULL` with `*err` set on failure.
 
 ```c
 Entity* mcp = obsidian_mcp(client, NULL);
-voxgig_value* result = mcp->vt->load(mcp, cmap(1, "id", v_str("mcp_id")), NULL, &err);
+Entity* result = mcp->vt->load(mcp, cmap(1, "id", v_str("mcp_id")), NULL, &err);
+if (result) {
+    printf("%s\n", voxgig_to_json(result->vt->data(result, NULL)));
+}
 ```
 
 ### Common Methods
@@ -377,13 +402,13 @@ Entity* open = obsidian_open(client, NULL);
 
 ### Operations
 
-#### `vt->create(Entity* e, voxgig_value* reqdata, voxgig_value* ctrl, PNError** err)`
+#### `Entity* vt->create(Entity* e, voxgig_value* reqdata, voxgig_value* ctrl, PNError** err)`
 
-Create a new entity with the given data. Returns the created entity data and sets `*err` on failure.
+Create a new entity with the given data. Returns the created entity, or `NULL` with `*err` set on failure.
 
 ```c
 Entity* open = obsidian_open(client, NULL);
-voxgig_value* result = open->vt->create(open, cmap(1,
+Entity* result = open->vt->create(open, cmap(1,
     "id", v_str("example_id"))  // char*
 , NULL, &err);
 ```
@@ -417,13 +442,13 @@ Entity* search = obsidian_search(client, NULL);
 
 ### Operations
 
-#### `vt->create(Entity* e, voxgig_value* reqdata, voxgig_value* ctrl, PNError** err)`
+#### `Entity* vt->create(Entity* e, voxgig_value* reqdata, voxgig_value* ctrl, PNError** err)`
 
-Create a new entity with the given data. Returns the created entity data and sets `*err` on failure.
+Create a new entity with the given data. Returns the created entity, or `NULL` with `*err` set on failure.
 
 ```c
 Entity* search = obsidian_search(client, NULL);
-voxgig_value* result = search->vt->create(search, NULL, NULL, &err);
+Entity* result = search->vt->create(search, NULL, NULL, &err);
 ```
 
 ### Common Methods
@@ -455,13 +480,16 @@ Entity* system = obsidian_system(client, NULL);
 
 ### Operations
 
-#### `vt->load(Entity* e, voxgig_value* reqmatch, voxgig_value* ctrl, PNError** err)`
+#### `Entity* vt->load(Entity* e, voxgig_value* reqmatch, voxgig_value* ctrl, PNError** err)`
 
-Load a single entity matching the given criteria. Returns the entity data and sets `*err` on failure.
+Load a single entity matching the given criteria. Returns the entity, whose record `vt->data` reads, or `NULL` with `*err` set on failure.
 
 ```c
 Entity* system = obsidian_system(client, NULL);
-voxgig_value* result = system->vt->load(system, NULL, NULL, &err);
+Entity* result = system->vt->load(system, NULL, NULL, &err);
+if (result) {
+    printf("%s\n", voxgig_to_json(result->vt->data(result, NULL)));
+}
 ```
 
 ### Common Methods
@@ -500,15 +528,15 @@ Entity* tag = obsidian_tag(client, NULL);
 
 ### Operations
 
-#### `vt->list(Entity* e, voxgig_value* reqmatch, voxgig_value* ctrl, PNError** err)`
+#### `Entity** vt->list(Entity* e, voxgig_value* reqmatch, voxgig_value* ctrl, PNError** err)`
 
-List entities matching the given criteria. The match is optional — pass `NULL` to list all records. Returns a List.
+List entities matching the given criteria. The match is optional — pass `NULL` to list all records. Returns a `NULL`-terminated array of entities, one per record, or `NULL` with `*err` set on failure.
 
 ```c
 Entity* tag = obsidian_tag(client, NULL);
-voxgig_value* results = tag->vt->list(tag, NULL, NULL, &err);
-for (size_t i = 0; i < (size_t)voxgig_size(results); i++) {
-    printf("%s\n", voxgig_to_json(voxgig_getelem(results, v_int(i), NULL)));
+Entity** results = tag->vt->list(tag, NULL, NULL, &err);
+for (size_t i = 0; results && results[i]; i++) {
+    printf("%s\n", voxgig_to_json(results[i]->vt->data(results[i], NULL)));
 }
 ```
 
@@ -559,13 +587,13 @@ Entity* vault = obsidian_vault(client, NULL);
 
 ### Operations
 
-#### `vt->create(Entity* e, voxgig_value* reqdata, voxgig_value* ctrl, PNError** err)`
+#### `Entity* vt->create(Entity* e, voxgig_value* reqdata, voxgig_value* ctrl, PNError** err)`
 
-Create a new entity with the given data. Returns the created entity data and sets `*err` on failure.
+Create a new entity with the given data. Returns the created entity, or `NULL` with `*err` set on failure.
 
 ```c
 Entity* vault = obsidian_vault(client, NULL);
-voxgig_value* result = vault->vt->create(vault, cmap(5,
+Entity* result = vault->vt->create(vault, cmap(5,
     "id", v_str("example_id"),  // char*
     "destination", v_map(),  // voxgig_value* (map)
     "operation", v_str("example_operation"),  // char*
@@ -574,43 +602,60 @@ voxgig_value* result = vault->vt->create(vault, cmap(5,
 , NULL, &err);
 ```
 
-#### `vt->list(Entity* e, voxgig_value* reqmatch, voxgig_value* ctrl, PNError** err)`
+Sends its body unencoded, as `text/markdown`: pass it as `$body`, a string value holding the bytes, such as `voxgig_new_string_n`.
 
-List entities matching the given criteria. The match is optional — pass `NULL` to list all records. Returns a List.
+#### `Entity** vt->list(Entity* e, voxgig_value* reqmatch, voxgig_value* ctrl, PNError** err)`
+
+List entities matching the given criteria. The match is optional — pass `NULL` to list all records. Returns a `NULL`-terminated array of entities, one per record, or `NULL` with `*err` set on failure.
 
 ```c
 Entity* vault = obsidian_vault(client, NULL);
-voxgig_value* results = vault->vt->list(vault, NULL, NULL, &err);
-for (size_t i = 0; i < (size_t)voxgig_size(results); i++) {
-    printf("%s\n", voxgig_to_json(voxgig_getelem(results, v_int(i), NULL)));
+Entity** results = vault->vt->list(vault, NULL, NULL, &err);
+for (size_t i = 0; results && results[i]; i++) {
+    printf("%s\n", voxgig_to_json(results[i]->vt->data(results[i], NULL)));
 }
 ```
 
-#### `vt->load(Entity* e, voxgig_value* reqmatch, voxgig_value* ctrl, PNError** err)`
+#### `Entity* vt->load(Entity* e, voxgig_value* reqmatch, voxgig_value* ctrl, PNError** err)`
 
-Load a single entity matching the given criteria. Returns the entity data and sets `*err` on failure.
+Load a single entity matching the given criteria. Returns the entity, whose record `vt->data` reads, or `NULL` with `*err` set on failure.
 
 ```c
 Entity* vault = obsidian_vault(client, NULL);
-voxgig_value* result = vault->vt->load(vault, cmap(1, "id", v_str("vault_id")), NULL, &err);
+Entity* result = vault->vt->load(vault, cmap(1, "id", v_str("vault_id")), NULL, &err);
+if (result) {
+    printf("%s\n", voxgig_to_json(result->vt->data(result, NULL)));
+}
 ```
 
-#### `vt->remove(Entity* e, voxgig_value* reqmatch, voxgig_value* ctrl, PNError** err)`
+#### `Entity* vt->patch(Entity* e, voxgig_value* reqdata, voxgig_value* ctrl, PNError** err)`
 
-Remove the entity matching the given criteria. Sets `*err` on failure.
+Change part of an existing entity: only the fields given are sent. The data must include the entity id. Returns the patched entity, or `NULL` with `*err` set on failure.
 
 ```c
 Entity* vault = obsidian_vault(client, NULL);
-voxgig_value* result = vault->vt->remove(vault, cmap(1, "id", v_str("vault_id")), NULL, &err);
+Entity* result = vault->vt->patch(vault, cmap(1, "id", v_str("vault_id")), NULL, &err);
 ```
 
-#### `vt->update(Entity* e, voxgig_value* reqdata, voxgig_value* ctrl, PNError** err)`
+#### `Entity* vt->remove(Entity* e, voxgig_value* reqmatch, voxgig_value* ctrl, PNError** err)`
 
-Update an existing entity. The data must include the entity id. Returns the updated entity data.
+Remove the entity matching the given criteria. Returns the entity, marked as deleted, or `NULL` with `*err` set on failure.
 
 ```c
 Entity* vault = obsidian_vault(client, NULL);
-voxgig_value* result = vault->vt->update(vault, cmap(1, "id", v_str("vault_id")), NULL, &err);
+Entity* result = vault->vt->remove(vault, cmap(1, "id", v_str("vault_id")), NULL, &err);
+if (result) {
+    printf("%s\n", voxgig_to_json(result->vt->data(result, NULL)));
+}
+```
+
+#### `Entity* vt->update(Entity* e, voxgig_value* reqdata, voxgig_value* ctrl, PNError** err)`
+
+Update an existing entity. The data must include the entity id. Returns the updated entity, or `NULL` with `*err` set on failure.
+
+```c
+Entity* vault = obsidian_vault(client, NULL);
+Entity* result = vault->vt->update(vault, cmap(1, "id", v_str("vault_id")), NULL, &err);
 ```
 
 ### Common Methods
@@ -644,6 +689,7 @@ Return the entity name.
 | `paging` | 0.0.1 | Paging |
 | `ratelimit` | 0.0.1 | Rate limiting |
 | `retry` | 0.0.1 | Retry |
+| `station` | 0.0.1 | Station control surface binding for outbound integrations |
 | `test` | 0.0.1 | Test transport |
 | `timeout` | 0.0.1 | Timeout |
 
@@ -652,13 +698,14 @@ Features are activated via the `feature` option:
 
 ```c
 ObsidianSDK* client = obsidian_sdk_new(cmap(1,
-    "feature", cmap(8,
+    "feature", cmap(9,
         "debug", cmap(1, "active", v_bool(true)),
         "idempotency", cmap(1, "active", v_bool(true)),
         "metrics", cmap(1, "active", v_bool(true)),
         "paging", cmap(1, "active", v_bool(true)),
         "ratelimit", cmap(1, "active", v_bool(true)),
         "retry", cmap(1, "active", v_bool(true)),
+        "station", cmap(1, "active", v_bool(true)),
         "test", cmap(1, "active", v_bool(true)),
         "timeout", cmap(1, "active", v_bool(true)))
 ));
@@ -676,7 +723,7 @@ transport, and the order you list them in is the order they nest.
 
 #### Ordering
 
-`ratelimit`, `retry`, `timeout` wrap the transport. Each
+`ratelimit`, `retry`, `station`, `timeout` wrap the transport. Each
 wraps whatever is already installed, so **activation order is nesting order**:
 a feature activated later sits OUTSIDE one activated earlier, and sees the call
 first.
@@ -878,6 +925,34 @@ its default unless you name it.
   sees. See [Ordering](#ordering) above.
 - Inactive by default: leaving it out costs nothing at runtime.
 
+#### `station`
+
+Station control surface binding for outbound integrations.
+
+**Configuration**
+
+| Option | Default |
+|---|---|
+| `active` | `false` |
+| `capture` | `'meta'` |
+| `fromEnv` | `true` |
+| `instance` | `''` |
+| `profile` | `''` |
+| `register` | `true` |
+| `secret` | `''` |
+| `url` | `''` |
+
+**Usage**
+
+Set `feature.station.active` to true in the client options, and override any option above in the same entry. Every option keeps
+its default unless you name it.
+
+**Considerations**
+
+- Wraps the transport: its place in the activation order decides what it
+  sees. See [Ordering](#ordering) above.
+- Inactive by default: leaving it out costs nothing at runtime.
+
 #### `test`
 
 Test transport.
@@ -923,6 +998,7 @@ Timeout.
 | Option | Type |
 |---|---|
 | `clearTimer` | function |
+| `now` | function |
 | `setTimer` | function |
 
 These take no default: the feature behaves one way when you supply them and

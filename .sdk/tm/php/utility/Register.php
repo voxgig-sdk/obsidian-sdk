@@ -37,6 +37,8 @@ require_once __DIR__ . '/TransformResponse.php';
 
 ObsidianUtility::setRegistrar(function (ObsidianUtility $u): void {
     $u->clean = [ObsidianClean::class, 'call'];
+    $u->clean_add = [ObsidianClean::class, 'add'];
+    $u->clean_explain = [ObsidianDone::class, 'clean_explain'];
     $u->done = [ObsidianDone::class, 'call'];
     $u->make_error = [ObsidianMakeError::class, 'call'];
     $u->feature_add = [ObsidianFeatureAdd::class, 'call'];

@@ -34,6 +34,10 @@ main: kit: entity: tag: {
           }
           m: "GET"
           o: "/tags/"
+          rs: {
+            kind: "json"
+            media: "application/json"
+          }
           s: [
             {
               lit: "tags"

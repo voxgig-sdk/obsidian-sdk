@@ -4,7 +4,7 @@
 
 The Ruby SDK for the Obsidian API — an entity-oriented client using idiomatic Ruby conventions.
 
-The SDK exposes the API as capitalised, semantic **Entities** — for example `client.Active` — with named operations (`list`/`load`/`create`/`update`/`remove`/`patch`) instead of raw URL paths and query strings. Working with resources and verbs keeps call sites self-describing and reduces cognitive load.
+The SDK exposes the API as capitalised, semantic **Entities** — for example `client.Active` — with named operations (`list`/`load`/`create`/`update`/`patch`/`remove`) instead of raw URL paths and query strings. Working with resources and verbs keeps call sites self-describing and reduces cognitive load.
 
 > Other languages, the CLI, and MCP server live alongside this one — see
 > the [top-level README](../README.md).
@@ -12,9 +12,18 @@ The SDK exposes the API as capitalised, semantic **Entities** — for example `c
 
 ## Install
 This package is not yet published to RubyGems. Install it from the
-GitHub release tag (`rb/vX.Y.Z`):
+GitHub release tag (`rb/vX.Y.Z`, see [Tags](https://github.com/voxgig-sdk/obsidian-sdk/tags)), or
+from a clone:
 
-- Releases: [https://github.com/voxgig-sdk/obsidian-sdk/releases](https://github.com/voxgig-sdk/obsidian-sdk/releases)
+```bash
+git clone https://github.com/voxgig-sdk/obsidian-sdk
+```
+
+Then add it to your `Gemfile` by path, and run `bundle install`:
+
+```ruby
+gem "voxgig-sdk-obsidian-sdk", path: "./obsidian-sdk/rb"
+```
 
 
 ## Tutorial: your first API call
@@ -38,7 +47,7 @@ client = ObsidianSDK.new({
 begin
   # load returns the ENTITY — call data_get for the Active record (raises on error).
   active = client.Active.load()
-  puts active
+  puts active.data_get
 rescue => err
   warn "load failed: #{err}"
 end
@@ -53,10 +62,85 @@ created = client.Active.create({ "destination" => {}, "operation" => "example_op
 # Update
 client.Active.update({ "content" => "example_content", "createTargetIfMissing" => true })
 
+# Patch — sends only the fields given
+client.Active.patch({ "content" => "example_content", "createTargetIfMissing" => true })
+
 # Remove
 client.Active.remove()
 ```
 
+
+## Use with Station
+
+This SDK ships as a [voxgig/station](https://github.com/voxgig/station)
+plugin: bind it to a local `Station` and outbound configuration,
+credentials, and observability move to one place. The feature is
+present but **off by default** — nothing changes until you bind.
+
+### Declarative: `station.json` + `station.sdk()`
+
+Declare an instance in `station.json` at the repo root (committable —
+names and stores, never values):
+
+```json
+{ "station": 1,
+  "profiles": { "default": {
+    "sdk": { "obsidian": {
+      "package": "voxgig-sdk-obsidian-sdk" } } } } }
+```
+
+Then get the client where you need it:
+
+1. `station = Station.open()` — reads and validates `station.json`;
+   constructs nothing.
+2. `client = station.sdk('obsidian')` — built on first ask and cached,
+   so the same name returns the same client.
+
+Loading this package is the whole bootstrap: it registers its own
+factory (constructor plus embedded config) with the station library at
+module init, so `station.sdk()` needs no SDK import in application
+code. That is what the `package` key above is for — it names the module
+for station to load, since nothing else in this example would execute
+it. An application that imports this SDK for its types anyway can drop
+the key: that import is itself the bootstrap.
+
+A second instance of the same API is one more key — `"obsidian$test"`
+beside `"obsidian"` — and `station.sdk('obsidian$test')` returns it.
+SDK features are configured in the same file too: fleet-wide, per api,
+or per instance. `station.check()` resolves and constructs every
+active instance without sending a request — run it in CI.
+
+### The secret name derives from the instance
+
+The credential comes from [sekreto](https://github.com/voxgig/sekreto)
+under a name derived from the **instance** name — the instance token
+lowercased, plus `.apikey`. The untagged instance `obsidian` derives
+`obsidian.apikey` — by default the `OBSIDIAN_APIKEY` environment
+variable this README already documents, unchanged. A tagged instance
+derives its own: `obsidian$test` → `obsidian_test.apikey` →
+`OBSIDIAN_TEST_APIKEY` — each instance is a separate credentialed use
+of the API, and its env var is derivable from the name you chose. To
+pin a name instead, set `secret` on the instance block, or at the
+api level for several instances sharing one key. Point a profile at a
+vault later and application code does not change; sekreto's own
+documentation covers the stores. The key stays out of `options()` and
+`prepare()` output; `station.tap(...)` shows live traffic.
+
+### Imperative: `connect()` — the retrofit path
+
+Bind by passing the SDK class to the station:
+
+1. `station = Station.open()` — profile, env, and proxy all defaulted.
+2. `client = station.connect(ObsidianSDK)` — replaces direct
+   construction; `connect(ObsidianSDK, { as: 'test' })` binds
+   a second, tagged instance.
+
+With no `station.json` at all this runs solo with everything
+defaulted — the two-line form is how an existing application starts.
+
+Station failures surface through this SDK's own error path
+(`err.code`, `station_*`); the codes are catalogued in
+[station error codes](https://github.com/voxgig/sdkgen/blob/main/docs/reference/station-errors.md).
 
 ## Error handling
 
@@ -64,9 +148,9 @@ Entity operations raise on failure, so rescue them:
 
 ```ruby
 begin
-  commands = client.Command.list()
+  entity1 = client.Entity1.load()
 rescue => err
-  warn "list failed: #{err}"
+  warn "load failed: #{err}"
 end
 ```
 
@@ -133,9 +217,9 @@ Create a mock client for unit testing — no server required:
 client = ObsidianSDK.test
 
 # Entity ops return the ENTITY (raises on error);
-# call data_get for the mock record.
-command = client.Command.list()
-puts command
+# data_get reads its mock record.
+entity1 = client.Entity1.load()
+puts entity1.data_get
 ```
 
 ### Use a custom fetch function
@@ -229,11 +313,12 @@ All entities share the same interface.
 
 | Method | Signature | Description |
 | --- | --- | --- |
-| `load` | `(reqmatch, ctrl) -> any` | Load a single entity by match criteria. Raises on error. |
-| `list` | `(reqmatch = nil, ctrl) -> Array` | List entities matching the criteria (call with no argument to list all). Raises on error. |
-| `create` | `(reqdata, ctrl) -> any` | Create a new entity. Raises on error. |
-| `update` | `(reqdata, ctrl) -> any` | Update an existing entity. Raises on error. |
-| `remove` | `(reqmatch, ctrl) -> any` | Remove an entity. Raises on error. |
+| `load` | `(reqmatch, ctrl) -> any` | Load a single entity by match criteria, and return it. Raises on error. |
+| `list` | `(reqmatch = nil, ctrl) -> Array` | List entities matching the criteria (call with no argument to list all), one per record. Raises on error. |
+| `create` | `(reqdata, ctrl) -> any` | Create a new entity, and return it. Raises on error. |
+| `update` | `(reqdata, ctrl) -> any` | Update an existing entity, and return it. Raises on error. |
+| `patch` | `(reqdata, ctrl) -> any` | Change part of an existing entity, and return it. Raises on error. |
+| `remove` | `(reqmatch, ctrl) -> any` | Remove an entity, and return it marked as deleted. Raises on error. |
 | `data_get` | `() -> Hash` | Get entity data. |
 | `data_set` | `(data)` | Set entity data. |
 | `match_get` | `() -> Hash` | Get entity match criteria. |
@@ -243,9 +328,10 @@ All entities share the same interface.
 
 ### Result shape
 
-Entity operations return the result data directly. On failure they
-raise a `ObsidianError` (a `StandardError` subclass), so wrap
-calls in `begin`/`rescue` where you need to handle errors.
+Entity operations return the entity, and `list` an `Array` of entities, one
+per record; an entity's `data_get` reads its record. On failure they raise a
+`ObsidianError` (a `StandardError` subclass), so wrap calls in
+`begin`/`rescue` where you need to handle errors.
 
 The `direct` escape hatch is the exception: it never raises and instead
 returns a result `Hash` with these keys:
@@ -295,8 +381,10 @@ API path: `/commands/{commandId}/`
 
 | Field | Description |
 | --- | --- |
-| `obsidian` | Obsidian plugin API version |
-| `self` | Plugin version. |
+| `authenticated` | Is your current request authenticated? |
+| `ok` | 'OK' |
+| `service` | 'Obsidian Local REST API' |
+| `versions` |  |
 
 Operations: Load.
 
@@ -391,6 +479,7 @@ Create an instance: `active = client.Active`
 | --- | --- |
 | `create(data)` | Create a new entity with the given data. |
 | `load(match)` | Load a single entity by match criteria. |
+| `patch(data)` | Change part of an existing entity. |
 | `remove(match)` | Remove the matching entity. |
 | `update(data)` | Update an existing entity. |
 
@@ -450,8 +539,9 @@ Create an instance: `command = client.Command`
 #### Example: List
 
 ```ruby
-# list returns an Array of Command records (raises on error).
+# list returns an Array of Command entities, one per record (raises on error).
 commands = client.Command.list
+commands.each { |item| puts item.data_get }
 ```
 
 #### Example: Create
@@ -477,8 +567,10 @@ Create an instance: `entity1 = client.Entity1`
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `obsidian` | `String` | Obsidian plugin API version |
-| `self` | `String` | Plugin version. |
+| `authenticated` | `Boolean` | Is your current request authenticated? |
+| `ok` | `String` | 'OK' |
+| `service` | `String` | 'Obsidian Local REST API' |
+| `versions` | `Hash` |  |
 
 #### Example: Load
 
@@ -606,8 +698,9 @@ Create an instance: `tag = client.Tag`
 #### Example: List
 
 ```ruby
-# list returns an Array of Tag records (raises on error).
+# list returns an Array of Tag entities, one per record (raises on error).
 tags = client.Tag.list
+tags.each { |item| puts item.data_get }
 ```
 
 
@@ -622,6 +715,7 @@ Create an instance: `vault = client.Vault`
 | `create(data)` | Create a new entity with the given data. |
 | `list(match)` | List entities matching the criteria. |
 | `load(match)` | Load a single entity by match criteria. |
+| `patch(data)` | Change part of an existing entity. |
 | `remove(match)` | Remove the matching entity. |
 | `update(data)` | Update an existing entity. |
 
@@ -653,8 +747,9 @@ vault = client.Vault.load({ "id" => "vault_id" })
 #### Example: List
 
 ```ruby
-# list returns an Array of Vault records (raises on error).
+# list returns an Array of Vault entities, one per record (raises on error).
 vaults = client.Vault.list
+vaults.each { |item| puts item.data_get }
 ```
 
 #### Example: Create
@@ -671,7 +766,7 @@ vault = client.Vault.create({
 
 ## Features
 
-This SDK ships 8 optional features. Each is **inactive until you
+This SDK ships 9 optional features. Each is **inactive until you
 switch it on**, so an SDK you have not configured behaves exactly as if none of
 them existed — no retries, no cache, no logging, no measurable overhead.
 
@@ -686,10 +781,11 @@ above:
 | [`paging`](#paging) | Paging |
 | [`ratelimit`](#ratelimit) | Rate limiting |
 | [`retry`](#retry) | Retry |
+| [`station`](#station) | Station control surface binding for outbound integrations |
 | [`test`](#test) | Test transport |
 | [`timeout`](#timeout) | Timeout |
 
-> **Order matters for `ratelimit`, `retry`, `timeout`.** These wrap the
+> **Order matters for `ratelimit`, `retry`, `station`, `timeout`.** These wrap the
 > transport, so each one wraps whatever is already installed: the order you
 > activate them in IS the nesting order. Activating them as an ordered list
 > rather than a map is what fixes that order.
@@ -777,6 +873,27 @@ Retry.
 Set `feature.retry.active` to enable it, then override any of the options above.
 
 `retry` wraps the transport, so its position among the other
+transport features decides what it sees. A feature activated later wraps one
+activated earlier.
+
+### station
+
+Station control surface binding for outbound integrations.
+
+| Option | Default |
+|---|---|
+| `active` | `false` |
+| `capture` | `'meta'` |
+| `fromEnv` | `true` |
+| `instance` | `''` |
+| `profile` | `''` |
+| `register` | `true` |
+| `secret` | `''` |
+| `url` | `''` |
+
+Set `feature.station.active` to enable it, then override any of the options above.
+
+`station` wraps the transport, so its position among the other
 transport features decides what it sees. A feature activated later wraps one
 activated earlier.
 
@@ -869,6 +986,7 @@ The SDK ships with built-in features:
 - **PagingFeature**: Paging
 - **RatelimitFeature**: Rate limiting
 - **RetryFeature**: Retry
+- **StationFeature**: Station control surface binding for outbound integrations
 - **TestFeature**: Test transport
 - **TimeoutFeature**: Timeout
 
@@ -905,15 +1023,15 @@ when needed.
 
 ### Entity state
 
-Entity instances are stateful. After a successful `list`, the entity
+Entity instances are stateful. After a successful `load`, the entity
 stores the returned data and match criteria internally.
 
 ```ruby
-command = client.Command
-command.list()
+entity1 = client.Entity1
+entity1.load()
 
-# command.data_get now returns the command data from the last list
-# command.match_get returns the last match criteria
+# entity1.data_get now returns the entity1 data from the last load
+# entity1.match_get returns the last match criteria
 ```
 
 Call `make` to create a fresh instance with the same configuration

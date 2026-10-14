@@ -76,6 +76,22 @@ class ActiveUpdateData
     public ?int $within = null;
 }
 
+/** Request payload for Active#patch. */
+class ActivePatchData
+{
+    public ?string $content = null;
+    public ?bool $createTargetIfMissing = null;
+    public ?array $destination = null;
+    public ?string $ifMatch = null;
+    public ?string $operation = null;
+    public ?bool $rejectIfContentPreexists = null;
+    public ?string $scope = null;
+    public mixed $target = null;
+    public ?string $targetType = null;
+    public mixed $value = null;
+    public ?int $within = null;
+}
+
 /** Request payload for Active#remove. */
 class ActiveRemoveMatch
 {
@@ -106,15 +122,19 @@ class CommandCreateData
 /** Entity1 entity data model. */
 class Entity1
 {
-    public ?string $obsidian = null;
-    public ?string $self = null;
+    public ?bool $authenticated = null;
+    public ?string $ok = null;
+    public ?string $service = null;
+    public ?array $versions = null;
 }
 
 /** Request payload for Entity1#load. */
 class Entity1LoadMatch
 {
-    public ?string $obsidian = null;
-    public ?string $self = null;
+    public ?bool $authenticated = null;
+    public ?string $ok = null;
+    public ?string $service = null;
+    public ?array $versions = null;
 }
 
 /** Mcp entity data model. */
@@ -253,6 +273,24 @@ class VaultCreateData
 
 /** Request payload for Vault#update. */
 class VaultUpdateData
+{
+    public string $id;
+    public ?string $content = null;
+    public ?bool $createTargetIfMissing = null;
+    public ?array $destination = null;
+    public ?array $files = null;
+    public ?string $ifMatch = null;
+    public ?string $operation = null;
+    public ?bool $rejectIfContentPreexists = null;
+    public ?string $scope = null;
+    public mixed $target = null;
+    public ?string $targetType = null;
+    public mixed $value = null;
+    public ?int $within = null;
+}
+
+/** Request payload for Vault#patch. */
+class VaultPatchData
 {
     public string $id;
     public ?string $content = null;

@@ -61,6 +61,21 @@ type ActiveUpdateData struct {
 	Within *int `json:"within,omitempty"`
 }
 
+// ActivePatchData is the typed request payload for Active.PatchTyped.
+type ActivePatchData struct {
+	Content *string `json:"content,omitempty"`
+	CreateTargetIfMissing *bool `json:"createTargetIfMissing,omitempty"`
+	Destination *map[string]any `json:"destination,omitempty"`
+	IfMatch *string `json:"ifMatch,omitempty"`
+	Operation *string `json:"operation,omitempty"`
+	RejectIfContentPreexists *bool `json:"rejectIfContentPreexists,omitempty"`
+	Scope *string `json:"scope,omitempty"`
+	Target *any `json:"target,omitempty"`
+	TargetType *string `json:"targetType,omitempty"`
+	Value *any `json:"value,omitempty"`
+	Within *int `json:"within,omitempty"`
+}
+
 // ActiveRemoveMatch is the typed request payload for Active.RemoveTyped.
 type ActiveRemoveMatch struct {
 	Permanent *string `json:"permanent,omitempty"`
@@ -88,8 +103,10 @@ type Entity1 struct {
 
 // Entity1LoadMatch is the typed request payload for Entity1.LoadTyped.
 type Entity1LoadMatch struct {
-	Obsidian *string `json:"obsidian,omitempty"`
-	Self *string `json:"self,omitempty"`
+	Authenticated *bool `json:"authenticated,omitempty"`
+	Ok *string `json:"ok,omitempty"`
+	Service *string `json:"service,omitempty"`
+	Versions *map[string]any `json:"versions,omitempty"`
 }
 
 // Mcp is the typed data model for the mcp entity.
@@ -193,6 +210,23 @@ type VaultCreateData struct {
 
 // VaultUpdateData is the typed request payload for Vault.UpdateTyped.
 type VaultUpdateData struct {
+	Id string `json:"id"`
+	Content *string `json:"content,omitempty"`
+	CreateTargetIfMissing *bool `json:"createTargetIfMissing,omitempty"`
+	Destination *map[string]any `json:"destination,omitempty"`
+	Files *[]any `json:"files,omitempty"`
+	IfMatch *string `json:"ifMatch,omitempty"`
+	Operation *string `json:"operation,omitempty"`
+	RejectIfContentPreexists *bool `json:"rejectIfContentPreexists,omitempty"`
+	Scope *string `json:"scope,omitempty"`
+	Target *any `json:"target,omitempty"`
+	TargetType *string `json:"targetType,omitempty"`
+	Value *any `json:"value,omitempty"`
+	Within *int `json:"within,omitempty"`
+}
+
+// VaultPatchData is the typed request payload for Vault.PatchTyped.
+type VaultPatchData struct {
 	Id string `json:"id"`
 	Content *string `json:"content,omitempty"`
 	CreateTargetIfMissing *bool `json:"createTargetIfMissing,omitempty"`

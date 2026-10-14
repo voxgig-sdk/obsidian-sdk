@@ -50,6 +50,22 @@ class VaultEntity
         return $this->_name;
     }
 
+    // What print_r shows: the record, cleaned. The client and utility this
+    // instance holds print every feature's state through their closures,
+    // credentials included.
+    public function __debugInfo(): array
+    {
+        $record = [
+            'name' => $this->_name,
+            'data' => $this->_data,
+            'match' => $this->_match,
+            'deleted' => $this->_deleted,
+        ];
+        $clean = $this->_utility->clean ?? null;
+        $cleaned = is_callable($clean) ? $clean($this->_entctx, $record) : $record;
+        return is_array($cleaned) ? $cleaned : $record;
+    }
+
     /**
      * A `remove` marks the entity deleted. The instance KEEPS the data it
      * held — a caller can still read what was removed — but it is no longer a
@@ -172,73 +188,102 @@ class VaultEntity
             return false;
         };
 
+        // The pipeline runs as the caller iterates, so its errors leave
+        // through the same catch path as an operation's.
+        try {
+            $failed = $this->_stream_steps($ctx);
+            $result = $ctx->result;
+
+            // Inbound: prefer the streaming feature's incremental generator;
+            // else fall back to the materialised items so stream always yields.
+            $streamfn = ($failed === null && $result !== null && isset($result->stream)
+                && is_callable($result->stream)) ? $result->stream : null;
+            if ($streamfn !== null) {
+                // done() does not run on this path, so its record is cleaned here.
+                ($utility->clean_explain)($ctx);
+                foreach ($streamfn() as $item) {
+                    if ($aborted()) {
+                        return;
+                    }
+                    yield $item;
+                }
+                return;
+            }
+
+            // A failed step leaves through make_error, as an operation's does.
+            $data = $failed === null
+                ? ($utility->done)($ctx)
+                : ($utility->make_error)($ctx, $failed);
+            if (is_array($data) && array_is_list($data)) {
+                $items = $data;
+            } elseif ($data === null) {
+                $items = [];
+            } else {
+                $items = [$data];
+            }
+            foreach ($items as $item) {
+                if ($aborted()) {
+                    return;
+                }
+                yield $item;
+            }
+        } catch (\Throwable $err) {
+            // What a hook throws here must not escape the cleaning below.
+            try {
+                ($utility->feature_hook)($ctx, "PreUnexpected");
+            } catch (\Throwable $hookerr) {
+                $err = $hookerr;
+            }
+            $err = $this->_unexpected($ctx, $err);
+            if ($err !== null) {
+                throw $err;
+            }
+        }
+    }
+
+    // The steps an operation runs, with their hooks; the first that fails
+    // hands back its error.
+    private function _stream_steps($ctx): mixed
+    {
+        $utility = $this->_utility;
+
         ($utility->feature_hook)($ctx, "PrePoint");
         [$point, $err] = ($utility->make_point)($ctx);
         $ctx->out["point"] = $point;
         if ($err) {
-            return;
+            return $err;
         }
 
         ($utility->feature_hook)($ctx, "PreSpec");
         [$spec, $err] = ($utility->make_spec)($ctx);
         $ctx->out["spec"] = $spec;
         if ($err) {
-            return;
+            return $err;
         }
 
         ($utility->feature_hook)($ctx, "PreRequest");
         [$resp, $err] = ($utility->make_request)($ctx);
         $ctx->out["request"] = $resp;
         if ($err) {
-            return;
+            return $err;
         }
 
         ($utility->feature_hook)($ctx, "PreResponse");
         [$resp2, $err] = ($utility->make_response)($ctx);
         $ctx->out["response"] = $resp2;
         if ($err) {
-            return;
+            return $err;
         }
 
         ($utility->feature_hook)($ctx, "PreResult");
         [$result, $err] = ($utility->make_result)($ctx);
         $ctx->out["result"] = $result;
         if ($err) {
-            return;
+            return $err;
         }
 
         ($utility->feature_hook)($ctx, "PreDone");
-
-        $result = $ctx->result;
-
-        // Inbound: prefer the streaming feature's incremental generator; else
-        // fall back to the materialised items so stream always yields.
-        $streamfn = ($result !== null && isset($result->stream) && is_callable($result->stream))
-            ? $result->stream : null;
-        if ($streamfn !== null) {
-            foreach ($streamfn() as $item) {
-                if ($aborted()) {
-                    return;
-                }
-                yield $item;
-            }
-            return;
-        }
-
-        $data = ($utility->done)($ctx);
-        if (is_array($data) && array_is_list($data)) {
-            $items = $data;
-        } elseif ($data === null) {
-            $items = [];
-        } else {
-            $items = [$data];
-        }
-        foreach ($items as $item) {
-            if ($aborted()) {
-                return;
-            }
-            yield $item;
-        }
+        return null;
     }
 
     
@@ -248,8 +293,8 @@ class VaultEntity
      * @param VaultLoadMatch|array|null $reqmatch Match criteria (id/query
      *   fields) as an assoc-array; a typed VaultLoadMatch names the shape.
      * @param mixed $ctrl Optional per-call control overrides.
-     * @return Vault|array The loaded Vault as an assoc-array at the
-     *   SDK boundary; throws ObsidianError on failure (item-5 convention).
+     * @return VaultEntity The loaded Vault entity, whose data_get() reads
+     *   its record; throws ObsidianError on failure (item-5 convention).
      */
     public function load(?array $reqmatch = null, $ctrl = null): mixed
     {
@@ -283,8 +328,8 @@ class VaultEntity
      * @param VaultListMatch|array|null $reqmatch Match filter (any subset
      *   of Vault fields) as an assoc-array; VaultListMatch names the shape.
      * @param mixed $ctrl Optional per-call control overrides.
-     * @return Vault[]|array A list of Vault items as assoc-arrays at
-     *   the SDK boundary; throws ObsidianError on failure (item-5 convention).
+     * @return VaultEntity[] The Vault entities, one per record, each read
+     *   with data_get(); throws ObsidianError on failure (item-5 convention).
      */
     public function list(?array $reqmatch = null, $ctrl = null): mixed
     {
@@ -315,8 +360,8 @@ class VaultEntity
      * @param VaultCreateData|array|null $reqdata Body data as an assoc-array;
      *   a typed VaultCreateData names the shape.
      * @param mixed $ctrl Optional per-call control overrides.
-     * @return Vault|array The created Vault as an assoc-array at the
-     *   SDK boundary; throws ObsidianError on failure (item-5 convention).
+     * @return VaultEntity The created Vault entity, whose data_get() reads
+     *   its record; throws ObsidianError on failure (item-5 convention).
      */
     public function create(?array $reqdata = null, $ctrl = null): mixed
     {
@@ -347,8 +392,8 @@ class VaultEntity
      * @param VaultUpdateData|array|null $reqdata Body data as an assoc-array;
      *   a typed VaultUpdateData names the shape.
      * @param mixed $ctrl Optional per-call control overrides.
-     * @return Vault|array The updated Vault as an assoc-array at the
-     *   SDK boundary; throws ObsidianError on failure (item-5 convention).
+     * @return VaultEntity The updated Vault entity, whose data_get() reads
+     *   its record; throws ObsidianError on failure (item-5 convention).
      */
     public function update(?array $reqdata = null, $ctrl = null): mixed
     {
@@ -377,13 +422,48 @@ class VaultEntity
 
     
     /**
+     * Change part of an existing Vault: only the fields given are sent.
+     *
+     * @param VaultPatchData|array|null $reqdata Body data as an assoc-array;
+     *   a typed VaultPatchData names the shape.
+     * @param mixed $ctrl Optional per-call control overrides.
+     * @return VaultEntity The patched Vault entity, whose data_get() reads
+     *   its record; throws ObsidianError on failure (item-5 convention).
+     */
+    public function patch(?array $reqdata = null, $ctrl = null): mixed
+    {
+        $utility = $this->_utility;
+        $ctx = ($utility->make_context)([
+            "opname" => "patch",
+            "ctrl" => $ctrl,
+            "match" => $this->_match,
+            "data" => $this->_data,
+            "reqdata" => $reqdata,
+        ], $this->_entctx);
+
+        return $this->_run_op($ctx, function () use ($ctx) {
+            if ($ctx->result) {
+                if ($ctx->result->resmatch) {
+                    $this->_match = $ctx->result->resmatch;
+                }
+                if ($ctx->result->resdata) {
+                    $this->_data = ObsidianHelpers::to_map(Struct::clone($ctx->result->resdata)) ?? [];
+                }
+            }
+        });
+    }
+
+
+
+    
+    /**
      * Remove an Vault matching the given criteria.
      *
      * @param VaultRemoveMatch|array|null $reqmatch Match criteria (id/query
      *   fields) as an assoc-array; VaultRemoveMatch names the shape.
      * @param mixed $ctrl Optional per-call control overrides.
-     * @return Vault|array The removed Vault as an assoc-array at the
-     *   SDK boundary; throws ObsidianError on failure (item-5 convention).
+     * @return VaultEntity The removed Vault entity, marked as deleted; throws
+     *   ObsidianError on failure (item-5 convention).
      */
     public function remove(?array $reqmatch = null, $ctrl = null): mixed
     {
@@ -411,6 +491,36 @@ class VaultEntity
 
 
     private function _run_op($ctx, callable $post_done): mixed
+    {
+        $utility = $this->_utility;
+
+        try {
+            return $this->_run_steps($ctx, $post_done);
+        } catch (\Throwable $err) {
+            // What a hook throws here must not escape the cleaning below.
+            try {
+                ($utility->feature_hook)($ctx, "PreUnexpected");            } catch (\Throwable $hookerr) {
+                $err = $hookerr;
+            }
+            $err = $this->_unexpected($ctx, $err);
+            if ($err !== null) {
+                throw $err;
+            }
+            return null;
+        }
+    }
+
+    // A hook, fetcher or parser threw: make_error never saw it. Null when
+    // the caller switched throwing off.
+    private function _unexpected($ctx, \Throwable $err): ?\Throwable
+    {
+        $ctx->ctrl->err = $err;
+        ($this->_utility->clean_explain)($ctx);
+        $cleaned = ($this->_utility->clean)($ctx, $err);
+        return $ctx->ctrl->throw_err === false ? null : $cleaned;
+    }
+
+    private function _run_steps($ctx, callable $post_done): mixed
     {
         $utility = $this->_utility;
 

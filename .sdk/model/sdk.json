@@ -53,7 +53,7 @@
         },
         "edition": {
           "github-pages": {
-            "active": true,
+            "active": false,
             "base": "node_modules/@voxgig/docgen/project/.sdk",
             "brand": {},
             "filter": {
@@ -248,7 +248,7 @@
                         "ex": "false",
                         "k": "header",
                         "n": "create_target_if_missing",
-                        "or": "create_target_if_missing",
+                        "or": "Create-Target-If-Missing",
                         "r": false,
                         "t": "`$STRING`"
                       },
@@ -257,7 +257,7 @@
                         "ex": "2",
                         "k": "header",
                         "n": "markdown_patch_version",
-                        "or": "markdown_patch_version",
+                        "or": "Markdown-Patch-Version",
                         "r": false,
                         "t": "`$STRING`"
                       },
@@ -266,7 +266,7 @@
                         "ex": "false",
                         "k": "header",
                         "n": "reject_if_content_preexist",
-                        "or": "reject_if_content_preexist",
+                        "or": "Reject-If-Content-Preexists",
                         "r": false,
                         "t": "`$STRING`"
                       }
@@ -275,14 +275,16 @@
                   "k": "http",
                   "m": "POST",
                   "o": "/active/",
-                  "q": {
-                    "exist": [
-                      "create_target_if_missing",
-                      "markdown_patch_version",
-                      "reject_if_content_preexist"
-                    ]
-                  },
+                  "q": {},
                   "r": {},
+                  "rb": {
+                    "kind": "raw",
+                    "media": "text/markdown"
+                  },
+                  "rs": {
+                    "kind": "raw",
+                    "media": "text/markdown"
+                  },
                   "s": [
                     {
                       "lit": "active"
@@ -313,7 +315,7 @@
                         "ex": "2",
                         "k": "header",
                         "n": "markdown_patch_version",
-                        "or": "markdown_patch_version",
+                        "or": "Markdown-Patch-Version",
                         "r": false,
                         "t": "`$STRING`"
                       },
@@ -322,7 +324,7 @@
                         "ex": "content",
                         "k": "header",
                         "n": "target_scope",
-                        "or": "target_scope",
+                        "or": "Target-Scope",
                         "r": false,
                         "t": "`$STRING`"
                       }
@@ -331,13 +333,30 @@
                   "k": "http",
                   "m": "GET",
                   "o": "/active/",
-                  "q": {
-                    "exist": [
-                      "markdown_patch_version",
-                      "target_scope"
-                    ]
-                  },
+                  "q": {},
                   "r": {},
+                  "rs": {
+                    "alternatives": [
+                      {
+                        "kind": "json",
+                        "media": "application/vnd.olrapi.document-map+json"
+                      },
+                      {
+                        "kind": "json",
+                        "media": "application/vnd.olrapi.note+json"
+                      },
+                      {
+                        "kind": "raw",
+                        "media": "text/html"
+                      },
+                      {
+                        "kind": "raw",
+                        "media": "text/markdown"
+                      }
+                    ],
+                    "kind": "json",
+                    "media": "application/json"
+                  },
                   "s": [
                     {
                       "lit": "active"
@@ -356,6 +375,19 @@
               "points": [
                 {
                   "a": true,
+                  "bf": [
+                    "content",
+                    "createTargetIfMissing",
+                    "destination",
+                    "ifMatch",
+                    "operation",
+                    "rejectIfContentPreexists",
+                    "scope",
+                    "target",
+                    "targetType",
+                    "value",
+                    "within"
+                  ],
                   "co": {
                     "id": "PATCH /active/",
                     "source": "openapi3",
@@ -368,7 +400,7 @@
                         "ex": "false",
                         "k": "header",
                         "n": "create_target_if_missing",
-                        "or": "create_target_if_missing",
+                        "or": "Create-Target-If-Missing",
                         "r": false,
                         "t": "`$STRING`"
                       },
@@ -376,7 +408,7 @@
                         "a": true,
                         "k": "header",
                         "n": "destination",
-                        "or": "destination",
+                        "or": "Destination",
                         "r": false,
                         "t": "`$STRING`"
                       },
@@ -384,7 +416,7 @@
                         "a": true,
                         "k": "header",
                         "n": "if_match",
-                        "or": "if_match",
+                        "or": "If-Match",
                         "r": false,
                         "t": "`$STRING`"
                       },
@@ -393,7 +425,7 @@
                         "ex": "2",
                         "k": "header",
                         "n": "markdown_patch_version",
-                        "or": "markdown_patch_version",
+                        "or": "Markdown-Patch-Version",
                         "r": false,
                         "t": "`$STRING`"
                       },
@@ -401,7 +433,7 @@
                         "a": true,
                         "k": "header",
                         "n": "operation",
-                        "or": "operation",
+                        "or": "Operation",
                         "r": false,
                         "t": "`$STRING`"
                       },
@@ -410,7 +442,7 @@
                         "ex": "false",
                         "k": "header",
                         "n": "reject_if_content_preexist",
-                        "or": "reject_if_content_preexist",
+                        "or": "Reject-If-Content-Preexists",
                         "r": false,
                         "t": "`$STRING`"
                       },
@@ -418,7 +450,7 @@
                         "a": true,
                         "k": "header",
                         "n": "target",
-                        "or": "target",
+                        "or": "Target",
                         "r": false,
                         "t": "`$STRING`"
                       },
@@ -427,7 +459,7 @@
                         "ex": "content",
                         "k": "header",
                         "n": "target_scope",
-                        "or": "target_scope",
+                        "or": "Target-Scope",
                         "r": false,
                         "t": "`$STRING`"
                       },
@@ -435,7 +467,7 @@
                         "a": true,
                         "k": "header",
                         "n": "target_type",
-                        "or": "target_type",
+                        "or": "Target-Type",
                         "r": false,
                         "t": "`$STRING`"
                       },
@@ -443,7 +475,7 @@
                         "a": true,
                         "k": "header",
                         "n": "within",
-                        "or": "within",
+                        "or": "Within",
                         "r": false,
                         "t": "`$STRING`"
                       }
@@ -452,21 +484,22 @@
                   "k": "http",
                   "m": "PATCH",
                   "o": "/active/",
-                  "q": {
-                    "exist": [
-                      "create_target_if_missing",
-                      "destination",
-                      "if_match",
-                      "markdown_patch_version",
-                      "operation",
-                      "reject_if_content_preexist",
-                      "target",
-                      "target_scope",
-                      "target_type",
-                      "within"
-                    ]
-                  },
+                  "q": {},
                   "r": {},
+                  "rb": {
+                    "alternatives": [
+                      {
+                        "kind": "json",
+                        "media": "application/vnd.olrapi.patch-instruction+json"
+                      },
+                      {
+                        "kind": "raw",
+                        "media": "text/markdown"
+                      }
+                    ],
+                    "kind": "json",
+                    "media": "application/json"
+                  },
                   "s": [
                     {
                       "lit": "active"
@@ -518,11 +551,7 @@
                   "k": "http",
                   "m": "DELETE",
                   "o": "/active/",
-                  "q": {
-                    "exist": [
-                      "permanent"
-                    ]
-                  },
+                  "q": {},
                   "r": {},
                   "s": [
                     {
@@ -542,6 +571,7 @@
               "points": [
                 {
                   "a": true,
+                  "bf": false,
                   "co": {
                     "id": "PUT /active/",
                     "source": "openapi3",
@@ -554,7 +584,7 @@
                         "ex": "2",
                         "k": "header",
                         "n": "markdown_patch_version",
-                        "or": "markdown_patch_version",
+                        "or": "Markdown-Patch-Version",
                         "r": false,
                         "t": "`$STRING`"
                       },
@@ -563,7 +593,7 @@
                         "ex": "false",
                         "k": "header",
                         "n": "reject_if_content_preexist",
-                        "or": "reject_if_content_preexist",
+                        "or": "Reject-If-Content-Preexists",
                         "r": false,
                         "t": "`$STRING`"
                       }
@@ -572,13 +602,22 @@
                   "k": "http",
                   "m": "PUT",
                   "o": "/active/",
-                  "q": {
-                    "exist": [
-                      "markdown_patch_version",
-                      "reject_if_content_preexist"
-                    ]
-                  },
+                  "q": {},
                   "r": {},
+                  "rb": {
+                    "alternatives": [
+                      {
+                        "kind": "raw",
+                        "media": "text/markdown"
+                      }
+                    ],
+                    "kind": "json",
+                    "media": "application/json"
+                  },
+                  "rs": {
+                    "kind": "raw",
+                    "media": "text/markdown"
+                  },
                   "s": [
                     {
                       "lit": "active"
@@ -640,7 +679,7 @@
                         "a": true,
                         "k": "param",
                         "n": "id",
-                        "or": "command_id",
+                        "or": "commandId",
                         "r": true,
                         "t": "`$STRING`"
                       }
@@ -691,6 +730,10 @@
                   "o": "/commands/",
                   "q": {},
                   "r": {},
+                  "rs": {
+                    "kind": "json",
+                    "media": "application/json"
+                  },
                   "s": [
                     {
                       "lit": "commands"
@@ -714,21 +757,36 @@
             "field": {}
           },
           "fields": {
-            "obsidian": {
+            "authenticated": {
               "a": true,
-              "h": "Obsidian",
-              "n": "obsidian",
+              "h": "Authenticated",
+              "n": "authenticated",
               "r": false,
-              "sh": "Obsidian plugin API version",
+              "sh": "Is your current request authenticated?",
+              "t": "`$BOOLEAN`"
+            },
+            "ok": {
+              "a": true,
+              "h": "Ok",
+              "n": "ok",
+              "r": false,
+              "sh": "'OK'",
               "t": "`$STRING`"
             },
-            "self": {
+            "service": {
               "a": true,
-              "h": "Self",
-              "n": "self",
+              "h": "Service",
+              "n": "service",
               "r": false,
-              "sh": "Plugin version.",
+              "sh": "'Obsidian Local REST API'",
               "t": "`$STRING`"
+            },
+            "versions": {
+              "a": true,
+              "h": "Versions",
+              "n": "versions",
+              "r": false,
+              "t": "`$OBJECT`"
             }
           },
           "name": "entity1",
@@ -750,10 +808,14 @@
                   "o": "/",
                   "q": {},
                   "r": {},
+                  "rs": {
+                    "kind": "json",
+                    "media": "application/json"
+                  },
                   "s": [],
                   "t": {
                     "req": "`reqdata`",
-                    "res": "`body.versions`"
+                    "res": "`body`"
                   }
                 }
               ]
@@ -819,6 +881,12 @@
               "points": [
                 {
                   "a": true,
+                  "bf": [
+                    "id",
+                    "jsonrpc",
+                    "method",
+                    "params"
+                  ],
                   "co": {
                     "id": "POST /mcp/",
                     "source": "openapi3",
@@ -830,7 +898,7 @@
                         "a": true,
                         "k": "header",
                         "n": "mcp_protocol_version",
-                        "or": "mcp_protocol_version",
+                        "or": "MCP-Protocol-Version",
                         "r": false,
                         "t": "`$STRING`"
                       },
@@ -838,7 +906,7 @@
                         "a": true,
                         "k": "header",
                         "n": "mcp_session_id",
-                        "or": "mcp_session_id",
+                        "or": "Mcp-Session-Id",
                         "r": false,
                         "t": "`$STRING`"
                       }
@@ -847,12 +915,7 @@
                   "k": "http",
                   "m": "POST",
                   "o": "/mcp/",
-                  "q": {
-                    "exist": [
-                      "mcp_protocol_version",
-                      "mcp_session_id"
-                    ]
-                  },
+                  "q": {},
                   "r": {},
                   "s": [
                     {
@@ -883,7 +946,7 @@
                         "a": true,
                         "k": "header",
                         "n": "mcp_protocol_version",
-                        "or": "mcp_protocol_version",
+                        "or": "MCP-Protocol-Version",
                         "r": false,
                         "t": "`$STRING`"
                       },
@@ -891,7 +954,7 @@
                         "a": true,
                         "k": "header",
                         "n": "mcp_session_id",
-                        "or": "mcp_session_id",
+                        "or": "Mcp-Session-Id",
                         "r": true,
                         "t": "`$STRING`"
                       }
@@ -902,11 +965,14 @@
                   "o": "/mcp/",
                   "q": {
                     "exist": [
-                      "mcp_protocol_version",
                       "mcp_session_id"
                     ]
                   },
                   "r": {},
+                  "rs": {
+                    "kind": "raw",
+                    "media": "text/event-stream"
+                  },
                   "s": [
                     {
                       "lit": "mcp"
@@ -971,7 +1037,7 @@
                         "a": true,
                         "k": "query",
                         "n": "new_leaf",
-                        "or": "new_leaf",
+                        "or": "newLeaf",
                         "r": false,
                         "t": "`$BOOLEAN`"
                       }
@@ -982,8 +1048,7 @@
                   "o": "/open/{filename}",
                   "q": {
                     "exist": [
-                      "id",
-                      "new_leaf"
+                      "id"
                     ]
                   },
                   "r": {
@@ -1037,7 +1102,7 @@
                         "ex": 100,
                         "k": "query",
                         "n": "context_length",
-                        "or": "context_length",
+                        "or": "contextLength",
                         "r": false,
                         "t": "`$NUMBER`"
                       },
@@ -1057,11 +1122,14 @@
                   "q": {
                     "$action": "simple",
                     "exist": [
-                      "context_length",
                       "query"
                     ]
                   },
                   "r": {},
+                  "rs": {
+                    "kind": "json",
+                    "media": "application/json"
+                  },
                   "s": [
                     {
                       "lit": "search"
@@ -1077,6 +1145,7 @@
                 },
                 {
                   "a": true,
+                  "bf": false,
                   "co": {
                     "id": "POST /search/",
                     "source": "openapi3",
@@ -1088,6 +1157,14 @@
                   "o": "/search/",
                   "q": {},
                   "r": {},
+                  "rb": {
+                    "kind": "json",
+                    "media": "application/vnd.olrapi.jsonlogic+json"
+                  },
+                  "rs": {
+                    "kind": "json",
+                    "media": "application/json"
+                  },
                   "s": [
                     {
                       "lit": "search"
@@ -1212,6 +1289,10 @@
                   "o": "/tags/",
                   "q": {},
                   "r": {},
+                  "rs": {
+                    "kind": "json",
+                    "media": "application/json"
+                  },
                   "s": [
                     {
                       "lit": "tags"
@@ -1372,7 +1453,7 @@
                         "ex": "false",
                         "k": "header",
                         "n": "create_target_if_missing",
-                        "or": "create_target_if_missing",
+                        "or": "Create-Target-If-Missing",
                         "r": false,
                         "t": "`$STRING`"
                       },
@@ -1381,7 +1462,7 @@
                         "ex": "2",
                         "k": "header",
                         "n": "markdown_patch_version",
-                        "or": "markdown_patch_version",
+                        "or": "Markdown-Patch-Version",
                         "r": false,
                         "t": "`$STRING`"
                       },
@@ -1390,7 +1471,7 @@
                         "ex": "false",
                         "k": "header",
                         "n": "reject_if_content_preexist",
-                        "or": "reject_if_content_preexist",
+                        "or": "Reject-If-Content-Preexists",
                         "r": false,
                         "t": "`$STRING`"
                       }
@@ -1411,16 +1492,21 @@
                   "o": "/vault/{filename}",
                   "q": {
                     "exist": [
-                      "create_target_if_missing",
-                      "id",
-                      "markdown_patch_version",
-                      "reject_if_content_preexist"
+                      "id"
                     ]
                   },
                   "r": {
                     "param": {
                       "filename": "id"
                     }
+                  },
+                  "rb": {
+                    "kind": "raw",
+                    "media": "text/markdown"
+                  },
+                  "rs": {
+                    "kind": "raw",
+                    "media": "text/markdown"
                   },
                   "s": [
                     {
@@ -1454,6 +1540,10 @@
                   "o": "/vault/",
                   "q": {},
                   "r": {},
+                  "rs": {
+                    "kind": "json",
+                    "media": "application/json"
+                  },
                   "s": [
                     {
                       "lit": "vault"
@@ -1484,7 +1574,7 @@
                         "ex": "2",
                         "k": "header",
                         "n": "markdown_patch_version",
-                        "or": "markdown_patch_version",
+                        "or": "Markdown-Patch-Version",
                         "r": false,
                         "t": "`$STRING`"
                       },
@@ -1493,7 +1583,7 @@
                         "ex": "content",
                         "k": "header",
                         "n": "target_scope",
-                        "or": "target_scope",
+                        "or": "Target-Scope",
                         "r": false,
                         "t": "`$STRING`"
                       }
@@ -1514,15 +1604,35 @@
                   "o": "/vault/{filename}",
                   "q": {
                     "exist": [
-                      "id",
-                      "markdown_patch_version",
-                      "target_scope"
+                      "id"
                     ]
                   },
                   "r": {
                     "param": {
                       "filename": "id"
                     }
+                  },
+                  "rs": {
+                    "alternatives": [
+                      {
+                        "kind": "json",
+                        "media": "application/vnd.olrapi.document-map+json"
+                      },
+                      {
+                        "kind": "json",
+                        "media": "application/vnd.olrapi.note+json"
+                      },
+                      {
+                        "kind": "raw",
+                        "media": "text/html"
+                      },
+                      {
+                        "kind": "raw",
+                        "media": "text/markdown"
+                      }
+                    ],
+                    "kind": "json",
+                    "media": "application/json"
                   },
                   "s": [
                     {
@@ -1550,7 +1660,7 @@
                         "a": true,
                         "k": "param",
                         "n": "id",
-                        "or": "path_to_directory",
+                        "or": "pathToDirectory",
                         "r": true,
                         "t": "`$STRING`"
                       }
@@ -1568,6 +1678,10 @@
                     "param": {
                       "pathToDirectory": "id"
                     }
+                  },
+                  "rs": {
+                    "kind": "json",
+                    "media": "application/json"
                   },
                   "s": [
                     {
@@ -1590,6 +1704,19 @@
               "points": [
                 {
                   "a": true,
+                  "bf": [
+                    "content",
+                    "createTargetIfMissing",
+                    "destination",
+                    "ifMatch",
+                    "operation",
+                    "rejectIfContentPreexists",
+                    "scope",
+                    "target",
+                    "targetType",
+                    "value",
+                    "within"
+                  ],
                   "co": {
                     "id": "PATCH /vault/{filename}",
                     "source": "openapi3",
@@ -1602,7 +1729,7 @@
                         "ex": "false",
                         "k": "header",
                         "n": "create_target_if_missing",
-                        "or": "create_target_if_missing",
+                        "or": "Create-Target-If-Missing",
                         "r": false,
                         "t": "`$STRING`"
                       },
@@ -1610,7 +1737,7 @@
                         "a": true,
                         "k": "header",
                         "n": "destination",
-                        "or": "destination",
+                        "or": "Destination",
                         "r": false,
                         "t": "`$STRING`"
                       },
@@ -1618,7 +1745,7 @@
                         "a": true,
                         "k": "header",
                         "n": "if_match",
-                        "or": "if_match",
+                        "or": "If-Match",
                         "r": false,
                         "t": "`$STRING`"
                       },
@@ -1627,7 +1754,7 @@
                         "ex": "2",
                         "k": "header",
                         "n": "markdown_patch_version",
-                        "or": "markdown_patch_version",
+                        "or": "Markdown-Patch-Version",
                         "r": false,
                         "t": "`$STRING`"
                       },
@@ -1635,7 +1762,7 @@
                         "a": true,
                         "k": "header",
                         "n": "operation",
-                        "or": "operation",
+                        "or": "Operation",
                         "r": false,
                         "t": "`$STRING`"
                       },
@@ -1644,7 +1771,7 @@
                         "ex": "false",
                         "k": "header",
                         "n": "reject_if_content_preexist",
-                        "or": "reject_if_content_preexist",
+                        "or": "Reject-If-Content-Preexists",
                         "r": false,
                         "t": "`$STRING`"
                       },
@@ -1652,7 +1779,7 @@
                         "a": true,
                         "k": "header",
                         "n": "target",
-                        "or": "target",
+                        "or": "Target",
                         "r": false,
                         "t": "`$STRING`"
                       },
@@ -1661,7 +1788,7 @@
                         "ex": "content",
                         "k": "header",
                         "n": "target_scope",
-                        "or": "target_scope",
+                        "or": "Target-Scope",
                         "r": false,
                         "t": "`$STRING`"
                       },
@@ -1669,7 +1796,7 @@
                         "a": true,
                         "k": "header",
                         "n": "target_type",
-                        "or": "target_type",
+                        "or": "Target-Type",
                         "r": false,
                         "t": "`$STRING`"
                       },
@@ -1677,7 +1804,7 @@
                         "a": true,
                         "k": "header",
                         "n": "within",
-                        "or": "within",
+                        "or": "Within",
                         "r": false,
                         "t": "`$STRING`"
                       }
@@ -1698,23 +1825,27 @@
                   "o": "/vault/{filename}",
                   "q": {
                     "exist": [
-                      "create_target_if_missing",
-                      "destination",
-                      "id",
-                      "if_match",
-                      "markdown_patch_version",
-                      "operation",
-                      "reject_if_content_preexist",
-                      "target",
-                      "target_scope",
-                      "target_type",
-                      "within"
+                      "id"
                     ]
                   },
                   "r": {
                     "param": {
                       "filename": "id"
                     }
+                  },
+                  "rb": {
+                    "alternatives": [
+                      {
+                        "kind": "json",
+                        "media": "application/vnd.olrapi.patch-instruction+json"
+                      },
+                      {
+                        "kind": "raw",
+                        "media": "text/markdown"
+                      }
+                    ],
+                    "kind": "json",
+                    "media": "application/json"
                   },
                   "s": [
                     {
@@ -1782,8 +1913,7 @@
                   "o": "/vault/{filename}",
                   "q": {
                     "exist": [
-                      "id",
-                      "permanent"
+                      "id"
                     ]
                   },
                   "r": {
@@ -1812,6 +1942,7 @@
               "points": [
                 {
                   "a": true,
+                  "bf": false,
                   "co": {
                     "id": "PUT /vault/{filename}",
                     "source": "openapi3",
@@ -1824,7 +1955,7 @@
                         "ex": "2",
                         "k": "header",
                         "n": "markdown_patch_version",
-                        "or": "markdown_patch_version",
+                        "or": "Markdown-Patch-Version",
                         "r": false,
                         "t": "`$STRING`"
                       },
@@ -1833,7 +1964,7 @@
                         "ex": "false",
                         "k": "header",
                         "n": "reject_if_content_preexist",
-                        "or": "reject_if_content_preexist",
+                        "or": "Reject-If-Content-Preexists",
                         "r": false,
                         "t": "`$STRING`"
                       }
@@ -1854,15 +1985,27 @@
                   "o": "/vault/{filename}",
                   "q": {
                     "exist": [
-                      "id",
-                      "markdown_patch_version",
-                      "reject_if_content_preexist"
+                      "id"
                     ]
                   },
                   "r": {
                     "param": {
                       "filename": "id"
                     }
+                  },
+                  "rb": {
+                    "alternatives": [
+                      {
+                        "kind": "raw",
+                        "media": "text/markdown"
+                      }
+                    ],
+                    "kind": "json",
+                    "media": "application/json"
+                  },
+                  "rs": {
+                    "kind": "raw",
+                    "media": "text/markdown"
                   },
                   "s": [
                     {
@@ -2541,6 +2684,214 @@
           "transport": "wrap",
           "version": "0.0.1"
         },
+        "station": {
+          "active": true,
+          "base": "node_modules/@voxgig/sdkgen-station/.sdk",
+          "config": {
+            "options": {
+              "active": false,
+              "capture": "meta",
+              "fromEnv": true,
+              "instance": "",
+              "profile": "",
+              "register": true,
+              "secret": "",
+              "url": ""
+            },
+            "optspec": {},
+            "strict": false
+          },
+          "deps": {
+            "csharp": {
+              "Voxgig.Station": {
+                "active": true,
+                "kind": "prod",
+                "version": "0.0.1"
+              }
+            },
+            "dart": {
+              "voxgig_station": {
+                "active": true,
+                "kind": "prod",
+                "version": ">=0.0.1"
+              }
+            },
+            "elixir": {
+              "voxgig_station": {
+                "active": true,
+                "kind": "prod",
+                "version": ">=0.0.1"
+              }
+            },
+            "go": {
+              "github.com/voxgig/station/go": {
+                "active": true,
+                "kind": "prod",
+                "version": "v0.0.1"
+              }
+            },
+            "java": {
+              "com.voxgig:station": {
+                "active": true,
+                "kind": "prod",
+                "version": "0.0.1"
+              }
+            },
+            "js": {
+              "@voxgig/station-js": {
+                "active": true,
+                "kind": "peer",
+                "version": ">=0.0.1"
+              }
+            },
+            "kotlin": {
+              "com.voxgig:station": {
+                "active": true,
+                "kind": "prod",
+                "version": "0.0.1"
+              }
+            },
+            "php": {
+              "voxgig/station": {
+                "active": true,
+                "kind": "prod",
+                "version": "0.0.1"
+              }
+            },
+            "py": {
+              "voxgig-station": {
+                "active": true,
+                "kind": "prod",
+                "version": "0.0.1"
+              }
+            },
+            "rb": {
+              "voxgig_station": {
+                "active": true,
+                "kind": "prod",
+                "version": "0.0.1"
+              }
+            },
+            "rust": {
+              "voxgig_station": {
+                "active": true,
+                "kind": "prod",
+                "version": ">=0.0.1"
+              }
+            },
+            "swift": {
+              "VoxgigStation": {
+                "active": true,
+                "kind": "prod",
+                "url": "https://github.com/voxgig/station-swift",
+                "version": "0.0.1"
+              }
+            },
+            "ts": {
+              "@voxgig/station": {
+                "active": true,
+                "kind": "peer",
+                "version": ">=0.0.1"
+              }
+            }
+          },
+          "hook": {
+            "GetData": {
+              "active": false,
+              "await": false
+            },
+            "GetMatch": {
+              "active": false,
+              "await": false
+            },
+            "PostConstruct": {
+              "active": true,
+              "await": false
+            },
+            "PostConstructEntity": {
+              "active": false,
+              "await": false
+            },
+            "PostOperation": {
+              "active": false,
+              "await": false
+            },
+            "PreDone": {
+              "active": true,
+              "await": false
+            },
+            "PrePoint": {
+              "active": true,
+              "await": false
+            },
+            "PreRequest": {
+              "active": false,
+              "await": false
+            },
+            "PreResponse": {
+              "active": false,
+              "await": false
+            },
+            "PreResult": {
+              "active": false,
+              "await": false
+            },
+            "PreSpec": {
+              "active": false,
+              "await": false
+            },
+            "PreTarget": {
+              "active": false,
+              "await": false
+            },
+            "PreUnexpected": {
+              "active": true,
+              "await": false
+            },
+            "SetData": {
+              "active": false,
+              "await": false
+            }
+          },
+          "name": "station",
+          "needs": {},
+          "origname": "",
+          "package": "@voxgig/sdkgen-station",
+          "plugin": {},
+          "spec": {},
+          "target": {
+            "c": {
+              "deps": {}
+            },
+            "go": {
+              "deps": {}
+            },
+            "go-cli": {
+              "deps": {}
+            },
+            "go-mcp": {
+              "deps": {}
+            },
+            "lua": {
+              "deps": {}
+            },
+            "php": {
+              "deps": {}
+            },
+            "py": {
+              "deps": {}
+            },
+            "rb": {
+              "deps": {}
+            },
+            "ts": {
+              "deps": {}
+            }
+          },
+          "title": "Station control surface binding for outbound integrations",
+          "transport": "wrap",
+          "version": "0.0.1"
+        },
         "test": {
           "active": true,
           "base": "node_modules/@voxgig/sdkgen/project/.sdk",
@@ -2658,6 +3009,7 @@
             },
             "optspec": {
               "clearTimer": "`$FUNCTION`",
+              "now": "`$FUNCTION`",
               "setTimer": "`$FUNCTION`"
             },
             "strict": false
@@ -3196,7 +3548,7 @@
       "optspec": {
         "allow": {
           "method": "GET,PUT,POST,PATCH,DELETE,OPTIONS",
-          "op": "create,update,load,list,remove,command,direct,graphql"
+          "op": "create,update,patch,load,list,remove,command,direct,graphql"
         },
         "apikey": "",
         "auth": {
@@ -3207,7 +3559,12 @@
         },
         "base": "http://localhost:8000",
         "clean": {
-          "keys": "key,token,id"
+          "active": true,
+          "hint": "0",
+          "keys": "key,secret,token,password,passwd,authorization,cookie,credential,signature",
+          "mask": "[redacted]",
+          "min": "4",
+          "values": ""
         },
         "entity": {
           "`$CHILD`": {
@@ -3244,6 +3601,11 @@
         "top": {
           "active": true
         }
+      },
+      "publisher": {
+        "name": "",
+        "security": "",
+        "url": ""
       },
       "repo": {
         "host": "github.com",
@@ -3544,7 +3906,10 @@
             "version": "0.0.1"
           },
           "superseded": [],
-          "title": "Go MCP server"
+          "title": "Go MCP server",
+          "tool": {
+            "write": false
+          }
         },
         "lua": {
           "active": true,
@@ -3921,6 +4286,17 @@
           "base": "",
           "strict": true
         }
+      },
+      "text": {
+        "about_md": "",
+        "docs_url": "",
+        "entity_desc": {},
+        "homepage": "",
+        "meta_source": "",
+        "summary": "",
+        "tagline": "",
+        "title": "",
+        "website": ""
       }
     }
   },

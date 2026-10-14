@@ -10,7 +10,7 @@ Learn more about Voxgig SDKs at [voxgig.com/sdk](https://voxgig.com/sdk/).
 
 > TypeScript, Python, PHP, Golang, Ruby, Lua, C SDKs, a CLI with an interactive REPL, and an MCP server for AI agents — all generated from one OpenAPI spec by [@voxgig/sdkgen](https://github.com/voxgig/sdkgen).
 
-> **Features:** `undefined`, `undefined`, `undefined`, `undefined`, `undefined`, `undefined`, `undefined`, `undefined` — opt-in,
+> **Features:** `debug`, `idempotency`, `metrics`, `paging`, `ratelimit`, `retry`, `station`, `test`, `timeout` — opt-in,
 > inactive until switched on, and configured per client. See the Features
 > section of any SDK README below for what each one does.
 
@@ -19,7 +19,7 @@ Learn more about Voxgig SDKs at [voxgig.com/sdk](https://voxgig.com/sdk/).
 This SDK exposes the API as **9 semantic entities** that you
 call directly, instead of assembling URL paths and query strings. See the [Entities](#entities) table below for the full list. Entities are
 **Capitalised** to mark them as the primary surface, each with the operations they
-support (`list`, `load`, `create`, `update`, `remove`, `patch`):
+support (`list`, `load`, `create`, `update`, `patch`, `remove`):
 
 ```ts
 const client = new ObsidianSDK()
@@ -42,23 +42,22 @@ network, and no credentials:
 // Shape: { entity: { <entity-name>: { <id>: <record> } } }
 const client = ObsidianSDK.test({
   entity: {
-    command: {
+    entity1: {
       test01: { id: 'test01' },
     },
   },
 })
-const commands = await client.Command().list()
-// commands is an array of Command entities, populated with mock data
-// — call commands[0].data() for the record itself
-console.log(commands)
+const entity1 = await client.Entity1().load()
+// entity1 is the Entity1 entity; .data() reads its mock record
+console.log(entity1.data())
 ```
 
 ### Python
 
 ```python
 client = ObsidianSDK.test()
-commands = client.Command().list()
-print(commands)
+entity1 = client.Entity1().load()
+print(entity1.data_get())
 ```
 
 ### PHP
@@ -66,16 +65,16 @@ print(commands)
 ```php
 // Seed fixture data so offline calls resolve without a live server.
 $client = ObsidianSDK::test([
-    "entity" => ["command" => ["test01" => []]],
+    "entity" => ["entity1" => ["test01" => []]],
 ]);
-$commands = $client->Command()->list();
+$entity1 = $client->Entity1()->load();
 ```
 
 ### Golang
 
 ```go
 client := sdk.Test()
-result, err := client.Command(nil).List(
+result, err := client.Entity1(nil).Load(
     nil, nil,
 )
 ```
@@ -85,16 +84,16 @@ result, err := client.Command(nil).List(
 ```ruby
 # Seed fixture data so offline calls resolve without a live server.
 client = ObsidianSDK.test({
-  "entity" => { "command" => { "test01" => {} } },
+  "entity" => { "entity1" => { "test01" => {} } },
 })
-commands = client.Command.list()
+entity1 = client.Entity1.load()
 ```
 
 ### Lua
 
 ```lua
 local client = sdk.test()
-local results, err = client:Command():list()
+local result, err = client:Entity1():load()
 ```
 
 ### C
@@ -104,24 +103,26 @@ local results, err = client:Command():list()
 
 ObsidianSDK* client = test_sdk(NULL, NULL);
 PNError* err = NULL;
-Entity* command = obsidian_command(client, NULL);
-voxgig_value* commands = command->vt->list(command, NULL, NULL, &err);
-printf("%s\n", voxgig_to_json(commands));
+Entity* entity1 = obsidian_entity1(client, NULL);
+Entity* result = entity1->vt->load(entity1, NULL, NULL, &err);
+if (result) {
+    printf("%s\n", voxgig_to_json(result->vt->data(result, NULL)));
+}
 ```
 
 ## Packages
 
 | Language | Package | Install |
 | --- | --- | --- |
-| TypeScript | `@voxgig-sdk/obsidian-sdk` | publish pending — [install from git tag](https://github.com/voxgig-sdk/obsidian-sdk/tags) |
-| Python | `voxgig-sdk-obsidian-sdk` | publish pending — [install from git tag](https://github.com/voxgig-sdk/obsidian-sdk/tags) |
-| PHP | `voxgig-sdk/obsidian-sdk` | publish pending — [install from git tag](https://github.com/voxgig-sdk/obsidian-sdk/tags) |
+| TypeScript | `@voxgig-sdk/obsidian-sdk` | publish pending — [install from source](ts/README.md#install) |
+| Python | `voxgig-sdk-obsidian-sdk` | publish pending — [install from source](py/README.md#install) |
+| PHP | `voxgig-sdk/obsidian-sdk` | publish pending — [install from source](php/README.md#install) |
 | Golang | `github.com/voxgig-sdk/obsidian-sdk/go` | `go get github.com/voxgig-sdk/obsidian-sdk/go@latest` |
-| Ruby | `voxgig-sdk-obsidian-sdk` | publish pending — [install from git tag](https://github.com/voxgig-sdk/obsidian-sdk/tags) |
-| Lua | `voxgig-sdk-obsidian-sdk` | publish pending — [install from git tag](https://github.com/voxgig-sdk/obsidian-sdk/tags) |
-| C | `voxgig-sdk-obsidian-sdk` | publish pending — [install from git tag](https://github.com/voxgig-sdk/obsidian-sdk/tags) |
-| Go CLI | `github.com/voxgig-sdk/obsidian-sdk/go-cli` | `go install github.com/voxgig-sdk/obsidian-sdk/go-cli/cmd/obsidian@latest` |
-| Go MCP server | `github.com/voxgig-sdk/obsidian-sdk/go-mcp` | `go get github.com/voxgig-sdk/obsidian-sdk/go-mcp@latest` |
+| Ruby | `voxgig-sdk-obsidian-sdk` | publish pending — [install from source](rb/README.md#install) |
+| Lua | `voxgig-sdk-obsidian-sdk` | publish pending — [install from source](lua/README.md#install) |
+| C | `voxgig-sdk-obsidian-sdk` | publish pending — [install from source](c/README.md#install) |
+| Go CLI | `github.com/voxgig-sdk/obsidian-sdk/go-cli` | build from source — [go-cli/README.md](go-cli/README.md) |
+| Go MCP server | `github.com/voxgig-sdk/obsidian-sdk/go-mcp` | build from source — [go-mcp/README.md](go-mcp/README.md) |
 
 ## Quickstart
 
@@ -139,9 +140,9 @@ const client = new ObsidianSDK({
   },
 })
 
-// Load active data (returns a Active)
+// Load a specific active (returns the entity, an ActiveEntity)
 const active = await client.Active().load()
-console.log(active)
+console.log(active.data())
 ```
 
 See the [TypeScript README](ts/README.md) for the full guide.
@@ -156,9 +157,10 @@ See the [TypeScript README](ts/README.md) for the full guide.
 
 ## Use it from an AI agent (MCP)
 
-The generated MCP server exposes every operation in this SDK as an
-[MCP](https://modelcontextprotocol.io) tool that Claude, Cursor or Cline
-can call directly. Build and register it:
+The generated MCP server exposes this SDK's list and load operations as
+[MCP](https://modelcontextprotocol.io) tools that Claude, Cursor or Cline
+can call directly. It only reads: create, update, patch and remove become tools when the SDK's model sets
+`main: kit: target: 'go-mcp': tool: write: true`. Build and register it:
 
 ```bash
 cd go-mcp && go build -o obsidian-mcp .
@@ -192,7 +194,7 @@ The API exposes 9 entities:
 | **Tag** | The Tag entity (list). | `/tags/` |
 | **Vault** | The Vault entity (create, list, load, patch, remove, update). | `/vault/` |
 
-The operations available across these entities are **load**, **list**, **create**, **update**, **remove** — see each entity's
+The operations available across these entities are **load**, **list**, **create**, **update**, **patch**, **remove** — see each entity's
 own list above for exactly which it supports.
 
 ## Quickstart in other languages
@@ -212,9 +214,9 @@ client = ObsidianSDK({
 })
 
 
-# Load a specific active (returns the record, raises on error)
+# Load a specific active (returns the entity, raises on error)
 active = client.Active().load()
-print(active)
+print(active.data_get())
 ```
 
 ### PHP
@@ -228,7 +230,7 @@ $client = new ObsidianSDK([
 ]);
 
 
-// Load a specific active (returns the ENTITY; call data_get() for the record; throws on error)
+// Load a specific active (returns the entity; data_get() reads its record; throws on error)
 $active = $client->Active()->load();
 print_r($active->data_get());
 ```
@@ -246,12 +248,12 @@ client := sdk.NewObsidianSDK(map[string]any{
     },
 })
 
-// Load active data
+// Load a specific active (returns the entity; err is non-nil on failure)
 active, err := client.Active(nil).Load(nil, nil)
 if err != nil {
     panic(err)
 }
-fmt.Println(active)
+fmt.Println(active.(sdk.Entity).Data())
 ```
 
 ### Ruby
@@ -264,24 +266,26 @@ client = ObsidianSDK.new({
 })
 
 
-# Load a specific active (returns the ENTITY; call data_get for the record)
+# Load a specific active (returns the entity; data_get reads its record; raises on error)
 active = client.Active.load()
-puts active
+puts active.data_get
 ```
 
 ### Lua
 
 ```lua
 local sdk = require("obsidian_sdk")
+local json = require("dkjson")
 
 local client = sdk.new({
   apikey = os.getenv("OBSIDIAN_APIKEY"),
 })
 
 
--- Load a specific active
+-- Load a specific active (returns the entity; err on failure)
 local active, err = client:Active():load()
-print(active)
+if err then error(err) end
+print(json.encode(active:data_get()))
 ```
 
 ### C
@@ -295,9 +299,11 @@ PNError* err = NULL;
 
 
 Entity* active = obsidian_active(client, NULL);
-// Load a specific active (returns the record, sets *err on failure)
-voxgig_value* active_rec = active->vt->load(active, NULL, NULL, &err);
-printf("%s\n", voxgig_to_json(active_rec));
+// Load a specific active (returns the entity, sets *err on failure)
+Entity* loaded = active->vt->load(active, NULL, NULL, &err);
+if (loaded) {
+    printf("%s\n", voxgig_to_json(loaded->vt->data(loaded, NULL)));
+}
 ```
 
 ## Direct and prepare
@@ -323,10 +329,9 @@ const result = await client.direct({
   method: 'GET',
   params: { id: 'example' },
 })
-if (result instanceof Error) {
-  throw result
+if (result.ok) {
+  console.log(result.data)
 }
-console.log(result.data)
 ```
 
 **Python:**
@@ -414,6 +419,7 @@ forking the SDK.
 | **PagingFeature** | Paging |
 | **RatelimitFeature** | Rate limiting |
 | **RetryFeature** | Retry |
+| **StationFeature** | Station control surface binding for outbound integrations |
 | **TestFeature** | Test transport |
 | **TimeoutFeature** | Timeout |
 
@@ -433,10 +439,12 @@ customizable without forking any upstream tool:
 - **Templates** (`.sdk/tm/`) and **components** (`.sdk/src/cmp/`) are
   the two layers of generation, copied into this repo: templates are the
   literal per-language source, components generate the API-shaped parts.
-- **Regeneration merges.** By default, newly generated content is
-  three-way merged into existing files, so generator updates and local
-  edits usually converge without manual conflict handling. A project can
-  opt for plain overwrite instead.
+- **Regeneration overwrites.** Each run rewrites every generated file from
+  the model, the templates and the components, so an edit made to
+  generated output is lost. Say what this project needs in its own model
+  (`.sdk/model/sdk.aontu`), or extend a target with a component of its
+  own in `.sdk/src/cmp/<target>/`, registered with `registerComponent`,
+  which `voxgig-sdkgen doctor` reports as an addition rather than drift.
 - **Custom features and entire custom targets** arrive through sdkgen
   packages (`voxgig-sdkgen package add`), on the same rails as the
   bundled languages, and `voxgig-sdkgen doctor` reports any drift from

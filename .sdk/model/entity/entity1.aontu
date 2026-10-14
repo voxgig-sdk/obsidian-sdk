@@ -5,19 +5,32 @@ main: kit: entity: entity1: {
   alias: field: {}
 
   fields: {
-    obsidian: {
-      h: "Obsidian"
-      n: "obsidian"
+    authenticated: {
+      h: "Authenticated"
+      n: "authenticated"
       r: false
-      sh: "Obsidian plugin API version"
+      sh: "Is your current request authenticated?"
+      t: "`$BOOLEAN`"
+    }
+    ok: {
+      h: "Ok"
+      n: "ok"
+      r: false
+      sh: "'OK'"
       t: "`$STRING`"
     }
-    self: {
-      h: "Self"
-      n: "self"
+    service: {
+      h: "Service"
+      n: "service"
       r: false
-      sh: "Plugin version."
+      sh: "'Obsidian Local REST API'"
       t: "`$STRING`"
+    }
+    versions: {
+      h: "Versions"
+      n: "versions"
+      r: false
+      t: "`$OBJECT`"
     }
   }
 
@@ -34,9 +47,13 @@ main: kit: entity: entity1: {
           }
           m: "GET"
           o: "/"
+          rs: {
+            kind: "json"
+            media: "application/json"
+          }
           t: {
             req: "`reqdata`"
-            res: "`body.versions`"
+            res: "`body`"
           }
         }
       ]

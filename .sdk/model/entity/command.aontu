@@ -40,7 +40,7 @@ main: kit: entity: command: {
               {
                 k: "param"
                 n: "id"
-                or: "command_id"
+                or: "commandId"
                 r: true
                 t: "`$STRING`"
               }
@@ -84,6 +84,10 @@ main: kit: entity: command: {
           }
           m: "GET"
           o: "/commands/"
+          rs: {
+            kind: "json"
+            media: "application/json"
+          }
           s: [
             {
               lit: "commands"

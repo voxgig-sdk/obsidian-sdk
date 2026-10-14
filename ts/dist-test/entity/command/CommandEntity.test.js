@@ -54,32 +54,79 @@ const utility_1 = require("../../utility");
         const ent = testsdk.Command();
         (0, node_assert_1.default)(null != ent);
     });
+    class FailHook extends __1.BaseFeature {
+        name = 'failhook';
+        version = '0.0.1';
+        active = true;
+        unexpected = 0;
+        init() { }
+        PreSpec() { throw new Error('command hook failed'); }
+        PreUnexpected() { this.unexpected++; }
+    }
+    (0, node_test_1.test)('stream-error', async () => {
+        const offline = { net: { offline: true } };
+        await node_assert_1.default.rejects(async () => {
+            for await (const _item of __1.ObsidianSDK.test(offline).Command().stream('list')) { }
+        }, /offline/);
+        for await (const _item of __1.ObsidianSDK.test(offline).Command()
+            .stream('list', undefined, { ctrl: { throw: false } })) { }
+        if (null != __1.config.feature?.rbac) {
+            const denied = __1.ObsidianSDK.test(undefined, { feature: { rbac: { active: true, deny: true } } });
+            await node_assert_1.default.rejects(async () => {
+                for await (const _item of denied.Command().stream('list')) { }
+            }, (err) => 'rbac_denied' === err.code);
+        }
+    });
+    (0, node_test_1.test)('stream-ctrl', async () => {
+        const explain = {};
+        const ctrl = { explain };
+        for await (const _item of __1.ObsidianSDK.test().Command().stream('list', undefined, { ctrl })) { }
+        node_assert_1.default.deepStrictEqual(Object.keys(ctrl), ['explain']);
+        (0, node_assert_1.default)(explain === ctrl.explain && 0 < Object.keys(explain).length);
+    });
+    (0, node_test_1.test)('unexpected', async () => {
+        const hook = new FailHook();
+        const client = new __1.ObsidianSDK({ feature: { test: { active: true } }, extend: [hook] });
+        await node_assert_1.default.rejects(client.Command().list(), /hook failed/);
+        (0, node_assert_1.default)(0 < hook.unexpected);
+        const fired = hook.unexpected;
+        node_assert_1.default.strictEqual(await client.Command().list(undefined, { throw: false }), undefined);
+        (0, node_assert_1.default)(fired < hook.unexpected);
+    });
+    (0, node_test_1.test)('validate', async (t) => {
+        if (null == __1.config.feature?.validate) {
+            t.skip('feature not present in this SDK: validate');
+            return;
+        }
+        const client = __1.ObsidianSDK.test(undefined, { feature: { validate: { active: true } } });
+        await node_assert_1.default.rejects(client.Command().list({ "id": 1 }), (err) => 'validate_failed' === err.code);
+    });
     (0, node_test_1.test)('basic', async (t) => {
         const live = 'TRUE' === process.env.OBSIDIAN_TEST_LIVE;
-        for (const op of ['create', 'list']) {
+        for (const op of ['list']) {
             if (!live && (0, utility_1.maybeSkipControl)(t, 'entityOp', 'command.' + op, live))
                 return;
         }
         const setup = basicSetup();
         if (setup.live) {
-            return (0, live_entity_1.runLiveEntity)(setup, { "active": true, "alias": { "field": {} }, "fields": { "id": { "a": true, "h": "Id", "n": "id", "r": false, "t": "`$STRING`", "key$": "id", "index$": 0 }, "name": { "a": true, "h": "Name", "n": "name", "r": false, "t": "`$STRING`", "key$": "name", "index$": 1 } }, "id": { "field": "id", "name": "id" }, "name": "command", "op": { "create": { "input": "data", "name": "create", "points": [{ "a": true, "co": { "id": "POST /commands/{commandId}/", "source": "openapi3", "version": 2 }, "g": { "params": [{ "a": true, "k": "param", "n": "id", "or": "command_id", "r": true, "t": "`$STRING`", "index$": 0 }] }, "k": "http", "m": "POST", "o": "/commands/{commandId}/", "q": { "exist": ["id"] }, "r": { "param": { "commandId": "id" } }, "s": [{ "lit": "commands" }, { "var": "id" }], "t": { "req": "`reqdata`", "res": "`body`" }, "index$": 0 }], "key$": "create" }, "list": { "input": "data", "name": "list", "points": [{ "a": true, "co": { "id": "GET /commands/", "source": "openapi3", "version": 2 }, "g": {}, "k": "http", "m": "GET", "o": "/commands/", "q": {}, "r": {}, "s": [{ "lit": "commands" }], "t": { "req": "`reqdata`", "res": "`body.commands`" }, "index$": 0 }], "key$": "list" } }, "relations": { "ancestors": [] }, "key$": "command", "name__orig": "command", "Name": "Command", "name_": "command", "name-": "command", "NAME": "COMMAND", "index$": 1 }, { "active": true, "entity": "command", "key$": "BasicCommandFlow", "kind": "basic", "name": "BasicCommandFlow", "param": {}, "step": [{ "a": true, "d": {}, "i": { "ref": "command_ref01" }, "m": { "command_id": "command01" }, "o": "create", "s": [], "v": [], "index$": 0 }, { "a": true, "d": {}, "i": {}, "m": {}, "o": "list", "s": [], "v": [{ "apply": "ItemExists", "def": { "ref": "command_ref01" } }], "index$": 1 }] }, 'Command', { "POST /commands/{commandId}/": { "protocol": "http", "parameters": [{ "description": "The id of the command to execute", "in": "path", "name": "commandId", "required": true, "schema": { "type": "string" }, "index$": 0 }] }, "GET /commands/": { "protocol": "http", "parameters": [] } });
+            return (0, live_entity_1.runLiveEntity)(setup, { "active": true, "alias": { "field": {} }, "fields": { "id": { "a": true, "h": "Id", "n": "id", "r": false, "t": "`$STRING`", "key$": "id", "index$": 0 }, "name": { "a": true, "h": "Name", "n": "name", "r": false, "t": "`$STRING`", "key$": "name", "index$": 1 } }, "id": { "field": "id", "name": "id" }, "name": "command", "op": { "create": { "input": "data", "name": "create", "points": [{ "a": true, "co": { "id": "POST /commands/{commandId}/", "source": "openapi3", "version": 2 }, "g": { "params": [{ "a": true, "k": "param", "n": "id", "or": "commandId", "r": true, "t": "`$STRING`", "index$": 0 }] }, "k": "http", "m": "POST", "o": "/commands/{commandId}/", "q": { "exist": ["id"] }, "r": { "param": { "commandId": "id" } }, "s": [{ "lit": "commands" }, { "var": "id" }], "t": { "req": "`reqdata`", "res": "`body`" }, "index$": 0 }], "key$": "create" }, "list": { "input": "data", "name": "list", "points": [{ "a": true, "co": { "id": "GET /commands/", "source": "openapi3", "version": 2 }, "g": {}, "k": "http", "m": "GET", "o": "/commands/", "q": {}, "r": {}, "rs": { "kind": "json", "media": "application/json" }, "s": [{ "lit": "commands" }], "t": { "req": "`reqdata`", "res": "`body.commands`" }, "index$": 0 }], "key$": "list" } }, "relations": { "ancestors": [] }, "key$": "command", "name__orig": "command", "Name": "Command", "name_": "command", "name-": "command", "NAME": "COMMAND", "index$": 1 }, { "active": true, "entity": "command", "key$": "BasicCommandFlow", "kind": "basic", "name": "BasicCommandFlow", "param": {}, "step": [{ "a": false, "d": {}, "i": { "ref": "command_ref01" }, "m": { "command_id": "command01" }, "o": "create", "s": [], "v": [], "unreachable": true }, { "a": true, "d": {}, "i": {}, "m": {}, "o": "list", "s": [], "v": [{ "apply": "ItemExists", "def": { "ref": "command_ref01" } }], "index$": 0 }] }, 'Command', { "POST /commands/{commandId}/": { "protocol": "http", "parameters": [{ "description": "The id of the command to execute", "in": "path", "name": "commandId", "required": true, "schema": { "type": "string" }, "index$": 0 }] }, "GET /commands/": { "protocol": "http", "parameters": [] } }, { strict: LIVE_STRICT, t });
         }
         const client = setup.client;
         const struct = setup.struct;
         const isempty = struct.isempty;
         const select = struct.select;
-        // CREATE
-        const command_ref01_ent = client.Command();
-        let command_ref01_data = setup.data.new.command['command_ref01'];
-        command_ref01_data['command_id'] = setup.idmap['command01'];
-        command_ref01_data = (await command_ref01_ent.create(command_ref01_data)).data();
-        (0, node_assert_1.default)(null != command_ref01_data.id);
+        let command_ref01_data = Object.values(setup.data.existing.command)[0];
         // LIST
+        const command_ref01_ent = client.Command();
         const command_ref01_match = {};
         const command_ref01_list = (await command_ref01_ent.list(command_ref01_match)).map((e) => e.data());
-        (0, node_assert_1.default)(!isempty(select(command_ref01_list, { id: command_ref01_data.id })));
     });
 });
+// main.kit.test.live.strict is true (the default is true): a live
+// request that fails, or a live test missing an input it needs,
+// fails the test.
+// An account with no record for a test to read skips it either way.
+const LIVE_STRICT = true;
 function basicSetup(extra) {
     // TODO: fix test def options
     const options = {}; // null

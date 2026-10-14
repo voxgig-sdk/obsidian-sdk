@@ -78,6 +78,20 @@ class ActiveUpdateData(TypedDict, total=False):
     within: int
 
 
+class ActivePatchData(TypedDict, total=False):
+    content: str
+    createTargetIfMissing: bool
+    destination: dict
+    ifMatch: str
+    operation: str
+    rejectIfContentPreexists: bool
+    scope: str
+    target: Any
+    targetType: str
+    value: Any
+    within: int
+
+
 class ActiveRemoveMatch(TypedDict, total=False):
     permanent: str
 
@@ -101,13 +115,17 @@ class CommandCreateData(CommandCreateDataRequired, total=False):
 
 
 class Entity1(TypedDict, total=False):
-    obsidian: str
-    self: str
+    authenticated: bool
+    ok: str
+    service: str
+    versions: dict
 
 
 class Entity1LoadMatch(TypedDict, total=False):
-    obsidian: str
-    self: str
+    authenticated: bool
+    ok: str
+    service: str
+    versions: dict
 
 
 class McpRequired(TypedDict):
@@ -241,6 +259,25 @@ class VaultUpdateDataRequired(TypedDict):
 
 
 class VaultUpdateData(VaultUpdateDataRequired, total=False):
+    content: str
+    createTargetIfMissing: bool
+    destination: dict
+    files: list
+    ifMatch: str
+    operation: str
+    rejectIfContentPreexists: bool
+    scope: str
+    target: Any
+    targetType: str
+    value: Any
+    within: int
+
+
+class VaultPatchDataRequired(TypedDict):
+    id: str
+
+
+class VaultPatchData(VaultPatchDataRequired, total=False):
     content: str
     createTargetIfMissing: bool
     destination: dict

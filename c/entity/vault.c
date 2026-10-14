@@ -31,6 +31,7 @@ static Entity* vault_load(Entity* e, voxgig_value* reqmatch, voxgig_value* ctrl,
 static Entity** vault_list(Entity* e, voxgig_value* reqmatch, voxgig_value* ctrl, PNError** err);
 static Entity* vault_create(Entity* e, voxgig_value* reqdata, voxgig_value* ctrl, PNError** err);
 static Entity* vault_update(Entity* e, voxgig_value* reqdata, voxgig_value* ctrl, PNError** err);
+static Entity* vault_patch(Entity* e, voxgig_value* reqdata, voxgig_value* ctrl, PNError** err);
 static Entity* vault_remove(Entity* e, voxgig_value* reqmatch, voxgig_value* ctrl, PNError** err);
 static void vault_mark_deleted(Entity* e);
 static bool vault_deleted(Entity* e);
@@ -110,6 +111,22 @@ static voxgig_value* vault_run_op(vault_entity* self, Context* ctx,
   return done_util(ctx, err);
 }
 
+// The items of what done or make_error hands back: NULL with *err set, or
+// under `throw: false` the data there is, as a List.
+static voxgig_value* vault_stream_items(voxgig_value* data, PNError** err) {
+  if (*err) return NULL;
+  voxgig_value* out = voxgig_new_list();
+  if (voxgig_is_list(data)) {
+    voxgig_list* l = voxgig_as_list(data);
+    for (size_t i = 0; i < l->len; i++) {
+      voxgig_list_push(voxgig_as_list(out), voxgig_retain(l->items[i]));
+    }
+  } else if (data && !v_is_noval(data) && !v_is_null(data)) {
+    voxgig_list_push(voxgig_as_list(out), voxgig_retain(data));
+  }
+  return out;
+}
+
 // Streaming operation. Runs `action` through the full pipeline and returns a
 // List of the result items, so the `streaming` feature's incremental output
 // is reachable from a generated entity (a normal op call materialises the
@@ -128,8 +145,15 @@ voxgig_value* vault_stream(Entity* e, const char* action, voxgig_value* args,
 
   voxgig_value* stream_opts = voxgig_is_map(callopts) ? callopts : voxgig_new_map();
 
-  voxgig_value* ctrl = to_map(getp(stream_opts, "ctrl"));
-  if (!voxgig_is_map(ctrl)) ctrl = voxgig_new_map();
+  // A copy: the caller's ctrl gains no key, and explain stays its own record.
+  voxgig_value* ctrl = voxgig_new_map();
+  voxgig_value* given = to_map(getp(stream_opts, "ctrl"));
+  if (voxgig_is_map(given)) {
+    voxgig_map* gm = voxgig_as_map(given);
+    for (size_t i = 0; i < gm->len; i++) {
+      setp(ctrl, gm->entries[i].key, voxgig_retain(gm->entries[i].value));
+    }
+  }
   setp(ctrl, "stream", v_share(stream_opts));
 
   voxgig_value* reqmatch = to_map(args);
@@ -156,27 +180,27 @@ voxgig_value* vault_stream(Entity* e, const char* action, voxgig_value* args,
 
   feature_hook_util(ctx, "PrePoint");
   voxgig_value* point = make_point_util(ctx, &pe);
-  if (pe) { *err = pe; return NULL; }
+  if (pe) return vault_stream_items(make_error_util(ctx, pe, err), err);
   ctx_out_set_point_val(ctx, point);
 
   feature_hook_util(ctx, "PreSpec");
   Spec* spec = make_spec_util(ctx, &pe);
-  if (pe) { *err = pe; return NULL; }
+  if (pe) return vault_stream_items(make_error_util(ctx, pe, err), err);
   ctx->out_spec = spec;
 
   feature_hook_util(ctx, "PreRequest");
   Response* resp = make_request_util(ctx, &pe);
-  if (pe) { *err = pe; return NULL; }
+  if (pe) return vault_stream_items(make_error_util(ctx, pe, err), err);
   ctx->out_request = resp;
 
   feature_hook_util(ctx, "PreResponse");
   Response* resp2 = make_response_util(ctx, &pe);
-  if (pe) { *err = pe; return NULL; }
+  if (pe) return vault_stream_items(make_error_util(ctx, pe, err), err);
   ctx->out_response = resp2;
 
   feature_hook_util(ctx, "PreResult");
   SdkResult* result = make_result_util(ctx, &pe);
-  if (pe) { *err = pe; return NULL; }
+  if (pe) return vault_stream_items(make_error_util(ctx, pe, err), err);
   ctx->out_result = result;
 
   feature_hook_util(ctx, "PreDone");
@@ -185,22 +209,12 @@ voxgig_value* vault_stream(Entity* e, const char* action, voxgig_value* args,
   // back to the materialised items so `stream` always yields.
   SdkResult* res = ctx->result;
   if (res && res->stream) {
+    // done() does not run on this path, so its record is cleaned here.
+    clean_explain_util(ctx);
     return res->stream(res->stream_ud);
   }
 
-  voxgig_value* data = done_util(ctx, err);
-  if (*err) return NULL;
-
-  voxgig_value* out = voxgig_new_list();
-  if (voxgig_is_list(data)) {
-    voxgig_list* l = voxgig_as_list(data);
-    for (size_t i = 0; i < l->len; i++) {
-      voxgig_list_push(voxgig_as_list(out), voxgig_retain(l->items[i]));
-    }
-  } else if (!v_is_noval(data) && !v_is_null(data)) {
-    voxgig_list_push(voxgig_as_list(out), voxgig_retain(data));
-  }
-  return out;
+  return vault_stream_items(done_util(ctx, err), err);
 }
 
 static const char* vault_get_name(Entity* e) {
@@ -385,6 +399,41 @@ static Entity* vault_update(Entity* e, voxgig_value* reqdata, voxgig_value* ctrl
 
 
 
+static void vault_patch_postdone(vault_entity* self, Context* ctx) {
+  SdkResult* result = ctx->result;
+  if (result) {
+    voxgig_value* resmatch = result->resmatch;
+    voxgig_value* resdata = result->resdata;
+    if (voxgig_is_map(resmatch)) self->mtch = resmatch;
+    if (!v_is_noval(resdata) && !v_is_null(resdata)) {
+      voxgig_value* m = to_map(voxgig_clone(resdata));
+      self->data = voxgig_is_map(m) ? m : voxgig_new_map();
+    }
+  }
+}
+
+static Entity* vault_patch(Entity* e, voxgig_value* reqdata, voxgig_value* ctrl, PNError** err) {
+  vault_entity* self = (vault_entity*)e;
+  CtxSpec cs;
+  memset(&cs, 0, sizeof(cs));
+  cs.opname = "patch";
+  cs.ctrl = ctrl;
+  cs.mtch = self->mtch;
+  cs.data = self->data;
+  cs.reqdata = reqdata;
+  Context* ctx = make_context_util(cs, vault_ent_ctx(self));
+  vault_run_op(self, ctx, vault_patch_postdone, err);
+  if (*err) return NULL;
+
+  // The operation resolves to THIS entity: run_op has just absorbed the
+  // result into it, and the caller reaches the record through vt->data.
+  // See AGENTS.md "Entity operations return ENTITIES".
+
+  return e;
+}
+
+
+
 static void vault_remove_postdone(vault_entity* self, Context* ctx) {
   SdkResult* result = ctx->result;
   if (result) {
@@ -444,5 +493,6 @@ static const EntityVT vault_VT = {
   vault_list,
   vault_create,
   vault_update,
+  vault_patch,
   vault_remove,
 };

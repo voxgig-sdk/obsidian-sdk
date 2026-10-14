@@ -21,7 +21,7 @@ main: kit: entity: search: {
                 ex: 100
                 k: "query"
                 n: "context_length"
-                or: "context_length"
+                or: "contextLength"
                 r: false
                 t: "`$NUMBER`"
               }
@@ -39,9 +39,12 @@ main: kit: entity: search: {
           q: {
             "$action": "simple"
             exist: [
-              "context_length"
               "query"
             ]
+          }
+          rs: {
+            kind: "json"
+            media: "application/json"
           }
           s: [
             {
@@ -57,6 +60,7 @@ main: kit: entity: search: {
           }
         }
         {
+          bf: false
           co: {
             id: "POST /search/"
             source: "openapi3"
@@ -64,6 +68,14 @@ main: kit: entity: search: {
           }
           m: "POST"
           o: "/search/"
+          rb: {
+            kind: "json"
+            media: "application/vnd.olrapi.jsonlogic+json"
+          }
+          rs: {
+            kind: "json"
+            media: "application/json"
+          }
           s: [
             {
               lit: "search"
