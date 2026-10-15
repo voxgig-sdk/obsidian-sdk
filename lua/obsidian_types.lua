@@ -58,6 +58,19 @@
 ---@field value? any
 ---@field within? number
 
+---@class ActivePatchData
+---@field content? string
+---@field createTargetIfMissing? boolean
+---@field destination? table
+---@field ifMatch? string
+---@field operation? string
+---@field rejectIfContentPreexists? boolean
+---@field scope? string
+---@field target? any
+---@field targetType? string
+---@field value? any
+---@field within? number
+
 ---@class ActiveRemoveMatch
 ---@field permanent? string
 
@@ -74,12 +87,16 @@
 ---@field name? string
 
 ---@class Entity1
----@field obsidian? string
----@field self? string
+---@field authenticated? boolean
+---@field ok? string
+---@field service? string
+---@field versions? table
 
 ---@class Entity1LoadMatch
----@field obsidian? string
----@field self? string
+---@field authenticated? boolean
+---@field ok? string
+---@field service? string
+---@field versions? table
 
 ---@class Mcp
 ---@field id? string
@@ -171,6 +188,21 @@
 ---@field within? number
 
 ---@class VaultUpdateData
+---@field id string
+---@field content? string
+---@field createTargetIfMissing? boolean
+---@field destination? table
+---@field files? table
+---@field ifMatch? string
+---@field operation? string
+---@field rejectIfContentPreexists? boolean
+---@field scope? string
+---@field target? any
+---@field targetType? string
+---@field value? any
+---@field within? number
+
+---@class VaultPatchData
 ---@field id string
 ---@field content? string
 ---@field createTargetIfMissing? boolean

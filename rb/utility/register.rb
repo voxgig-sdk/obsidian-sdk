@@ -33,6 +33,8 @@ require_relative 'transform_response'
 
 ObsidianUtility.registrar = ->(u) {
   u.clean = ObsidianUtilities::Clean
+  u.clean_add = ObsidianUtilities::CleanAdd
+  u.clean_explain = ObsidianUtilities::CleanExplain
   u.done = ObsidianUtilities::Done
   u.make_error = ObsidianUtilities::MakeError
   u.feature_add = ObsidianUtilities::FeatureAdd

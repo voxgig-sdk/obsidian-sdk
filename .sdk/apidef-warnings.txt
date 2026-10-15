@@ -1,0 +1,24 @@
+{
+  point: "warning"
+  note: "Points GET /obsidian-local-rest-api.crt and GET /openapi.yaml on entity=system op=load have the same selector (exist: none), so only GET /obsidian-local-rest-api.crt is ever chosen. An action or another entity in guide.aontu tells them apart."
+  entity: "system"
+  op: "load"
+  points: [
+    "GET /obsidian-local-rest-api.crt"
+    "GET /openapi.yaml"
+  ]
+
+}
+
+
+{
+  point: "warning"
+  note: "Points GET /vault/{filename} and GET /vault/{pathToDirectory}/ on entity=vault op=load have the same selector (exist: id), so only GET /vault/{filename} is ever chosen. An action or another entity in guide.aontu tells them apart."
+  entity: "vault"
+  op: "load"
+  points: [
+    "GET /vault/{filename}"
+    "GET /vault/{pathToDirectory}/"
+  ]
+
+}

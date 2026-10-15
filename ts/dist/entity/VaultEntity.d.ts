@@ -1,7 +1,7 @@
 import { ObsidianEntityBase } from '../ObsidianEntityBase';
 import type { ObsidianSDK } from '../ObsidianSDK';
 import type { Control } from '../types';
-import type { Vault, VaultLoadMatch, VaultListMatch, VaultCreateData, VaultUpdateData, VaultRemoveMatch } from '../ObsidianTypes';
+import type { Vault, VaultLoadMatch, VaultListMatch, VaultCreateData, VaultUpdateData, VaultPatchData, VaultRemoveMatch } from '../ObsidianTypes';
 declare class VaultEntity extends ObsidianEntityBase<Vault> {
     constructor(client: ObsidianSDK, entopts: any);
     make(this: VaultEntity): VaultEntity;
@@ -9,6 +9,7 @@ declare class VaultEntity extends ObsidianEntityBase<Vault> {
     list(this: any, reqmatch?: VaultListMatch, ctrl?: Control): Promise<VaultEntity[]>;
     create(this: any, reqdata?: VaultCreateData, ctrl?: Control): Promise<VaultEntity>;
     update(this: any, reqdata?: VaultUpdateData, ctrl?: Control): Promise<VaultEntity>;
+    patch(this: any, reqdata?: VaultPatchData, ctrl?: Control): Promise<VaultEntity>;
     remove(this: any, reqmatch?: VaultRemoveMatch, ctrl?: Control): Promise<VaultEntity>;
 }
 export { VaultEntity };

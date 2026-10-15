@@ -9,7 +9,7 @@ import { createLiveTransport } from '../../live-runner'
 import { runLiveEntity } from '../../live-entity'
 
 
-import { ObsidianSDK, BaseFeature, stdutil } from '../../..'
+import { ObsidianSDK, BaseFeature, config, stdutil } from '../../..'
 
 import {
   envOverride,
@@ -41,17 +41,29 @@ describe('OpenEntity', async () => {
   })
 
 
+  test('validate', async (t) => {
+    if (null == (config as any).feature?.validate) {
+      t.skip('feature not present in this SDK: validate')
+      return
+    }
+    const client = ObsidianSDK.test(undefined, { feature: { validate: { active: true } } })
+    await assert.rejects(client.Open().create({"id":1} as any),
+      (err: any) => 'validate_failed' === err.code)
+  })
+
+
+
   test('basic', async (t) => {
 
     const live = 'TRUE' === process.env.OBSIDIAN_TEST_LIVE
-    for (const op of ['create']) {
+    for (const op of []) {
       if (!live && maybeSkipControl(t, 'entityOp', 'open.' + op, live)) return
     }
 
     
     const setup = basicSetup()
     if (setup.live) {
-      return runLiveEntity(setup, {"active":true,"alias":{"field":{}},"fields":{"id":{"a":true,"h":"Id","n":"id","r":false,"t":"`$STRING`","key$":"id","index$":0}},"id":{"field":"id","name":"id"},"name":"open","op":{"create":{"input":"data","name":"create","points":[{"a":true,"co":{"id":"POST /open/{filename}","source":"openapi3","version":2},"g":{"params":[{"a":true,"k":"param","n":"id","or":"filename","r":true,"t":"`$STRING`","index$":0}],"query":[{"a":true,"k":"query","n":"new_leaf","or":"new_leaf","r":false,"t":"`$BOOLEAN`","index$":0}]},"k":"http","m":"POST","o":"/open/{filename}","q":{"exist":["id","new_leaf"]},"r":{"param":{"filename":"id"}},"s":[{"lit":"open"},{"var":"id"}],"t":{"req":"`reqdata`","res":"`body`"},"index$":0}],"key$":"create"}},"relations":{"ancestors":[]},"key$":"open","name__orig":"open","Name":"Open","name_":"open","name-":"open","NAME":"OPEN","index$":4}, {"active":true,"entity":"open","key$":"BasicOpenFlow","kind":"basic","name":"BasicOpenFlow","param":{},"step":[{"a":true,"d":{},"i":{"ref":"open_ref01"},"m":{"filename":"filename01"},"o":"create","s":[],"v":[],"index$":0}]}, 'Open', {"POST /open/{filename}":{"protocol":"http","parameters":[{"description":"Path to the file to return (relative to your vault root).\n","in":"path","name":"filename","required":true,"schema":{"format":"path","type":"string"},"index$":0},{"description":"Open this as a new leaf?","in":"query","name":"newLeaf","required":false,"schema":{"type":"boolean"},"index$":1}]}})
+      return runLiveEntity(setup, {"active":true,"alias":{"field":{}},"fields":{"id":{"a":true,"h":"Id","n":"id","r":false,"t":"`$STRING`","key$":"id","index$":0}},"id":{"field":"id","name":"id"},"name":"open","op":{"create":{"input":"data","name":"create","points":[{"a":true,"co":{"id":"POST /open/{filename}","source":"openapi3","version":2},"g":{"params":[{"a":true,"k":"param","n":"id","or":"filename","r":true,"t":"`$STRING`","index$":0}],"query":[{"a":true,"k":"query","n":"new_leaf","or":"newLeaf","r":false,"t":"`$BOOLEAN`","index$":0}]},"k":"http","m":"POST","o":"/open/{filename}","q":{"exist":["id"]},"r":{"param":{"filename":"id"}},"s":[{"lit":"open"},{"var":"id"}],"t":{"req":"`reqdata`","res":"`body`"},"index$":0}],"key$":"create"}},"relations":{"ancestors":[]},"key$":"open","name__orig":"open","Name":"Open","name_":"open","name-":"open","NAME":"OPEN","index$":4}, {"active":true,"entity":"open","key$":"BasicOpenFlow","kind":"basic","name":"BasicOpenFlow","param":{},"step":[{"a":false,"d":{},"i":{"ref":"open_ref01"},"m":{"filename":"filename01"},"o":"create","s":[],"v":[],"unreachable":true}]}, 'Open', {"POST /open/{filename}":{"protocol":"http","parameters":[{"description":"Path to the file to return (relative to your vault root).\n","in":"path","name":"filename","required":true,"schema":{"format":"path","type":"string"},"index$":0},{"description":"Open this as a new leaf?","in":"query","name":"newLeaf","required":false,"schema":{"type":"boolean"},"index$":1}]}}, { strict: LIVE_STRICT, t })
     }
     const client = setup.client
     const struct = setup.struct
@@ -59,20 +71,18 @@ describe('OpenEntity', async () => {
     const isempty = struct.isempty
     const select = struct.select
 
-
-    // CREATE
-    const open_ref01_ent = client.Open()
-    let open_ref01_data = setup.data.new.open['open_ref01']
-    open_ref01_data['filename'] = setup.idmap['filename01']
-
-    open_ref01_data = (await open_ref01_ent.create(open_ref01_data)).data()
-    assert(null != open_ref01_data.id)
-
+    let open_ref01_data = Object.values(setup.data.existing.open)[0] as any
 
   })
 })
 
 
+
+// main.kit.test.live.strict is true (the default is true): a live
+// request that fails, or a live test missing an input it needs,
+// fails the test.
+// An account with no record for a test to read skips it either way.
+const LIVE_STRICT = true
 
 function basicSetup(extra?: any) {
   // TODO: fix test def options
@@ -97,7 +107,7 @@ function basicSetup(extra?: any) {
   const transform = struct.transform
 
   let idmap = transform(
-    ['open01','open02','open03','filename01'],
+    ['open01','open02','open03'],
     {
       '`$PACK`': ['', {
         '`$KEY`': '`$COPY`',

@@ -34,6 +34,21 @@ class VaultEntity
     @_name
   end
 
+  # The entity serialises and prints as its data (clean honours `to_h`),
+  # never as the client it holds or the match it absorbed: a query
+  # credential comes back in resmatch.
+  def to_h
+    VoxgigStruct.clone(@_data)
+  end
+
+  def to_s
+    "Vault " + VoxgigStruct.jsonify(@_data)
+  end
+
+  def inspect
+    to_s
+  end
+
   # Every operation resolves to the entity; `remove` additionally marks
   # it. The instance KEEPS the data it held — a caller can still read what
   # was deleted — but it is no longer a live record. See AGENTS.md.
@@ -119,55 +134,91 @@ class VaultEntity
       false
     end
 
+    # The pipeline runs as the caller iterates, so its errors leave through
+    # the same catch path as an operation's. The caller's block runs on this
+    # stack too, and what it raises is left alone.
     Enumerator.new do |yielder|
-      catch(:stream_stop) do
-        utility.feature_hook.call(ctx, "PrePoint")
-        point, err = utility.make_point.call(ctx)
-        ctx.out["point"] = point
-        throw :stream_stop if err
+      inblock = false
+      give = lambda do |item|
+        inblock = true
+        yielder << item
+        inblock = false
+      end
+      begin
+        catch(:stream_stop) do
+          failed = _stream_steps(ctx)
+          result = ctx.result
 
-        utility.feature_hook.call(ctx, "PreSpec")
-        spec, err = utility.make_spec.call(ctx)
-        ctx.out["spec"] = spec
-        throw :stream_stop if err
-
-        utility.feature_hook.call(ctx, "PreRequest")
-        resp, err = utility.make_request.call(ctx)
-        ctx.out["request"] = resp
-        throw :stream_stop if err
-
-        utility.feature_hook.call(ctx, "PreResponse")
-        resp2, err = utility.make_response.call(ctx)
-        ctx.out["response"] = resp2
-        throw :stream_stop if err
-
-        utility.feature_hook.call(ctx, "PreResult")
-        result, err = utility.make_result.call(ctx)
-        ctx.out["result"] = result
-        throw :stream_stop if err
-
-        utility.feature_hook.call(ctx, "PreDone")
-
-        result = ctx.result
-
-        # Inbound: prefer the streaming feature's incremental Enumerator; else
-        # fall back to the materialised items so stream always yields.
-        stream_enum = result ? result.stream : nil
-        if stream_enum
-          stream_enum.each do |item|
-            throw :stream_stop if aborted.call
-            yielder << item
-          end
-        else
-          data = utility.done.call(ctx)
-          items = data.is_a?(Array) ? data : (data.nil? ? [] : [data])
-          items.each do |item|
-            throw :stream_stop if aborted.call
-            yielder << item
+          # Inbound: prefer the streaming feature's incremental Enumerator;
+          # else fall back to the materialised items so stream always yields.
+          stream_enum = failed.nil? && result ? result.stream : nil
+          if stream_enum
+            # done does not run on this path, so its record is cleaned here.
+            utility.clean_explain.call(ctx)
+            stream_enum.each do |item|
+              throw :stream_stop if aborted.call
+              give.call(item)
+            end
+          else
+            # A failed step leaves through make_error, as an operation's does.
+            data = failed.nil? ? utility.done.call(ctx) : utility.make_error.call(ctx, failed)
+            items = data.is_a?(Array) ? data : (data.nil? ? [] : [data])
+            items.each do |item|
+              throw :stream_stop if aborted.call
+              give.call(item)
+            end
           end
         end
+      rescue StandardError => operr
+        raise if inblock
+        ctx.ctrl.err = operr
+
+        # What a hook raises here must not escape the cleaning below.
+        begin
+          utility.feature_hook.call(ctx, "PreUnexpected")
+        rescue StandardError => hookerr
+          operr = hookerr
+          ctx.ctrl.err = operr
+        end
+
+        e = _unexpected(ctx, operr)
+        raise e, cause: nil unless e.nil?
       end
     end
+  end
+
+  # The steps an operation runs, with their hooks; the first that fails hands
+  # back its error.
+  private def _stream_steps(ctx)
+    utility = @_utility
+
+    utility.feature_hook.call(ctx, "PrePoint")
+    point, err = utility.make_point.call(ctx)
+    ctx.out["point"] = point
+    return err if err
+
+    utility.feature_hook.call(ctx, "PreSpec")
+    spec, err = utility.make_spec.call(ctx)
+    ctx.out["spec"] = spec
+    return err if err
+
+    utility.feature_hook.call(ctx, "PreRequest")
+    resp, err = utility.make_request.call(ctx)
+    ctx.out["request"] = resp
+    return err if err
+
+    utility.feature_hook.call(ctx, "PreResponse")
+    resp2, err = utility.make_response.call(ctx)
+    ctx.out["response"] = resp2
+    return err if err
+
+    utility.feature_hook.call(ctx, "PreResult")
+    result, err = utility.make_result.call(ctx)
+    ctx.out["result"] = result
+    return err if err
+
+    utility.feature_hook.call(ctx, "PreDone")
+    nil
   end
 
   
@@ -177,7 +228,8 @@ class VaultEntity
   #   optional — an entity with no id-like key loads with no match (nil is treated
   #   as an empty match, so client.Vault.load works with no args).
   # @param ctrl [Object, nil] optional per-call control
-  # @return [Vault, Hash] the loaded Vault; raises ObsidianError on failure
+  # @return [VaultEntity] the loaded Vault entity (data_get reads its record);
+  #   raises ObsidianError on failure
   def load(reqmatch = nil, ctrl = nil)
     utility = @_utility
     ctx = utility.make_context.call({
@@ -206,7 +258,8 @@ class VaultEntity
   # @param reqmatch [VaultListMatch, Hash, nil] match filter (any subset of
   #   Vault fields); defaults to nil, treated as an empty match that lists all.
   # @param ctrl [Object, nil] optional per-call control
-  # @return [Array<Vault>, Array] the matching Vault items; raises ObsidianError on failure
+  # @return [Array<VaultEntity>] the matching Vault items, one entity per
+  #   record (data_get reads the record); raises ObsidianError on failure
   def list(reqmatch = nil, ctrl = nil)
     utility = @_utility
     ctx = utility.make_context.call({
@@ -223,16 +276,6 @@ class VaultEntity
       end
     end
 
-    # list yields the BARE Array of records — each an accessible Hash — so
-    # callers can index item["id"] directly, matching py/lua/go. make_result
-    # wraps each entry as an Entity instance for internal use; unwrap those
-    # back to their bare record Hashes here (load/create/etc. are unaffected).
-    if records.is_a?(Array)
-      records = records.map do |item|
-        item.respond_to?(:data_get) ? item.data_get : item
-      end
-    end
-
     records
   end
 
@@ -243,7 +286,8 @@ class VaultEntity
   #
   # @param reqdata [VaultCreateData, Hash, nil] body data
   # @param ctrl [Object, nil] optional per-call control
-  # @return [Vault, Hash] the created Vault; raises ObsidianError on failure
+  # @return [VaultEntity] the created Vault entity (data_get reads its record);
+  #   raises ObsidianError on failure
   def create(reqdata, ctrl = nil)
     utility = @_utility
     ctx = utility.make_context.call({
@@ -270,7 +314,8 @@ class VaultEntity
   #
   # @param reqdata [VaultUpdateData, Hash, nil] body data
   # @param ctrl [Object, nil] optional per-call control
-  # @return [Vault, Hash] the updated Vault; raises ObsidianError on failure
+  # @return [VaultEntity] the updated Vault entity (data_get reads its record);
+  #   raises ObsidianError on failure
   def update(reqdata, ctrl = nil)
     utility = @_utility
     ctx = utility.make_context.call({
@@ -294,11 +339,41 @@ class VaultEntity
 
 
   
+  # Change part of an existing Vault: only the fields given are sent.
+  #
+  # @param reqdata [VaultPatchData, Hash, nil] body data
+  # @param ctrl [Object, nil] optional per-call control
+  # @return [VaultEntity] the patched Vault entity (data_get reads its record);
+  #   raises ObsidianError on failure
+  def patch(reqdata, ctrl = nil)
+    utility = @_utility
+    ctx = utility.make_context.call({
+      "opname" => "patch",
+      "ctrl" => ctrl,
+      "match" => @_match,
+      "data" => @_data,
+      "reqdata" => reqdata,
+    }, @_entctx)
+
+    _run_op(ctx) do
+      if ctx.result
+        @_match = ctx.result.resmatch if ctx.result.resmatch
+        if ctx.result.resdata
+          @_data = ObsidianHelpers.to_map(VoxgigStruct.clone(ctx.result.resdata)) || {}
+        end
+      end
+    end
+  end
+
+
+
+  
   # Remove an Vault matching the given criteria.
   #
   # @param reqmatch [VaultRemoveMatch, Hash, nil] match criteria (id/query fields)
   # @param ctrl [Object, nil] optional per-call control
-  # @return [Vault, Hash] the removed Vault; raises ObsidianError on failure
+  # @return [VaultEntity] the removed Vault entity, marked as deleted; raises
+  #   ObsidianError on failure
   def remove(reqmatch = nil, ctrl = nil)
     utility = @_utility
     ctx = utility.make_context.call({
@@ -380,9 +455,38 @@ class VaultEntity
 
       out
     rescue StandardError => operr
-      utility.feature_hook.call(ctx, "PreUnexpected")
+      ctx.ctrl.err = operr
 
-      raise operr
+      # What a hook raises here must not escape the cleaning below.
+      begin
+        utility.feature_hook.call(ctx, "PreUnexpected")
+      rescue StandardError => hookerr
+        operr = hookerr
+        ctx.ctrl.err = operr
+      end
+
+      e = _unexpected(ctx, operr)
+      # Not a cause: the raw error would print beneath the cleaned one.
+      raise e, cause: nil unless e.nil?
+      nil
     end
+  end
+
+  # An exception the pipeline did not build still leaves through the
+  # caller: it is cleaned, and so is the explain record it interrupted.
+  # Answers nil when throwing is disabled, as the pipeline's own errors do.
+  def _unexpected(ctx, err)
+    clean = @_utility.clean
+    if ctx.ctrl.explain.is_a?(Hash)
+      @_utility.clean_explain.call(ctx)
+      cleanerr = clean.call(ctx, { "message" => err.message.to_s, "class" => err.class.name })
+      if ctx.ctrl.explain["err"].nil?
+        ctx.ctrl.explain["err"] = cleanerr
+      elsif ctx.ctrl.explain["err"]["message"] != cleanerr["message"]
+        ctx.ctrl.explain["unexpected"] = cleanerr
+      end
+    end
+    return nil if ctx.ctrl.throw_err == false
+    clean.call(ctx, err)
   end
 end

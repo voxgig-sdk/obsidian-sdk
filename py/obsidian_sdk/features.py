@@ -7,6 +7,7 @@ from obsidian_sdk.feature.metrics_feature import ObsidianMetricsFeature
 from obsidian_sdk.feature.paging_feature import ObsidianPagingFeature
 from obsidian_sdk.feature.ratelimit_feature import ObsidianRatelimitFeature
 from obsidian_sdk.feature.retry_feature import ObsidianRetryFeature
+from obsidian_sdk.feature.station_feature import ObsidianStationFeature
 from obsidian_sdk.feature.test_feature import ObsidianTestFeature
 from obsidian_sdk.feature.timeout_feature import ObsidianTimeoutFeature
 
@@ -19,6 +20,7 @@ _FEATURES = {
     "paging": lambda: ObsidianPagingFeature(),
     "ratelimit": lambda: ObsidianRatelimitFeature(),
     "retry": lambda: ObsidianRetryFeature(),
+    "station": lambda: ObsidianStationFeature(),
     "test": lambda: ObsidianTestFeature(),
     "timeout": lambda: ObsidianTimeoutFeature(),
 }

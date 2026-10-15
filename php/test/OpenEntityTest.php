@@ -11,6 +11,12 @@ use Voxgig\Struct\Struct as Vs;
 
 class OpenEntityTest extends TestCase
 {
+    // main.kit.test.live.strict is true (the default is true): a live
+    // request that fails, or a live test missing an input it needs,
+    // fails the test.
+    // An account with no record for a test to read skips it either way.
+    private const LIVE_STRICT = true;
+
     public function test_create_instance(): void
     {
         $testsdk = ObsidianSDK::test(null, null);
@@ -18,36 +24,43 @@ class OpenEntityTest extends TestCase
         $this->assertNotNull($ent);
     }
 
+    public function test_validate(): void
+    {
+        $cfg = ObsidianConfig::shared_config();
+        if (!isset($cfg["feature"]["validate"])) {
+            $this->markTestSkipped('feature not present in this SDK: validate');
+        }
+        $client = ObsidianSDK::test(null, ["feature" => ["validate" => ["active" => true]]]);
+        $err = null;
+        try {
+            $client->Open(null)->create(["id" => 1], null);
+        } catch (\Throwable $e) {
+            $err = $e;
+        }
+        $this->assertSame('validate_failed', $err->sdk_code ?? null);
+    }
+
     public function test_basic_flow(): void
     {
         $setup = open_basic_setup(null);
         // Per-op sdk-test-control.json skip.
         $_live = !empty($setup["live"]);
-        foreach (["create"] as $_op) {
+        foreach ([] as $_op) {
             [$_shouldSkip, $_reason] = Runner::is_control_skipped("entityOp", "open." . $_op, $_live ? "live" : "unit");
             if ($_shouldSkip) {
                 $this->markTestSkipped($_reason ?? "skipped via sdk-test-control.json");
                 return;
             }
         }
-        // The basic flow consumes synthetic IDs from the fixture. In live mode
-        // without an *_ENTID env override, those IDs hit the live API and 4xx.
-        if (!empty($setup["synthetic_only"])) {
-            $this->markTestSkipped("live entity test uses synthetic IDs from fixture — set OBSIDIAN_TEST_OPEN_ENTID JSON to run live");
-            return;
-        }
         $client = $setup["client"];
 
-        // CREATE
-        $open_ref01_ent = $client->Open(null);
-        $open_ref01_data = Helpers::to_map(Vs::getprop(
-            Vs::getpath($setup["data"], "new.open"), "open_ref01"));
-        $open_ref01_data["filename"] = $setup["idmap"]["filename01"];
-
-        $open_ref01_data_result = $open_ref01_ent->create($open_ref01_data, null);
-        $open_ref01_data = Helpers::to_map(is_object($open_ref01_data_result) && method_exists($open_ref01_data_result, 'data_get') ? $open_ref01_data_result->data_get() : $open_ref01_data_result);
-        $this->assertNotNull($open_ref01_data);
-        $this->assertNotNull($open_ref01_data["id"]);
+        // Bootstrap entity data from existing test data.
+        $open_ref01_data_raw = Vs::items(Helpers::to_map(
+            Vs::getpath($setup["data"], "existing.open")));
+        $open_ref01_data = null;
+        if (count($open_ref01_data_raw) > 0) {
+            $open_ref01_data = Helpers::to_map($open_ref01_data_raw[0][1]);
+        }
 
     }
 }
@@ -67,13 +80,12 @@ function open_basic_setup($extra)
 
     // Generate idmap.
     $idmap = [];
-    foreach (["open01", "open02", "open03", "filename01"] as $k) {
+    foreach (["open01", "open02", "open03"] as $k) {
         $idmap[$k] = strtoupper($k);
     }
 
-    // Detect ENTID env override before envOverride consumes it. When live
-    // mode is on without a real override, the basic test runs against synthetic
-    // IDs from the fixture and 4xx's. Surface this so the test can skip.
+    // Whether *_ENTID supplied the idmap, read before env_override consumes
+    // it: without it, the ids a live flow binds are the fixture's synthetic ones.
     $entid_env_raw = getenv("OBSIDIAN_TEST_OPEN_ENTID");
     $idmap_overridden = $entid_env_raw !== false && str_starts_with(trim($entid_env_raw), "{");
 

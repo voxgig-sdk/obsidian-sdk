@@ -8,6 +8,37 @@ local runner = require("test.runner")
 
 local _test_dir = debug.getinfo(1, "S").source:match("^@(.+/)")  or "./"
 
+-- main.kit.test.live.strict is true (the default is true): a live
+-- request that fails, or a live test missing an input it needs,
+-- fails the test.
+-- An account with no record for a test to read skips it either way.
+local LIVE_STRICT = true
+
+
+local BaseFeature = require("feature.base_feature")
+
+local FailHook = {}
+FailHook.__index = FailHook
+setmetatable(FailHook, { __index = BaseFeature })
+
+function FailHook.new()
+  local self = setmetatable(BaseFeature.new(), FailHook)
+  self.name = "failhook"
+  self.unexpected = 0
+  return self
+end
+
+function FailHook:init(_ctx, _options) end
+function FailHook:PreSpec(_ctx) error("vault hook failed") end
+function FailHook:PreUnexpected(_ctx) self.unexpected = self.unexpected + 1 end
+
+local function errtext(err)
+  if type(err) == "table" then
+    return tostring(err.msg or err.message or "")
+  end
+  return tostring(err)
+end
+
 describe("VaultEntity", function()
   it("should create instance", function()
     local testsdk = sdk.test(nil, nil)
@@ -56,48 +87,93 @@ describe("VaultEntity", function()
     end
   end)
 
+  it("should report a failed stream", function()
+    local offline = { net = { offline = true } }
+    local ok, err = pcall(function()
+      for _ in sdk.test(offline, nil):Vault(nil):stream("list", nil, nil) do end
+    end)
+    assert.is_false(ok)
+    assert.truthy(string.find(errtext(err), "offline", 1, true))
+
+    for _ in sdk.test(offline, nil):Vault(nil):stream("list", nil, { ctrl = { throw = false } }) do end
+
+    local config = require("config_shared")()
+    if type(config.feature) == "table" and config.feature.rbac ~= nil then
+      local denied = sdk.test(nil, { feature = { rbac = { active = true, deny = true } } })
+      local dok, derr = pcall(function()
+        for _ in denied:Vault(nil):stream("list", nil, nil) do end
+      end)
+      assert.is_false(dok)
+      assert.are.equal("rbac_denied", type(derr) == "table" and derr.code or nil)
+    end
+  end)
+
+  it("should leave the caller's ctrl", function()
+    local explain = {}
+    local ctrl = { explain = explain }
+    for _ in sdk.test(nil, nil):Vault(nil):stream("list", nil, { ctrl = ctrl }) do end
+    assert.is_nil(ctrl.stream)
+    assert.are.equal(explain, ctrl.explain)
+    assert.is_not_nil(next(explain))
+  end)
+
+  it("should fire PreUnexpected", function()
+    local hook = FailHook.new()
+    local client = sdk.new({ feature = { test = { active = true } }, extend = { hook } })
+
+    local out, err = client:Vault(nil):list(nil, nil)
+    assert.is_nil(out)
+    assert.truthy(string.find(errtext(err), "hook failed", 1, true))
+    assert.is_true(hook.unexpected > 0)
+
+    local fired = hook.unexpected
+    out, err = client:Vault(nil):list(nil, { throw = false })
+    assert.is_nil(err)
+    assert.is_true(hook.unexpected > fired)
+  end)
+
+  it("should refuse an invalid request", function()
+    local config = require("config_shared")()
+    if type(config.feature) ~= "table" or config.feature.validate == nil then
+      pending("feature not present in this SDK: validate")
+      return
+    end
+    local client = sdk.test(nil, { feature = { validate = { active = true } } })
+    local _, err = client:Vault(nil):list({ ["content"] = 1 }, nil)
+    assert.are.equal("validate_failed", type(err) == "table" and err.code or nil)
+  end)
+
   it("should run basic flow", function()
     local setup = vault_basic_setup(nil)
     -- Per-op sdk-test-control.json skip.
     local _live = setup.live or false
-    for _, _op in ipairs({"create", "list", "update", "load", "remove"}) do
+    for _, _op in ipairs({"list", "update", "load", "remove"}) do
       local _should_skip, _reason = runner.is_control_skipped("entityOp", "vault." .. _op, _live and "live" or "unit")
       if _should_skip then
         pending(_reason or "skipped via sdk-test-control.json")
         return
       end
     end
-    -- The basic flow consumes synthetic IDs from the fixture. In live mode
-    -- without an *_ENTID env override, those IDs hit the live API and 4xx.
-    if setup.synthetic_only then
-      pending("live entity test uses synthetic IDs from fixture — set OBSIDIAN_TEST_VAULT_ENTID JSON to run live")
-      return
+    if setup.live then
+      runner.live_miss(pending, LIVE_STRICT, "Live entity test blocked: " .. "the flow updates a vault record it did not create")
     end
     local client = setup.client
 
-    -- CREATE
-    local vault_ref01_ent = client:Vault(nil)
-    local vault_ref01_data = helpers.to_map(vs.getprop(
-      vs.getpath(setup.data, "new.vault"), "vault_ref01"))
-    vault_ref01_data["filename"] = setup.idmap["filename01"]
-
-    local vault_ref01_data_result, err = vault_ref01_ent:create(vault_ref01_data, nil)
-    assert.is_nil(err)
-    vault_ref01_data = helpers.to_map(type(vault_ref01_data_result) == 'table' and vault_ref01_data_result.data_get and vault_ref01_data_result:data_get() or vault_ref01_data_result)
-    assert.is_not_nil(vault_ref01_data)
-    assert.is_not_nil(vault_ref01_data["id"])
+    -- Bootstrap entity data from existing test data.
+    local vault_ref01_data_raw = vs.items(helpers.to_map(
+      vs.getpath(setup.data, "existing.vault")))
+    local vault_ref01_data = nil
+    if #vault_ref01_data_raw > 0 then
+      vault_ref01_data = helpers.to_map(vault_ref01_data_raw[1][2])
+    end
 
     -- LIST
+    local vault_ref01_ent = client:Vault(nil)
     local vault_ref01_match = {}
 
     local vault_ref01_list_result, err = vault_ref01_ent:list(vault_ref01_match, nil)
     assert.is_nil(err)
     assert.is_table(vault_ref01_list_result)
-
-    local found_item = vs.select(
-      runner.entity_list_to_data(vault_ref01_list_result),
-      { id = vault_ref01_data["id"] })
-    assert.is_false(vs.isempty(found_item))
 
     -- UPDATE
     local vault_ref01_data_up0_up = {
@@ -125,25 +201,6 @@ describe("VaultEntity", function()
     assert.is_not_nil(vault_ref01_data_dt0_load_result)
     assert.are.equal(vault_ref01_data_dt0_load_result["id"], vault_ref01_data["id"])
 
-    -- REMOVE
-    local vault_ref01_match_rm0 = {
-      id = vault_ref01_data["id"],
-    }
-    local _, err = vault_ref01_ent:remove(vault_ref01_match_rm0, nil)
-    assert.is_nil(err)
-
-    -- LIST
-    local vault_ref01_match_rt0 = {}
-
-    local vault_ref01_list_rt0_result, err = vault_ref01_ent:list(vault_ref01_match_rt0, nil)
-    assert.is_nil(err)
-    assert.is_table(vault_ref01_list_rt0_result)
-
-    local not_found_item = vs.select(
-      runner.entity_list_to_data(vault_ref01_list_rt0_result),
-      { id = vault_ref01_data["id"] })
-    assert.is_true(vs.isempty(not_found_item))
-
   end)
 end)
 
@@ -167,7 +224,7 @@ function vault_basic_setup(extra)
 
   -- Generate idmap via transform.
   local idmap = vs.transform(
-    { "vault01", "vault02", "vault03", "filename01" },
+    { "vault01", "vault02", "vault03" },
     {
       ["`$PACK`"] = { "", {
         ["`$KEY`"] = "`$COPY`",
@@ -176,9 +233,8 @@ function vault_basic_setup(extra)
     }
   )
 
-  -- Detect ENTID env override before envOverride consumes it. When live
-  -- mode is on without a real override, the basic test runs against synthetic
-  -- IDs from the fixture and 4xx's. Surface this so the test can skip.
+  -- Whether *_ENTID supplied the idmap, read before env_override consumes
+  -- it: without it, the ids a live flow binds are the fixture's synthetic ones.
   local entid_env_raw = os.getenv("OBSIDIAN_TEST_VAULT_ENTID")
   local idmap_overridden = entid_env_raw ~= nil and entid_env_raw:match("^%s*{") ~= nil
 

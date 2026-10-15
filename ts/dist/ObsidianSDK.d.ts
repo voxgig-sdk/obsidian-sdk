@@ -15,6 +15,19 @@ import { ObsidianEntityBase } from './ObsidianEntityBase';
 import { Utility } from './utility/Utility';
 import { BaseFeature } from './feature/base/BaseFeature';
 declare const stdutil: Utility;
+type DirectResult = {
+    ok: false;
+    err: any;
+    status?: undefined;
+    headers?: undefined;
+    data?: undefined;
+} | {
+    ok: boolean;
+    status: number;
+    headers: any;
+    data: any;
+    err?: any;
+};
 declare class ObsidianSDK {
     _mode: string;
     _options: any;
@@ -25,32 +38,8 @@ declare class ObsidianSDK {
     options(): any;
     utility(): any;
     prepare(fetchargs?: any): Promise<any>;
-    direct(fetchargs?: any): Promise<Error | {
-        ok: boolean;
-        status: number;
-        headers: any;
-        data: any;
-        err?: undefined;
-    } | {
-        ok: boolean;
-        err: any;
-        status?: undefined;
-        headers?: undefined;
-        data?: undefined;
-    }>;
-    _rawRequest(fetchargs?: any): Promise<Error | {
-        ok: boolean;
-        status: number;
-        headers: any;
-        data: any;
-        err?: undefined;
-    } | {
-        ok: boolean;
-        err: any;
-        status?: undefined;
-        headers?: undefined;
-        data?: undefined;
-    }>;
+    direct(fetchargs?: any): Promise<DirectResult>;
+    _rawRequest(fetchargs?: any): Promise<DirectResult>;
     graphql(query: string, variables?: any, ctrl?: any): Promise<any>;
     Active(entopts?: Record<string, any>): ActiveEntity;
     Command(entopts?: Record<string, any>): CommandEntity;
@@ -71,3 +60,4 @@ declare class ObsidianSDK {
 }
 declare const SDK: typeof ObsidianSDK;
 export { stdutil, config, BaseFeature, ObsidianEntityBase, ObsidianSDK, SDK, };
+export type { DirectResult };

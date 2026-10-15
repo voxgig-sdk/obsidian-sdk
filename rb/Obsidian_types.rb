@@ -204,6 +204,55 @@ ActiveUpdateData = Struct.new(
   keyword_init: true
 )
 
+# Request payload for Active#patch.
+#
+# @!attribute [rw] content
+#   @return [String, nil]
+#
+# @!attribute [rw] createTargetIfMissing
+#   @return [Boolean, nil]
+#
+# @!attribute [rw] destination
+#   @return [Hash, nil]
+#
+# @!attribute [rw] ifMatch
+#   @return [String, nil]
+#
+# @!attribute [rw] operation
+#   @return [String, nil]
+#
+# @!attribute [rw] rejectIfContentPreexists
+#   @return [Boolean, nil]
+#
+# @!attribute [rw] scope
+#   @return [String, nil]
+#
+# @!attribute [rw] target
+#   @return [Object, nil]
+#
+# @!attribute [rw] targetType
+#   @return [String, nil]
+#
+# @!attribute [rw] value
+#   @return [Object, nil]
+#
+# @!attribute [rw] within
+#   @return [Integer, nil]
+ActivePatchData = Struct.new(
+  :content,
+  :createTargetIfMissing,
+  :destination,
+  :ifMatch,
+  :operation,
+  :rejectIfContentPreexists,
+  :scope,
+  :target,
+  :targetType,
+  :value,
+  :within,
+  keyword_init: true
+)
+
 # Request payload for Active#remove.
 #
 # @!attribute [rw] permanent
@@ -254,27 +303,43 @@ CommandCreateData = Struct.new(
 
 # Entity1 entity data model.
 #
-# @!attribute [rw] obsidian
+# @!attribute [rw] authenticated
+#   @return [Boolean, nil]
+#
+# @!attribute [rw] ok
 #   @return [String, nil]
 #
-# @!attribute [rw] self
+# @!attribute [rw] service
 #   @return [String, nil]
+#
+# @!attribute [rw] versions
+#   @return [Hash, nil]
 Entity1 = Struct.new(
-  :obsidian,
-  :self,
+  :authenticated,
+  :ok,
+  :service,
+  :versions,
   keyword_init: true
 )
 
 # Request payload for Entity1#load.
 #
-# @!attribute [rw] obsidian
+# @!attribute [rw] authenticated
+#   @return [Boolean, nil]
+#
+# @!attribute [rw] ok
 #   @return [String, nil]
 #
-# @!attribute [rw] self
+# @!attribute [rw] service
 #   @return [String, nil]
+#
+# @!attribute [rw] versions
+#   @return [Hash, nil]
 Entity1LoadMatch = Struct.new(
-  :obsidian,
-  :self,
+  :authenticated,
+  :ok,
+  :service,
+  :versions,
   keyword_init: true
 )
 
@@ -626,6 +691,63 @@ VaultCreateData = Struct.new(
 # @!attribute [rw] within
 #   @return [Integer, nil]
 VaultUpdateData = Struct.new(
+  :id,
+  :content,
+  :createTargetIfMissing,
+  :destination,
+  :files,
+  :ifMatch,
+  :operation,
+  :rejectIfContentPreexists,
+  :scope,
+  :target,
+  :targetType,
+  :value,
+  :within,
+  keyword_init: true
+)
+
+# Request payload for Vault#patch.
+#
+# @!attribute [rw] id
+#   @return [String]
+#
+# @!attribute [rw] content
+#   @return [String, nil]
+#
+# @!attribute [rw] createTargetIfMissing
+#   @return [Boolean, nil]
+#
+# @!attribute [rw] destination
+#   @return [Hash, nil]
+#
+# @!attribute [rw] files
+#   @return [Array, nil]
+#
+# @!attribute [rw] ifMatch
+#   @return [String, nil]
+#
+# @!attribute [rw] operation
+#   @return [String, nil]
+#
+# @!attribute [rw] rejectIfContentPreexists
+#   @return [Boolean, nil]
+#
+# @!attribute [rw] scope
+#   @return [String, nil]
+#
+# @!attribute [rw] target
+#   @return [Object, nil]
+#
+# @!attribute [rw] targetType
+#   @return [String, nil]
+#
+# @!attribute [rw] value
+#   @return [Object, nil]
+#
+# @!attribute [rw] within
+#   @return [Integer, nil]
+VaultPatchData = Struct.new(
   :id,
   :content,
   :createTargetIfMissing,

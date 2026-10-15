@@ -4,7 +4,7 @@
 
 The Golang SDK for the Obsidian API — an entity-oriented client using standard Go conventions. No generics required; data flows as `map[string]any`.
 
-It exposes the API as capitalised, semantic **Entities** — e.g. `client.Active(nil)` — each with the same small set of operations (`List`, `Load`, `Create`, `Update`, `Remove`, `Patch`) instead of raw URL paths and query strings. You call meaning, not endpoints, which keeps the cognitive load low.
+It exposes the API as capitalised, semantic **Entities** — e.g. `client.Active(nil)` — each with the same small set of operations (`List`, `Load`, `Create`, `Update`, `Patch`, `Remove`) instead of raw URL paths and query strings. You call meaning, not endpoints, which keeps the cognitive load low.
 
 > Also generated from this model: `c`, `go-cli`, `go-mcp`, `lua`, `php`, `py`, `rb`, `ts` — see
 > the [top-level README](../README.md).
@@ -16,7 +16,7 @@ go get github.com/voxgig-sdk/obsidian-sdk/go@latest
 ```
 
 The Go module proxy resolves the version from the `go/vX.Y.Z` GitHub
-release tag — see [Releases](https://github.com/voxgig-sdk/obsidian-sdk/releases) for the available versions.
+release tag — see [Tags](https://github.com/voxgig-sdk/obsidian-sdk/tags) for the available versions.
 
 To vendor from a local checkout instead, clone this repo alongside your
 project and add a `replace` directive pointing at the checked-out
@@ -35,9 +35,10 @@ loading a specific record.
 ### Quickstart
 
 A complete program: create a client, then call the entity operations.
-Each operation returns `(value, error)` — the value is the data itself
-(there is no `{ok, data}` wrapper), so check `err` and use the value
-directly.
+Each operation returns `(value, error)` — the value is the entity, and for
+`List` a `[]any` of entities, one per record (there is no `{ok, data}`
+wrapper), so check `err` and read a record through the entity's
+`Data()`.
 
 ```go
 package main
@@ -57,36 +58,113 @@ func main() {
     },
     })
 
-    // Load a single active — the value is the loaded record.
+    // Load a single active — the value is the entity; Data() reads its record.
     active, err := client.Active(nil).Load(nil, nil)
     if err != nil {
         panic(err)
     }
-    fmt.Println(active)
+    fmt.Println(active.(sdk.Entity).Data())
 
     // Create a active.
     created, err := client.Active(nil).Create(map[string]any{"destination": map[string]any{}, "operation": "example_operation", "target": "example_target", "targetType": "example_targetType"}, nil)
     if err != nil {
         panic(err)
     }
-    fmt.Println(created)
+    fmt.Println(created.(sdk.Entity).Data())
 
     // Update a active.
     updated, err := client.Active(nil).Update(map[string]any{"content": "example_content", "createTargetIfMissing": true}, nil)
     if err != nil {
         panic(err)
     }
-    fmt.Println(updated)
+    fmt.Println(updated.(sdk.Entity).Data())
+
+    // Patch a active: only the fields given are sent.
+    patched, err := client.Active(nil).Patch(map[string]any{"content": "example_content", "createTargetIfMissing": true}, nil)
+    if err != nil {
+        panic(err)
+    }
+    fmt.Println(patched.(sdk.Entity).Data())
 
     // Remove a active.
     removed, err := client.Active(nil).Remove(nil, nil)
     if err != nil {
         panic(err)
     }
-    fmt.Println(removed)
+    fmt.Println(removed.(sdk.Entity).Data())
 }
 ```
 
+
+## Use with Station
+
+This SDK ships as a [voxgig/station](https://github.com/voxgig/station)
+plugin: bind it to a local `Station` and outbound configuration,
+credentials, and observability move to one place. The feature is
+present but **off by default** — nothing changes until you bind.
+
+### Declarative: `station.json` + `station.sdk()`
+
+Declare an instance in `station.json` at the repo root (committable —
+names and stores, never values):
+
+```json
+{ "station": 1,
+  "profiles": { "default": {
+    "sdk": { "obsidian": {
+      "package": "github.com/voxgig-sdk/obsidian-sdk/go" } } } } }
+```
+
+Then get the client where you need it:
+
+1. `station = Station.open()` — reads and validates `station.json`;
+   constructs nothing.
+2. `client = station.sdk('obsidian')` — built on first ask and cached,
+   so the same name returns the same client.
+
+Loading this package is the whole bootstrap: it registers its own
+factory (constructor plus embedded config) with the station library at
+module init, so `station.sdk()` needs no SDK import in application
+code. That is what the `package` key above is for — it names the module
+for station to load, since nothing else in this example would execute
+it. An application that imports this SDK for its types anyway can drop
+the key: that import is itself the bootstrap.
+
+A second instance of the same API is one more key — `"obsidian$test"`
+beside `"obsidian"` — and `station.sdk('obsidian$test')` returns it.
+SDK features are configured in the same file too: fleet-wide, per api,
+or per instance. `station.check()` resolves and constructs every
+active instance without sending a request — run it in CI.
+
+### The secret name derives from the instance
+
+The credential comes from [sekreto](https://github.com/voxgig/sekreto)
+under a name derived from the **instance** name — the instance token
+lowercased, plus `.apikey`. The untagged instance `obsidian` derives
+`obsidian.apikey` — by default the `OBSIDIAN_APIKEY` environment
+variable this README already documents, unchanged. A tagged instance
+derives its own: `obsidian$test` → `obsidian_test.apikey` →
+`OBSIDIAN_TEST_APIKEY` — each instance is a separate credentialed use
+of the API, and its env var is derivable from the name you chose. To
+pin a name instead, set `secret` on the instance block, or at the
+api level for several instances sharing one key. Point a profile at a
+vault later and application code does not change; sekreto's own
+documentation covers the stores. The key stays out of `options()` and
+`prepare()` output; `station.tap(...)` shows live traffic.
+
+### Imperative: inverted binding — the retrofit path
+
+Bind through the constructor this SDK already has (inverted
+binding): open a station, then construct with station-built options —
+`station.options()` merges the handle, the activation entry, and the
+correct feature order into the plain options the constructor accepts.
+
+With no `station.json` at all this runs solo with everything
+defaulted — the two-line form is how an existing application starts.
+
+Station failures surface through this SDK's own error path
+(`err.code`, `station_*`); the codes are catalogued in
+[station error codes](https://github.com/voxgig/sdkgen/blob/main/docs/reference/station-errors.md).
 
 ## Error handling
 
@@ -94,12 +172,12 @@ Every entity operation returns `(value, error)`. Check `err` before
 using the value — there is no exception to catch:
 
 ```go
-commands, err := client.Command(nil).List(nil, nil)
+entity1, err := client.Entity1(nil).Load(nil, nil)
 if err != nil {
     // handle err
     return
 }
-_ = commands
+_ = entity1
 ```
 
 `Direct` follows the same `(value, error)` convention:
@@ -163,13 +241,13 @@ Create a mock client for unit testing — no server required:
 ```go
 client := sdk.Test()
 
-command, err := client.Command(nil).List(
+entity1, err := client.Entity1(nil).Load(
     nil, nil,
 )
 if err != nil {
     panic(err)
 }
-fmt.Println(command) // the returned mock data
+fmt.Println(entity1.(sdk.Entity).Data()) // the entity's mock record
 ```
 
 ### Use a custom fetch function
@@ -264,11 +342,12 @@ All entities implement the `ObsidianEntity` interface.
 
 | Method | Signature | Description |
 | --- | --- | --- |
-| `Load` | `(reqmatch, ctrl map[string]any) (any, error)` | Load a single entity by match criteria. |
-| `List` | `(reqmatch, ctrl map[string]any) (any, error)` | List entities matching the criteria. |
-| `Create` | `(reqdata, ctrl map[string]any) (any, error)` | Create a new entity. |
-| `Update` | `(reqdata, ctrl map[string]any) (any, error)` | Update an existing entity. |
-| `Remove` | `(reqmatch, ctrl map[string]any) (any, error)` | Remove an entity. |
+| `Load` | `(reqmatch, ctrl map[string]any) (any, error)` | Load a single entity by match criteria, and return it. |
+| `List` | `(reqmatch, ctrl map[string]any) (any, error)` | List entities matching the criteria, one per record. |
+| `Create` | `(reqdata, ctrl map[string]any) (any, error)` | Create a new entity, and return it. |
+| `Update` | `(reqdata, ctrl map[string]any) (any, error)` | Update an existing entity, and return it. |
+| `Patch` | `(reqdata, ctrl map[string]any) (any, error)` | Change part of an existing entity, and return it. |
+| `Remove` | `(reqmatch, ctrl map[string]any) (any, error)` | Remove an entity, and return it marked as deleted. |
 | `Data` | `(args ...any) any` | Get or set entity data. |
 | `Match` | `(args ...any) any` | Get or set entity match criteria. |
 | `Make` | `() Entity` | Create a new instance with the same options. |
@@ -276,13 +355,13 @@ All entities implement the `ObsidianEntity` interface.
 
 ### Result shape
 
-Entity operations return `(value, error)`. The `value` is the
-operation's data **directly** — there is no wrapper:
+Entity operations return `(value, error)`. The `value` is the entity
+itself — there is no wrapper:
 
 | Operation | `value` |
 | --- | --- |
-| `Load` / `Create` / `Update` / `Remove` | the entity record (`map[string]any`) |
-| `List` | a `[]any` of entity records |
+| `Load` / `Create` / `Update` / `Patch` / `Remove` | the entity, whose `Data()` reads its record (`map[string]any`) |
+| `List` | a `[]any` of entities, one per record |
 
 Check `err` first, then use the value directly (or the typed
 `...Typed` variants, which return the entity's model struct and a typed
@@ -290,7 +369,7 @@ slice):
 
     active, err := client.Active(nil).Load(nil, nil)
     if err != nil { /* handle */ }
-    // active is the returned record
+    // active is the entity; active.(sdk.Entity).Data() reads its record
 
 Only `Direct()` returns a response envelope — a `map[string]any` with
 `"ok"`, `"status"`, `"headers"`, and `"data"` keys.
@@ -332,8 +411,10 @@ API path: `/commands/{commandId}/`
 
 | Field | Description |
 | --- | --- |
-| `"obsidian"` | Obsidian plugin API version |
-| `"self"` | Plugin version. |
+| `"authenticated"` | Is your current request authenticated? |
+| `"ok"` | 'OK' |
+| `"service"` | 'Obsidian Local REST API' |
+| `"versions"` |  |
 
 Operations: Load.
 
@@ -429,6 +510,7 @@ Create an instance: `active := client.Active(nil)`
 | `Load(match, ctrl)` | Load a single entity by match criteria. |
 | `Create(data, ctrl)` | Create a new entity with the given data. |
 | `Update(data, ctrl)` | Update an existing entity. |
+| `Patch(data, ctrl)` | Change part of an existing entity. |
 | `Remove(match, ctrl)` | Remove the matching entity. |
 
 #### Fields
@@ -454,7 +536,7 @@ active, err := client.Active(nil).Load(nil, nil)
 if err != nil {
     panic(err)
 }
-fmt.Println(active) // the loaded record
+fmt.Println(active.(sdk.Entity).Data()) // the loaded entity's record
 ```
 
 #### Example: Create
@@ -469,7 +551,7 @@ result, err := client.Active(nil).Create(map[string]any{
 if err != nil {
     panic(err)
 }
-fmt.Println(result)
+fmt.Println(result.(sdk.Entity).Data()) // the created entity's record
 ```
 
 
@@ -498,7 +580,10 @@ commands, err := client.Command(nil).List(nil, nil)
 if err != nil {
     panic(err)
 }
-fmt.Println(commands) // the array of records
+// A []any of entities, one per record.
+for _, item := range commands.([]any) {
+    fmt.Println(item.(sdk.Entity).Data())
+}
 ```
 
 #### Example: Create
@@ -510,7 +595,7 @@ result, err := client.Command(nil).Create(map[string]any{
 if err != nil {
     panic(err)
 }
-fmt.Println(result)
+fmt.Println(result.(sdk.Entity).Data()) // the created entity's record
 ```
 
 
@@ -528,8 +613,10 @@ Create an instance: `entity1 := client.Entity1(nil)`
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `obsidian` | `string` | Obsidian plugin API version |
-| `self` | `string` | Plugin version. |
+| `authenticated` | `bool` | Is your current request authenticated? |
+| `ok` | `string` | 'OK' |
+| `service` | `string` | 'Obsidian Local REST API' |
+| `versions` | `map[string]any` |  |
 
 #### Example: Load
 
@@ -538,7 +625,7 @@ entity1, err := client.Entity1(nil).Load(nil, nil)
 if err != nil {
     panic(err)
 }
-fmt.Println(entity1) // the loaded record
+fmt.Println(entity1.(sdk.Entity).Data()) // the loaded entity's record
 ```
 
 
@@ -569,7 +656,7 @@ mcp, err := client.Mcp(nil).Load(map[string]any{"id": "mcp_id"}, nil)
 if err != nil {
     panic(err)
 }
-fmt.Println(mcp) // the loaded record
+fmt.Println(mcp.(sdk.Entity).Data()) // the loaded entity's record
 ```
 
 #### Example: Create
@@ -582,7 +669,7 @@ result, err := client.Mcp(nil).Create(map[string]any{
 if err != nil {
     panic(err)
 }
-fmt.Println(result)
+fmt.Println(result.(sdk.Entity).Data()) // the created entity's record
 ```
 
 
@@ -611,7 +698,7 @@ result, err := client.Open(nil).Create(map[string]any{
 if err != nil {
     panic(err)
 }
-fmt.Println(result)
+fmt.Println(result.(sdk.Entity).Data()) // the created entity's record
 ```
 
 
@@ -633,7 +720,7 @@ result, err := client.Search(nil).Create(map[string]any{
 if err != nil {
     panic(err)
 }
-fmt.Println(result)
+fmt.Println(result.(sdk.Entity).Data()) // the created entity's record
 ```
 
 
@@ -654,7 +741,7 @@ system, err := client.System(nil).Load(nil, nil)
 if err != nil {
     panic(err)
 }
-fmt.Println(system) // the loaded record
+fmt.Println(system.(sdk.Entity).Data()) // the loaded entity's record
 ```
 
 
@@ -682,7 +769,10 @@ tags, err := client.Tag(nil).List(nil, nil)
 if err != nil {
     panic(err)
 }
-fmt.Println(tags) // the array of records
+// A []any of entities, one per record.
+for _, item := range tags.([]any) {
+    fmt.Println(item.(sdk.Entity).Data())
+}
 ```
 
 
@@ -698,6 +788,7 @@ Create an instance: `vault := client.Vault(nil)`
 | `Load(match, ctrl)` | Load a single entity by match criteria. |
 | `Create(data, ctrl)` | Create a new entity with the given data. |
 | `Update(data, ctrl)` | Update an existing entity. |
+| `Patch(data, ctrl)` | Change part of an existing entity. |
 | `Remove(match, ctrl)` | Remove the matching entity. |
 
 #### Fields
@@ -725,7 +816,7 @@ vault, err := client.Vault(nil).Load(map[string]any{"id": "vault_id"}, nil)
 if err != nil {
     panic(err)
 }
-fmt.Println(vault) // the loaded record
+fmt.Println(vault.(sdk.Entity).Data()) // the loaded entity's record
 ```
 
 #### Example: List
@@ -735,7 +826,10 @@ vaults, err := client.Vault(nil).List(nil, nil)
 if err != nil {
     panic(err)
 }
-fmt.Println(vaults) // the array of records
+// A []any of entities, one per record.
+for _, item := range vaults.([]any) {
+    fmt.Println(item.(sdk.Entity).Data())
+}
 ```
 
 #### Example: Create
@@ -751,12 +845,12 @@ result, err := client.Vault(nil).Create(map[string]any{
 if err != nil {
     panic(err)
 }
-fmt.Println(result)
+fmt.Println(result.(sdk.Entity).Data()) // the created entity's record
 ```
 
 ## Features
 
-This SDK ships 8 optional features. Each is **inactive until you
+This SDK ships 9 optional features. Each is **inactive until you
 switch it on**, so an SDK you have not configured behaves exactly as if none of
 them existed — no retries, no cache, no logging, no measurable overhead.
 
@@ -771,10 +865,11 @@ above:
 | [`paging`](#paging) | Paging |
 | [`ratelimit`](#ratelimit) | Rate limiting |
 | [`retry`](#retry) | Retry |
+| [`station`](#station) | Station control surface binding for outbound integrations |
 | [`test`](#test) | Test transport |
 | [`timeout`](#timeout) | Timeout |
 
-> **Order matters for `ratelimit`, `retry`, `timeout`.** These wrap the
+> **Order matters for `ratelimit`, `retry`, `station`, `timeout`.** These wrap the
 > transport, so each one wraps whatever is already installed: the order you
 > activate them in IS the nesting order. Activating them as an ordered list
 > rather than a map is what fixes that order.
@@ -862,6 +957,27 @@ Retry.
 Set `feature.retry.active` to enable it, then override any of the options above.
 
 `retry` wraps the transport, so its position among the other
+transport features decides what it sees. A feature activated later wraps one
+activated earlier.
+
+### station
+
+Station control surface binding for outbound integrations.
+
+| Option | Default |
+|---|---|
+| `active` | `false` |
+| `capture` | `'meta'` |
+| `fromEnv` | `true` |
+| `instance` | `''` |
+| `profile` | `''` |
+| `register` | `true` |
+| `secret` | `''` |
+| `url` | `''` |
+
+Set `feature.station.active` to enable it, then override any of the options above.
+
+`station` wraps the transport, so its position among the other
 transport features decides what it sees. A feature activated later wraps one
 activated earlier.
 
@@ -954,6 +1070,7 @@ The SDK ships with built-in features:
 - **PagingFeature**: Paging
 - **RatelimitFeature**: Rate limiting
 - **RetryFeature**: Retry
+- **StationFeature**: Station control surface binding for outbound integrations
 - **TestFeature**: Test transport
 - **TimeoutFeature**: Timeout
 
@@ -966,7 +1083,9 @@ The Go SDK uses `map[string]any` throughout rather than typed structs.
 This mirrors the dynamic nature of the API and keeps the SDK
 flexible — no code generation is needed when the API schema changes.
 
-Use `core.ToMapAny()` to safely cast results and nested data.
+An operation returns the entity, and its `Data()` returns the record. Use
+`core.ToMapAny()` to safely cast that record, or data nested in it, to
+`map[string]any`: it returns `nil` for anything else, an entity included.
 
 ### Package structure
 
@@ -986,15 +1105,15 @@ like `core.ToMapAny`.
 
 ### Entity state
 
-Entity instances are stateful. After a successful `List`, the entity
+Entity instances are stateful. After a successful `Load`, the entity
 stores the returned data and match criteria internally.
 
 ```go
-command := client.Command(nil)
-command.List(nil, nil)
+entity1 := client.Entity1(nil)
+entity1.Load(nil, nil)
 
-// command.Data() now returns the command data from the last list
-// command.Match() returns the last match criteria
+// entity1.Data() now returns the entity1 data from the last load
+// entity1.Match() returns the last match criteria
 ```
 
 Call `Make()` to create a fresh instance with the same configuration

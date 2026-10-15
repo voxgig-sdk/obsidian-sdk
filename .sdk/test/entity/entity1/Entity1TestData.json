@@ -2,18 +2,24 @@
   "existing": {
     "entity1": {
       "ENTITY100": {
-        "obsidian": "s14",
-        "self": "s15",
+        "authenticated": true,
+        "ok": "s29",
+        "service": "s2a",
+        "versions": {},
         "id": "ENTITY100"
       },
       "ENTITY101": {
-        "obsidian": "s28",
-        "self": "s29",
+        "authenticated": true,
+        "ok": "s51",
+        "service": "s52",
+        "versions": {},
         "id": "ENTITY101"
       },
       "ENTITY102": {
-        "obsidian": "s3c",
-        "self": "s3d",
+        "authenticated": true,
+        "ok": "s79",
+        "service": "s7a",
+        "versions": {},
         "id": "ENTITY102"
       }
     }
@@ -21,8 +27,10 @@
   "new": {
     "entity1": {
       "entity1_ref01": {
-        "obsidian": "s50",
-        "self": "s51"
+        "authenticated": true,
+        "ok": "sa1",
+        "service": "sa2",
+        "versions": {}
       }
     }
   },

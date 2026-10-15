@@ -7,6 +7,7 @@ require_relative 'feature/metrics_feature'
 require_relative 'feature/paging_feature'
 require_relative 'feature/ratelimit_feature'
 require_relative 'feature/retry_feature'
+require_relative 'feature/station_feature'
 require_relative 'feature/test_feature'
 require_relative 'feature/timeout_feature'
 
@@ -28,6 +29,8 @@ module ObsidianFeatures
       ObsidianRatelimitFeature.new
     when "retry"
       ObsidianRetryFeature.new
+    when "station"
+      ObsidianStationFeature.new
     when "test"
       ObsidianTestFeature.new
     when "timeout"

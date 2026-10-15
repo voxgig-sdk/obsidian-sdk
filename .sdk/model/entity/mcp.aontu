@@ -51,6 +51,12 @@ main: kit: entity: mcp: {
       name: "create"
       points: [
         {
+          bf: [
+            "id"
+            "jsonrpc"
+            "method"
+            "params"
+          ]
           co: {
             id: "POST /mcp/"
             source: "openapi3"
@@ -61,14 +67,14 @@ main: kit: entity: mcp: {
               {
                 k: "header"
                 n: "mcp_protocol_version"
-                or: "mcp_protocol_version"
+                or: "MCP-Protocol-Version"
                 r: false
                 t: "`$STRING`"
               }
               {
                 k: "header"
                 n: "mcp_session_id"
-                or: "mcp_session_id"
+                or: "Mcp-Session-Id"
                 r: false
                 t: "`$STRING`"
               }
@@ -76,12 +82,6 @@ main: kit: entity: mcp: {
           }
           m: "POST"
           o: "/mcp/"
-          q: {
-            exist: [
-              "mcp_protocol_version"
-              "mcp_session_id"
-            ]
-          }
           s: [
             {
               lit: "mcp"
@@ -108,14 +108,14 @@ main: kit: entity: mcp: {
               {
                 k: "header"
                 n: "mcp_protocol_version"
-                or: "mcp_protocol_version"
+                or: "MCP-Protocol-Version"
                 r: false
                 t: "`$STRING`"
               }
               {
                 k: "header"
                 n: "mcp_session_id"
-                or: "mcp_session_id"
+                or: "Mcp-Session-Id"
                 r: true
                 t: "`$STRING`"
               }
@@ -125,9 +125,12 @@ main: kit: entity: mcp: {
           o: "/mcp/"
           q: {
             exist: [
-              "mcp_protocol_version"
               "mcp_session_id"
             ]
+          }
+          rs: {
+            kind: "raw"
+            media: "text/event-stream"
           }
           s: [
             {

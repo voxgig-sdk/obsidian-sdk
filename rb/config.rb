@@ -131,6 +131,21 @@ module ObsidianConfig
           "strict" => false,
           "transport" => "wrap",
         },
+        "station" => {
+          "options" => {
+            "active" => false,
+            "capture" => "meta",
+            "fromEnv" => true,
+            "instance" => "",
+            "profile" => "",
+            "register" => true,
+            "secret" => "",
+            "url" => "",
+          },
+          "optspec" => {},
+          "strict" => false,
+          "transport" => "wrap",
+        },
         "test" => {
           "options" => {
             "active" => false,
@@ -149,6 +164,7 @@ module ObsidianConfig
           },
           "optspec" => {
             "clearTimer" => "`$FUNCTION`",
+            "now" => "`$FUNCTION`",
             "setTimer" => "`$FUNCTION`",
           },
           "strict" => false,
@@ -280,33 +296,35 @@ module ObsidianConfig
                     "header" => [
                       {
                         "name" => "create_target_if_missing",
-                        "orig" => "create_target_if_missing",
+                        "orig" => "Create-Target-If-Missing",
                         "type" => "`$STRING`",
                         "kind" => "header",
                         "example" => "false",
                       },
                       {
                         "name" => "markdown_patch_version",
-                        "orig" => "markdown_patch_version",
+                        "orig" => "Markdown-Patch-Version",
                         "type" => "`$STRING`",
                         "kind" => "header",
                         "example" => "2",
                       },
                       {
                         "name" => "reject_if_content_preexist",
-                        "orig" => "reject_if_content_preexist",
+                        "orig" => "Reject-If-Content-Preexists",
                         "type" => "`$STRING`",
                         "kind" => "header",
                         "example" => "false",
                       },
                     ],
                   },
-                  "select" => {
-                    "exist" => [
-                      "create_target_if_missing",
-                      "markdown_patch_version",
-                      "reject_if_content_preexist",
-                    ],
+                  "select" => {},
+                  "body" => {
+                    "kind" => "raw",
+                    "media" => "text/markdown",
+                  },
+                  "response" => {
+                    "kind" => "raw",
+                    "media" => "text/markdown",
                   },
                 },
               ],
@@ -336,25 +354,42 @@ module ObsidianConfig
                     "header" => [
                       {
                         "name" => "markdown_patch_version",
-                        "orig" => "markdown_patch_version",
+                        "orig" => "Markdown-Patch-Version",
                         "type" => "`$STRING`",
                         "kind" => "header",
                         "example" => "2",
                       },
                       {
                         "name" => "target_scope",
-                        "orig" => "target_scope",
+                        "orig" => "Target-Scope",
                         "type" => "`$STRING`",
                         "kind" => "header",
                         "example" => "content",
                       },
                     ],
                   },
-                  "select" => {
-                    "exist" => [
-                      "markdown_patch_version",
-                      "target_scope",
+                  "select" => {},
+                  "response" => {
+                    "alternatives" => [
+                      {
+                        "kind" => "json",
+                        "media" => "application/vnd.olrapi.document-map+json",
+                      },
+                      {
+                        "kind" => "json",
+                        "media" => "application/vnd.olrapi.note+json",
+                      },
+                      {
+                        "kind" => "raw",
+                        "media" => "text/html",
+                      },
+                      {
+                        "kind" => "raw",
+                        "media" => "text/markdown",
+                      },
                     ],
+                    "kind" => "json",
+                    "media" => "application/json",
                   },
                 },
               ],
@@ -396,83 +431,88 @@ module ObsidianConfig
                     "header" => [
                       {
                         "name" => "create_target_if_missing",
-                        "orig" => "create_target_if_missing",
+                        "orig" => "Create-Target-If-Missing",
                         "type" => "`$STRING`",
                         "kind" => "header",
                         "example" => "false",
                       },
                       {
                         "name" => "destination",
-                        "orig" => "destination",
+                        "orig" => "Destination",
                         "type" => "`$STRING`",
                         "kind" => "header",
+                        "field" => true,
                       },
                       {
                         "name" => "if_match",
-                        "orig" => "if_match",
+                        "orig" => "If-Match",
                         "type" => "`$STRING`",
                         "kind" => "header",
                       },
                       {
                         "name" => "markdown_patch_version",
-                        "orig" => "markdown_patch_version",
+                        "orig" => "Markdown-Patch-Version",
                         "type" => "`$STRING`",
                         "kind" => "header",
                         "example" => "2",
                       },
                       {
                         "name" => "operation",
-                        "orig" => "operation",
+                        "orig" => "Operation",
                         "type" => "`$STRING`",
                         "kind" => "header",
+                        "field" => true,
                       },
                       {
                         "name" => "reject_if_content_preexist",
-                        "orig" => "reject_if_content_preexist",
+                        "orig" => "Reject-If-Content-Preexists",
                         "type" => "`$STRING`",
                         "kind" => "header",
                         "example" => "false",
                       },
                       {
                         "name" => "target",
-                        "orig" => "target",
+                        "orig" => "Target",
                         "type" => "`$STRING`",
                         "kind" => "header",
+                        "field" => true,
                       },
                       {
                         "name" => "target_scope",
-                        "orig" => "target_scope",
+                        "orig" => "Target-Scope",
                         "type" => "`$STRING`",
                         "kind" => "header",
                         "example" => "content",
                       },
                       {
                         "name" => "target_type",
-                        "orig" => "target_type",
+                        "orig" => "Target-Type",
                         "type" => "`$STRING`",
                         "kind" => "header",
                       },
                       {
                         "name" => "within",
-                        "orig" => "within",
+                        "orig" => "Within",
                         "type" => "`$STRING`",
                         "kind" => "header",
+                        "field" => true,
                       },
                     ],
                   },
-                  "select" => {
-                    "exist" => [
-                      "create_target_if_missing",
-                      "destination",
-                      "if_match",
-                      "markdown_patch_version",
-                      "operation",
-                      "reject_if_content_preexist",
-                      "target",
-                      "target_scope",
-                      "target_type",
-                      "within",
+                  "select" => {},
+                  "body" => {
+                    "alternatives" => [
+                      {
+                        "kind" => "json",
+                        "media" => "application/vnd.olrapi.patch-instruction+json",
+                      },
+                      {
+                        "kind" => "raw",
+                        "media" => "text/markdown",
+                      },
                     ],
+                    "kind" => "json",
+                    "media" => "application/json",
                   },
                 },
               ],
@@ -509,11 +549,7 @@ module ObsidianConfig
                       },
                     ],
                   },
-                  "select" => {
-                    "exist" => [
-                      "permanent",
-                    ],
-                  },
+                  "select" => {},
                 },
               ],
             },
@@ -542,25 +578,34 @@ module ObsidianConfig
                     "header" => [
                       {
                         "name" => "markdown_patch_version",
-                        "orig" => "markdown_patch_version",
+                        "orig" => "Markdown-Patch-Version",
                         "type" => "`$STRING`",
                         "kind" => "header",
                         "example" => "2",
                       },
                       {
                         "name" => "reject_if_content_preexist",
-                        "orig" => "reject_if_content_preexist",
+                        "orig" => "Reject-If-Content-Preexists",
                         "type" => "`$STRING`",
                         "kind" => "header",
                         "example" => "false",
                       },
                     ],
                   },
-                  "select" => {
-                    "exist" => [
-                      "markdown_patch_version",
-                      "reject_if_content_preexist",
+                  "select" => {},
+                  "body" => {
+                    "alternatives" => [
+                      {
+                        "kind" => "raw",
+                        "media" => "text/markdown",
+                      },
                     ],
+                    "kind" => "json",
+                    "media" => "application/json",
+                  },
+                  "response" => {
+                    "kind" => "raw",
+                    "media" => "text/markdown",
                   },
                 },
               ],
@@ -622,7 +667,7 @@ module ObsidianConfig
                     "params" => [
                       {
                         "name" => "id",
-                        "orig" => "command_id",
+                        "orig" => "commandId",
                         "type" => "`$STRING`",
                         "kind" => "param",
                         "reqd" => true,
@@ -660,6 +705,10 @@ module ObsidianConfig
                   },
                   "args" => {},
                   "select" => {},
+                  "response" => {
+                    "kind" => "json",
+                    "media" => "application/json",
+                  },
                 },
               ],
             },
@@ -671,16 +720,27 @@ module ObsidianConfig
         "entity1" => {
           "fields" => [
             {
-              "name" => "obsidian",
-              "title" => "Obsidian",
-              "type" => "`$STRING`",
-              "short" => "Obsidian plugin API version",
+              "name" => "authenticated",
+              "title" => "Authenticated",
+              "type" => "`$BOOLEAN`",
+              "short" => "Is your current request authenticated?",
             },
             {
-              "name" => "self",
-              "title" => "Self",
+              "name" => "ok",
+              "title" => "Ok",
               "type" => "`$STRING`",
-              "short" => "Plugin version.",
+              "short" => "'OK'",
+            },
+            {
+              "name" => "service",
+              "title" => "Service",
+              "type" => "`$STRING`",
+              "short" => "'Obsidian Local REST API'",
+            },
+            {
+              "name" => "versions",
+              "title" => "Versions",
+              "type" => "`$OBJECT`",
             },
           ],
           "name" => "entity1",
@@ -698,10 +758,14 @@ module ObsidianConfig
                   "rename" => {},
                   "transform" => {
                     "req" => "`reqdata`",
-                    "res" => "`body.versions`",
+                    "res" => "`body`",
                   },
                   "args" => {},
                   "select" => {},
+                  "response" => {
+                    "kind" => "json",
+                    "media" => "application/json",
+                  },
                 },
               ],
             },
@@ -770,24 +834,19 @@ module ObsidianConfig
                     "header" => [
                       {
                         "name" => "mcp_protocol_version",
-                        "orig" => "mcp_protocol_version",
+                        "orig" => "MCP-Protocol-Version",
                         "type" => "`$STRING`",
                         "kind" => "header",
                       },
                       {
                         "name" => "mcp_session_id",
-                        "orig" => "mcp_session_id",
+                        "orig" => "Mcp-Session-Id",
                         "type" => "`$STRING`",
                         "kind" => "header",
                       },
                     ],
                   },
-                  "select" => {
-                    "exist" => [
-                      "mcp_protocol_version",
-                      "mcp_session_id",
-                    ],
-                  },
+                  "select" => {},
                 },
               ],
             },
@@ -816,13 +875,13 @@ module ObsidianConfig
                     "header" => [
                       {
                         "name" => "mcp_protocol_version",
-                        "orig" => "mcp_protocol_version",
+                        "orig" => "MCP-Protocol-Version",
                         "type" => "`$STRING`",
                         "kind" => "header",
                       },
                       {
                         "name" => "mcp_session_id",
-                        "orig" => "mcp_session_id",
+                        "orig" => "Mcp-Session-Id",
                         "type" => "`$STRING`",
                         "kind" => "header",
                         "reqd" => true,
@@ -831,9 +890,12 @@ module ObsidianConfig
                   },
                   "select" => {
                     "exist" => [
-                      "mcp_protocol_version",
                       "mcp_session_id",
                     ],
+                  },
+                  "response" => {
+                    "kind" => "raw",
+                    "media" => "text/event-stream",
                   },
                 },
               ],
@@ -899,7 +961,7 @@ module ObsidianConfig
                     "query" => [
                       {
                         "name" => "new_leaf",
-                        "orig" => "new_leaf",
+                        "orig" => "newLeaf",
                         "type" => "`$BOOLEAN`",
                         "kind" => "query",
                       },
@@ -908,7 +970,6 @@ module ObsidianConfig
                   "select" => {
                     "exist" => [
                       "id",
-                      "new_leaf",
                     ],
                   },
                 },
@@ -952,7 +1013,7 @@ module ObsidianConfig
                     "query" => [
                       {
                         "name" => "context_length",
-                        "orig" => "context_length",
+                        "orig" => "contextLength",
                         "type" => "`$NUMBER`",
                         "kind" => "query",
                         "example" => 100,
@@ -969,9 +1030,12 @@ module ObsidianConfig
                   "select" => {
                     "$action" => "simple",
                     "exist" => [
-                      "context_length",
                       "query",
                     ],
+                  },
+                  "response" => {
+                    "kind" => "json",
+                    "media" => "application/json",
                   },
                 },
                 {
@@ -993,6 +1057,14 @@ module ObsidianConfig
                   },
                   "args" => {},
                   "select" => {},
+                  "body" => {
+                    "kind" => "json",
+                    "media" => "application/vnd.olrapi.jsonlogic+json",
+                  },
+                  "response" => {
+                    "kind" => "json",
+                    "media" => "application/json",
+                  },
                 },
               ],
             },
@@ -1096,6 +1168,10 @@ module ObsidianConfig
                   },
                   "args" => {},
                   "select" => {},
+                  "response" => {
+                    "kind" => "json",
+                    "media" => "application/json",
+                  },
                 },
               ],
             },
@@ -1226,21 +1302,21 @@ module ObsidianConfig
                     "header" => [
                       {
                         "name" => "create_target_if_missing",
-                        "orig" => "create_target_if_missing",
+                        "orig" => "Create-Target-If-Missing",
                         "type" => "`$STRING`",
                         "kind" => "header",
                         "example" => "false",
                       },
                       {
                         "name" => "markdown_patch_version",
-                        "orig" => "markdown_patch_version",
+                        "orig" => "Markdown-Patch-Version",
                         "type" => "`$STRING`",
                         "kind" => "header",
                         "example" => "2",
                       },
                       {
                         "name" => "reject_if_content_preexist",
-                        "orig" => "reject_if_content_preexist",
+                        "orig" => "Reject-If-Content-Preexists",
                         "type" => "`$STRING`",
                         "kind" => "header",
                         "example" => "false",
@@ -1258,11 +1334,16 @@ module ObsidianConfig
                   },
                   "select" => {
                     "exist" => [
-                      "create_target_if_missing",
                       "id",
-                      "markdown_patch_version",
-                      "reject_if_content_preexist",
                     ],
+                  },
+                  "body" => {
+                    "kind" => "raw",
+                    "media" => "text/markdown",
+                  },
+                  "response" => {
+                    "kind" => "raw",
+                    "media" => "text/markdown",
                   },
                 },
               ],
@@ -1290,6 +1371,10 @@ module ObsidianConfig
                   },
                   "args" => {},
                   "select" => {},
+                  "response" => {
+                    "kind" => "json",
+                    "media" => "application/json",
+                  },
                 },
               ],
             },
@@ -1326,14 +1411,14 @@ module ObsidianConfig
                     "header" => [
                       {
                         "name" => "markdown_patch_version",
-                        "orig" => "markdown_patch_version",
+                        "orig" => "Markdown-Patch-Version",
                         "type" => "`$STRING`",
                         "kind" => "header",
                         "example" => "2",
                       },
                       {
                         "name" => "target_scope",
-                        "orig" => "target_scope",
+                        "orig" => "Target-Scope",
                         "type" => "`$STRING`",
                         "kind" => "header",
                         "example" => "content",
@@ -1352,9 +1437,29 @@ module ObsidianConfig
                   "select" => {
                     "exist" => [
                       "id",
-                      "markdown_patch_version",
-                      "target_scope",
                     ],
+                  },
+                  "response" => {
+                    "alternatives" => [
+                      {
+                        "kind" => "json",
+                        "media" => "application/vnd.olrapi.document-map+json",
+                      },
+                      {
+                        "kind" => "json",
+                        "media" => "application/vnd.olrapi.note+json",
+                      },
+                      {
+                        "kind" => "raw",
+                        "media" => "text/html",
+                      },
+                      {
+                        "kind" => "raw",
+                        "media" => "text/markdown",
+                      },
+                    ],
+                    "kind" => "json",
+                    "media" => "application/json",
                   },
                 },
                 {
@@ -1386,7 +1491,7 @@ module ObsidianConfig
                     "params" => [
                       {
                         "name" => "id",
-                        "orig" => "path_to_directory",
+                        "orig" => "pathToDirectory",
                         "type" => "`$STRING`",
                         "kind" => "param",
                         "reqd" => true,
@@ -1397,6 +1502,10 @@ module ObsidianConfig
                     "exist" => [
                       "id",
                     ],
+                  },
+                  "response" => {
+                    "kind" => "json",
+                    "media" => "application/json",
                   },
                 },
               ],
@@ -1446,67 +1555,71 @@ module ObsidianConfig
                     "header" => [
                       {
                         "name" => "create_target_if_missing",
-                        "orig" => "create_target_if_missing",
+                        "orig" => "Create-Target-If-Missing",
                         "type" => "`$STRING`",
                         "kind" => "header",
                         "example" => "false",
                       },
                       {
                         "name" => "destination",
-                        "orig" => "destination",
+                        "orig" => "Destination",
                         "type" => "`$STRING`",
                         "kind" => "header",
+                        "field" => true,
                       },
                       {
                         "name" => "if_match",
-                        "orig" => "if_match",
+                        "orig" => "If-Match",
                         "type" => "`$STRING`",
                         "kind" => "header",
                       },
                       {
                         "name" => "markdown_patch_version",
-                        "orig" => "markdown_patch_version",
+                        "orig" => "Markdown-Patch-Version",
                         "type" => "`$STRING`",
                         "kind" => "header",
                         "example" => "2",
                       },
                       {
                         "name" => "operation",
-                        "orig" => "operation",
+                        "orig" => "Operation",
                         "type" => "`$STRING`",
                         "kind" => "header",
+                        "field" => true,
                       },
                       {
                         "name" => "reject_if_content_preexist",
-                        "orig" => "reject_if_content_preexist",
+                        "orig" => "Reject-If-Content-Preexists",
                         "type" => "`$STRING`",
                         "kind" => "header",
                         "example" => "false",
                       },
                       {
                         "name" => "target",
-                        "orig" => "target",
+                        "orig" => "Target",
                         "type" => "`$STRING`",
                         "kind" => "header",
+                        "field" => true,
                       },
                       {
                         "name" => "target_scope",
-                        "orig" => "target_scope",
+                        "orig" => "Target-Scope",
                         "type" => "`$STRING`",
                         "kind" => "header",
                         "example" => "content",
                       },
                       {
                         "name" => "target_type",
-                        "orig" => "target_type",
+                        "orig" => "Target-Type",
                         "type" => "`$STRING`",
                         "kind" => "header",
                       },
                       {
                         "name" => "within",
-                        "orig" => "within",
+                        "orig" => "Within",
                         "type" => "`$STRING`",
                         "kind" => "header",
+                        "field" => true,
                       },
                     ],
                     "params" => [
@@ -1521,18 +1634,22 @@ module ObsidianConfig
                   },
                   "select" => {
                     "exist" => [
-                      "create_target_if_missing",
-                      "destination",
                       "id",
-                      "if_match",
-                      "markdown_patch_version",
-                      "operation",
-                      "reject_if_content_preexist",
-                      "target",
-                      "target_scope",
-                      "target_type",
-                      "within",
                     ],
+                  },
+                  "body" => {
+                    "alternatives" => [
+                      {
+                        "kind" => "json",
+                        "media" => "application/vnd.olrapi.patch-instruction+json",
+                      },
+                      {
+                        "kind" => "raw",
+                        "media" => "text/markdown",
+                      },
+                    ],
+                    "kind" => "json",
+                    "media" => "application/json",
                   },
                 },
               ],
@@ -1589,7 +1706,6 @@ module ObsidianConfig
                   "select" => {
                     "exist" => [
                       "id",
-                      "permanent",
                     ],
                   },
                 },
@@ -1628,14 +1744,14 @@ module ObsidianConfig
                     "header" => [
                       {
                         "name" => "markdown_patch_version",
-                        "orig" => "markdown_patch_version",
+                        "orig" => "Markdown-Patch-Version",
                         "type" => "`$STRING`",
                         "kind" => "header",
                         "example" => "2",
                       },
                       {
                         "name" => "reject_if_content_preexist",
-                        "orig" => "reject_if_content_preexist",
+                        "orig" => "Reject-If-Content-Preexists",
                         "type" => "`$STRING`",
                         "kind" => "header",
                         "example" => "false",
@@ -1654,9 +1770,21 @@ module ObsidianConfig
                   "select" => {
                     "exist" => [
                       "id",
-                      "markdown_patch_version",
-                      "reject_if_content_preexist",
                     ],
+                  },
+                  "body" => {
+                    "alternatives" => [
+                      {
+                        "kind" => "raw",
+                        "media" => "text/markdown",
+                      },
+                    ],
+                    "kind" => "json",
+                    "media" => "application/json",
+                  },
+                  "response" => {
+                    "kind" => "raw",
+                    "media" => "text/markdown",
                   },
                 },
               ],

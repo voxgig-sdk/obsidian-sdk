@@ -128,7 +128,7 @@ main: kit: entity: vault: {
                 ex: "false"
                 k: "header"
                 n: "create_target_if_missing"
-                or: "create_target_if_missing"
+                or: "Create-Target-If-Missing"
                 r: false
                 t: "`$STRING`"
               }
@@ -136,7 +136,7 @@ main: kit: entity: vault: {
                 ex: "2"
                 k: "header"
                 n: "markdown_patch_version"
-                or: "markdown_patch_version"
+                or: "Markdown-Patch-Version"
                 r: false
                 t: "`$STRING`"
               }
@@ -144,7 +144,7 @@ main: kit: entity: vault: {
                 ex: "false"
                 k: "header"
                 n: "reject_if_content_preexist"
-                or: "reject_if_content_preexist"
+                or: "Reject-If-Content-Preexists"
                 r: false
                 t: "`$STRING`"
               }
@@ -163,16 +163,21 @@ main: kit: entity: vault: {
           o: "/vault/{filename}"
           q: {
             exist: [
-              "create_target_if_missing"
               "id"
-              "markdown_patch_version"
-              "reject_if_content_preexist"
             ]
           }
           r: {
             param: {
               filename: "id"
             }
+          }
+          rb: {
+            kind: "raw"
+            media: "text/markdown"
+          }
+          rs: {
+            kind: "raw"
+            media: "text/markdown"
           }
           s: [
             {
@@ -200,6 +205,10 @@ main: kit: entity: vault: {
           }
           m: "GET"
           o: "/vault/"
+          rs: {
+            kind: "json"
+            media: "application/json"
+          }
           s: [
             {
               lit: "vault"
@@ -227,7 +236,7 @@ main: kit: entity: vault: {
                 ex: "2"
                 k: "header"
                 n: "markdown_patch_version"
-                or: "markdown_patch_version"
+                or: "Markdown-Patch-Version"
                 r: false
                 t: "`$STRING`"
               }
@@ -235,7 +244,7 @@ main: kit: entity: vault: {
                 ex: "content"
                 k: "header"
                 n: "target_scope"
-                or: "target_scope"
+                or: "Target-Scope"
                 r: false
                 t: "`$STRING`"
               }
@@ -255,14 +264,34 @@ main: kit: entity: vault: {
           q: {
             exist: [
               "id"
-              "markdown_patch_version"
-              "target_scope"
             ]
           }
           r: {
             param: {
               filename: "id"
             }
+          }
+          rs: {
+            alternatives: [
+              {
+                kind: "json"
+                media: "application/vnd.olrapi.document-map+json"
+              }
+              {
+                kind: "json"
+                media: "application/vnd.olrapi.note+json"
+              }
+              {
+                kind: "raw"
+                media: "text/html"
+              }
+              {
+                kind: "raw"
+                media: "text/markdown"
+              }
+            ]
+            kind: "json"
+            media: "application/json"
           }
           s: [
             {
@@ -288,7 +317,7 @@ main: kit: entity: vault: {
               {
                 k: "param"
                 n: "id"
-                or: "path_to_directory"
+                or: "pathToDirectory"
                 r: true
                 t: "`$STRING`"
               }
@@ -305,6 +334,10 @@ main: kit: entity: vault: {
             param: {
               pathToDirectory: "id"
             }
+          }
+          rs: {
+            kind: "json"
+            media: "application/json"
           }
           s: [
             {
@@ -325,6 +358,19 @@ main: kit: entity: vault: {
       name: "patch"
       points: [
         {
+          bf: [
+            "content"
+            "createTargetIfMissing"
+            "destination"
+            "ifMatch"
+            "operation"
+            "rejectIfContentPreexists"
+            "scope"
+            "target"
+            "targetType"
+            "value"
+            "within"
+          ]
           co: {
             id: "PATCH /vault/{filename}"
             source: "openapi3"
@@ -336,21 +382,21 @@ main: kit: entity: vault: {
                 ex: "false"
                 k: "header"
                 n: "create_target_if_missing"
-                or: "create_target_if_missing"
+                or: "Create-Target-If-Missing"
                 r: false
                 t: "`$STRING`"
               }
               {
                 k: "header"
                 n: "destination"
-                or: "destination"
+                or: "Destination"
                 r: false
                 t: "`$STRING`"
               }
               {
                 k: "header"
                 n: "if_match"
-                or: "if_match"
+                or: "If-Match"
                 r: false
                 t: "`$STRING`"
               }
@@ -358,14 +404,14 @@ main: kit: entity: vault: {
                 ex: "2"
                 k: "header"
                 n: "markdown_patch_version"
-                or: "markdown_patch_version"
+                or: "Markdown-Patch-Version"
                 r: false
                 t: "`$STRING`"
               }
               {
                 k: "header"
                 n: "operation"
-                or: "operation"
+                or: "Operation"
                 r: false
                 t: "`$STRING`"
               }
@@ -373,14 +419,14 @@ main: kit: entity: vault: {
                 ex: "false"
                 k: "header"
                 n: "reject_if_content_preexist"
-                or: "reject_if_content_preexist"
+                or: "Reject-If-Content-Preexists"
                 r: false
                 t: "`$STRING`"
               }
               {
                 k: "header"
                 n: "target"
-                or: "target"
+                or: "Target"
                 r: false
                 t: "`$STRING`"
               }
@@ -388,21 +434,21 @@ main: kit: entity: vault: {
                 ex: "content"
                 k: "header"
                 n: "target_scope"
-                or: "target_scope"
+                or: "Target-Scope"
                 r: false
                 t: "`$STRING`"
               }
               {
                 k: "header"
                 n: "target_type"
-                or: "target_type"
+                or: "Target-Type"
                 r: false
                 t: "`$STRING`"
               }
               {
                 k: "header"
                 n: "within"
-                or: "within"
+                or: "Within"
                 r: false
                 t: "`$STRING`"
               }
@@ -421,23 +467,27 @@ main: kit: entity: vault: {
           o: "/vault/{filename}"
           q: {
             exist: [
-              "create_target_if_missing"
-              "destination"
               "id"
-              "if_match"
-              "markdown_patch_version"
-              "operation"
-              "reject_if_content_preexist"
-              "target"
-              "target_scope"
-              "target_type"
-              "within"
             ]
           }
           r: {
             param: {
               filename: "id"
             }
+          }
+          rb: {
+            alternatives: [
+              {
+                kind: "json"
+                media: "application/vnd.olrapi.patch-instruction+json"
+              }
+              {
+                kind: "raw"
+                media: "text/markdown"
+              }
+            ]
+            kind: "json"
+            media: "application/json"
           }
           s: [
             {
@@ -501,7 +551,6 @@ main: kit: entity: vault: {
           q: {
             exist: [
               "id"
-              "permanent"
             ]
           }
           r: {
@@ -528,6 +577,7 @@ main: kit: entity: vault: {
       name: "update"
       points: [
         {
+          bf: false
           co: {
             id: "PUT /vault/{filename}"
             source: "openapi3"
@@ -539,7 +589,7 @@ main: kit: entity: vault: {
                 ex: "2"
                 k: "header"
                 n: "markdown_patch_version"
-                or: "markdown_patch_version"
+                or: "Markdown-Patch-Version"
                 r: false
                 t: "`$STRING`"
               }
@@ -547,7 +597,7 @@ main: kit: entity: vault: {
                 ex: "false"
                 k: "header"
                 n: "reject_if_content_preexist"
-                or: "reject_if_content_preexist"
+                or: "Reject-If-Content-Preexists"
                 r: false
                 t: "`$STRING`"
               }
@@ -567,14 +617,26 @@ main: kit: entity: vault: {
           q: {
             exist: [
               "id"
-              "markdown_patch_version"
-              "reject_if_content_preexist"
             ]
           }
           r: {
             param: {
               filename: "id"
             }
+          }
+          rb: {
+            alternatives: [
+              {
+                kind: "raw"
+                media: "text/markdown"
+              }
+            ]
+            kind: "json"
+            media: "application/json"
+          }
+          rs: {
+            kind: "raw"
+            media: "text/markdown"
           }
           s: [
             {

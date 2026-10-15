@@ -43,7 +43,7 @@ main: kit: entity: open: {
               {
                 k: "query"
                 n: "new_leaf"
-                or: "new_leaf"
+                or: "newLeaf"
                 r: false
                 t: "`$BOOLEAN`"
               }
@@ -54,7 +54,6 @@ main: kit: entity: open: {
           q: {
             exist: [
               "id"
-              "new_leaf"
             ]
           }
           r: {

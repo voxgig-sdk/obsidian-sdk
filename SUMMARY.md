@@ -1,6 +1,17 @@
 # Local REST API for Obsidian
 
-The Obsidian Local REST API with MCP plugin gives you two ways to interact with your Obsidian vault programmatically: - **REST API**, standard HTTP endpoints for reading and writing notes, searching vault contents, and more. Useful from scripts, applications, or any HTTP client. - **MCP server**, exposes the same capabilities as structured tools for AI assistants (Claude, Cursor, and other MCP-compatible clients). See the `POST /mcp/` endpoint for connection details. ## Testing with this interface Select any operation in the sidebar, then open the **Try It** tab to send a live request to your running Obsidian instance. **Authentication**, all requests require a Bearer token. In the **Try It** panel, expand the **Security** section and paste the API key shown in Obsidian under **Settings → Local REST API with MCP**. **Certificate warning**, the plugin generates a self-signed TLS certificate on first run. Most browsers will block requests to an untrusted certificate, so you may need to add it as a trusted certificate in your OS or browser settings before requests will go through. The steps vary by environment, search for &quot;trust self-signed certificate&quot; plus your OS or browser name if you&#39;re unsure. If that proves too cumbersome, you can enable the insecure HTTP server in your plugin settings instead and select &quot;HTTP (insecure mode)&quot; from the **Try It** section.
+> The Obsidian Local REST API with MCP plugin gives you two ways to interact with your Obsidian vault programmatically:
+>
+> - **REST API**, standard HTTP endpoints for reading and writing notes, searching vault contents, and more. Useful from scripts, applications, or any HTTP client.
+> - **MCP server**, exposes the same capabilities as structured tools for AI assistants (Claude, Cursor, and other MCP-compatible clients). See the `POST /mcp/` endpoint for connection details.
+>
+> ## Testing with this interface
+>
+> Select any operation in the sidebar, then open the **Try It** tab to send a live request to your running Obsidian instance.
+>
+> **Authentication**, all requests require a Bearer token. In the **Try It** panel, expand the **Security** section and paste the API key shown in Obsidian under **Settings → Local REST API with MCP**.
+>
+> **Certificate warning**, the plugin generates a self-signed TLS certificate on first run. Most browsers will block requests to an untrusted certificate, so you may need to add it as a trusted certificate in your OS or browser settings before requests will go through. The steps vary by environment, search for &quot;trust self-signed certificate&quot; plus your OS or browser name if you&#39;re unsure. If that proves too cumbersome, you can enable the insecure HTTP server in your plugin settings instead and select &quot;HTTP (insecure mode)&quot; from the **Try It** section.
 
 ## Start here
 
@@ -12,7 +23,7 @@ An entity groups related API operations. An operation can have several routes wi
 
 ## What the API provides
 
-### [Active](docs/api/active.html)
+### Active
 
 Results: Success; content appended to the targeted section (via URL path elements). The full updated file content is returned. Any advisory warnings (for example a heading rebased past level 6) are JSON-encoded, then percent-encoded, in the `Markdown-Patch-Warnings` response header.; Success; content appended to end of file.; Success; Success. The body is the patched document. Any advisory warnings (for example a heading rebased past level 6) are JSON-encoded, then percent-encoded, in the `Markdown-Patch-Warnings` response header.; Success; targeted section replaced (via URL path elements). The full updated file content is returned. Any advisory warnings (for example a heading rebased past level 6) are JSON-encoded, then percent-encoded, in the `Markdown-Patch-Warnings` response header.; Success; entire file replaced.
 
@@ -26,13 +37,13 @@ Key fields to recognise:
 - `ifMatch`: Optimistic-concurrency token (the `version` from a prior document map).
 - `operation`: What happens to the scoped span: replace it, insert before (`prepend`) or after (`append`), or `delete` it.
 
-### [Command](docs/api/command.html)
+### Command
 
 Results: Success; A list of available commands.
 
 SDK operations: `create`, `list`.
 
-### [Entity1](docs/api/entity1.html)
+### Entity1
 
 Results: Success.
 
@@ -40,10 +51,11 @@ SDK operations: `load`.
 
 Key fields to recognise:
 
-- `obsidian`: Obsidian plugin API version
-- `self`: Plugin version.
+- `authenticated`: Is your current request authenticated?
+- `ok`: &#39;OK&#39;
+- `service`: &#39;Obsidian Local REST API&#39;
 
-### [Mcp](docs/api/mcp.html)
+### Mcp
 
 Results: Message handled. Response body contains the JSON-RPC result, or may be empty for notifications. On session initialization the `Mcp-Session-Id` response header contains the new session ID.; SSE stream opened. The server pushes JSON-RPC messages as server-sent events.
 
@@ -56,25 +68,25 @@ Key fields to recognise:
 - `method`: MCP method to invoke.
 - `params`: Method-specific parameters.
 
-### [Open](docs/api/open.html)
+### Open
 
 Results: Success.
 
 SDK operations: `create`.
 
-### [Search](docs/api/search.html)
+### Search
 
 Results: Success.
 
 SDK operations: `create`.
 
-### [System](docs/api/system.html)
+### System
 
 Results: Success.
 
 SDK operations: `load`.
 
-### [Tag](docs/api/tag.html)
+### Tag
 
 Results: A list of tags with their usage counts.
 
@@ -85,7 +97,7 @@ Key fields to recognise:
 - `count`: Number of times this tag is used across the vault.
 - `name`: Tag name without the leading `#`.
 
-### [Vault](docs/api/vault.html)
+### Vault
 
 Results: Success; content appended to the targeted section (via URL path elements). The full updated file content is returned. Any advisory warnings (for example a heading rebased past level 6) are JSON-encoded, then percent-encoded, in the `Markdown-Patch-Warnings` response header.; Success; content appended to end of file.; Success; Success. The body is the patched document. Any advisory warnings (for example a heading rebased past level 6) are JSON-encoded, then percent-encoded, in the `Markdown-Patch-Warnings` response header.; Success; targeted section replaced (via URL path elements). The full updated file content is returned. Any advisory warnings (for example a heading rebased past level 6) are JSON-encoded, then percent-encoded, in the `Markdown-Patch-Warnings` response header.; Success; entire file replaced.
 
@@ -105,29 +117,29 @@ Use this map to locate a capability. Consult the entity reference before supplyi
 
 | Entity | SDK operation | HTTP route | Authentication |
 | --- | --- | --- | --- |
-| [Active](docs/api/active.html) | `create` | `POST /active/` | Required |
-| [Active](docs/api/active.html) | `load` | `GET /active/` | Required |
-| [Active](docs/api/active.html) | `patch` | `PATCH /active/` | Required |
-| [Active](docs/api/active.html) | `remove` | `DELETE /active/` | Required |
-| [Active](docs/api/active.html) | `update` | `PUT /active/` | Required |
-| [Command](docs/api/command.html) | `create` | `POST /commands/{commandId}/` | Required |
-| [Command](docs/api/command.html) | `list` | `GET /commands/` | Required |
-| [Entity1](docs/api/entity1.html) | `load` | `GET /` | Required |
-| [Mcp](docs/api/mcp.html) | `create` | `POST /mcp/` | Required |
-| [Mcp](docs/api/mcp.html) | `load` | `GET /mcp/` | Required |
-| [Open](docs/api/open.html) | `create` | `POST /open/{filename}` | Required |
-| [Search](docs/api/search.html) | `create` | `POST /search/simple/` | Required |
-| [Search](docs/api/search.html) | `create` | `POST /search/` | Required |
-| [System](docs/api/system.html) | `load` | `GET /obsidian-local-rest-api.crt` | Required |
-| [System](docs/api/system.html) | `load` | `GET /openapi.yaml` | Required |
-| [Tag](docs/api/tag.html) | `list` | `GET /tags/` | Required |
-| [Vault](docs/api/vault.html) | `create` | `POST /vault/{filename}` | Required |
-| [Vault](docs/api/vault.html) | `list` | `GET /vault/` | Required |
-| [Vault](docs/api/vault.html) | `load` | `GET /vault/{filename}` | Required |
-| [Vault](docs/api/vault.html) | `load` | `GET /vault/{pathToDirectory}/` | Required |
-| [Vault](docs/api/vault.html) | `patch` | `PATCH /vault/{filename}` | Required |
-| [Vault](docs/api/vault.html) | `remove` | `DELETE /vault/{filename}` | Required |
-| [Vault](docs/api/vault.html) | `update` | `PUT /vault/{filename}` | Required |
+| Active | `create` | `POST /active/` | Required |
+| Active | `load` | `GET /active/` | Required |
+| Active | `patch` | `PATCH /active/` | Required |
+| Active | `remove` | `DELETE /active/` | Required |
+| Active | `update` | `PUT /active/` | Required |
+| Command | `create` | `POST /commands/{commandId}/` | Required |
+| Command | `list` | `GET /commands/` | Required |
+| Entity1 | `load` | `GET /` | Required |
+| Mcp | `create` | `POST /mcp/` | Required |
+| Mcp | `load` | `GET /mcp/` | Required |
+| Open | `create` | `POST /open/{filename}` | Required |
+| Search | `create` | `POST /search/simple/` | Required |
+| Search | `create` | `POST /search/` | Required |
+| System | `load` | `GET /obsidian-local-rest-api.crt` | Required |
+| System | `load` | `GET /openapi.yaml` | Required |
+| Tag | `list` | `GET /tags/` | Required |
+| Vault | `create` | `POST /vault/{filename}` | Required |
+| Vault | `list` | `GET /vault/` | Required |
+| Vault | `load` | `GET /vault/{filename}` | Required |
+| Vault | `load` | `GET /vault/{pathToDirectory}/` | Required |
+| Vault | `patch` | `PATCH /vault/{filename}` | Required |
+| Vault | `remove` | `DELETE /vault/{filename}` | Required |
+| Vault | `update` | `PUT /vault/{filename}` | Required |
 
 ## Connect to the API
 
@@ -154,13 +166,13 @@ Choose the language already used by your application or service. The clients rep
 
 | Client | Repository directory | Distribution |
 | --- | --- | --- |
-| [C](docs/sdks/c.html) | `c/` | Build from source |
-| [Golang](docs/sdks/go.html) | `go/` | Build from source |
-| [Lua](docs/sdks/lua.html) | `lua/` | Build from source |
-| [PHP](docs/sdks/php.html) | `php/` | Build from source |
-| [Python](docs/sdks/py.html) | `py/` | Build from source |
-| [Ruby](docs/sdks/rb.html) | `rb/` | Build from source |
-| [TypeScript](docs/sdks/ts.html) | `ts/` | Build from source |
+| C | `c/` | Build from source |
+| Golang | `go/` | Build from source |
+| Lua | `lua/` | Build from source |
+| PHP | `php/` | Build from source |
+| Python | `py/` | Build from source |
+| Ruby | `rb/` | Build from source |
+| TypeScript | `ts/` | Build from source |
 
 Build-from-source entries are not marked as published in the project model. Follow the build instructions in that target’s README, then consume the resulting package using your language’s local dependency mechanism. Published entries give the installation command recorded for that client.
 
@@ -168,14 +180,14 @@ Build-from-source entries are not marked as published in the project model. Foll
 
 These targets provide another way to use the API. Their available commands or tools can cover a smaller set of operations than the client libraries.
 
-### [Go CLI](docs/tools/go-cli.html)
+### Go CLI
 
 Use the command-line interface for shell-based tasks and scripts.
 
 Repository directory: `go-cli/`. Not published. Build from the go-cli directory.
 
 
-### [Go MCP server](docs/tools/go-mcp.html)
+### Go MCP server
 
 Use the MCP server to expose supported API operations to an MCP client.
 
@@ -188,21 +200,22 @@ Repository directory: `go-mcp/`. Not published. Build from the go-mcp directory.
 
 Features supply behaviour around API calls, such as request handling, diagnostics, or local testing. Inclusion in this project does not mean a feature is enabled at runtime. Check the selected SDK’s supported features and configuration defaults, then enable the behaviour your application needs.
 
-- [`debug`](docs/features/debug.html): Request/response capture ring buffer for debugging
-- [`idempotency`](docs/features/idempotency.html): Idempotency keys for safe retries of mutating operations
-- [`metrics`](docs/features/metrics.html): Statistics capture: per-operation counters and latency
-- [`paging`](docs/features/paging.html): Pagination signals for list operations
-- [`ratelimit`](docs/features/ratelimit.html): Client-side rate limiting via a token bucket
-- [`retry`](docs/features/retry.html): Automatic retry of transient failures with exponential backoff
-- [`test`](docs/features/test.html): In-memory mock transport for testing without a live server
-- [`timeout`](docs/features/timeout.html): Per-request timeout with transport abort
+- `debug`: Request/response capture ring buffer for debugging
+- `idempotency`: Idempotency keys for safe retries of mutating operations
+- `metrics`: Statistics capture: per-operation counters and latency
+- `paging`: Pagination signals for list operations
+- `ratelimit`: Client-side rate limiting via a token bucket
+- `retry`: Automatic retry of transient failures with exponential backoff
+- `station`: Station control surface binding for outbound integrations
+- `test`: In-memory mock transport for testing without a live server
+- `timeout`: Per-request timeout with transport abort
 
 Start with the default client configuration. Add request limits and diagnostics as needed, test error paths, and review retry behaviour before using operations that change data. A retry can repeat an operation unless the API provides a suitable guarantee.
 
 ## Continue with the documentation
 
-- Follow the [first-call guide](docs/guides/first-call.html) for the setup sequence.
-- Read the [authentication guide](docs/guides/authentication.html) before using protected routes.
-- Use the [API reference](docs/api/index.html) for request schemas, response formats, and status codes.
+- Follow the first-call guide for the setup sequence.
+- Read the authentication guide before using protected routes.
+- Use the API reference for request schemas, response formats, and status codes.
 - Check the chosen SDK or companion tool reference for its configuration and supported operations.
 

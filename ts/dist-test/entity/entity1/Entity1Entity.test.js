@@ -54,6 +54,14 @@ const utility_1 = require("../../utility");
         const ent = testsdk.Entity1();
         (0, node_assert_1.default)(null != ent);
     });
+    (0, node_test_1.test)('validate', async (t) => {
+        if (null == __1.config.feature?.validate) {
+            t.skip('feature not present in this SDK: validate');
+            return;
+        }
+        const client = __1.ObsidianSDK.test(undefined, { feature: { validate: { active: true } } });
+        await node_assert_1.default.rejects(client.Entity1().load({ "authenticated": "x" }), (err) => 'validate_failed' === err.code);
+    });
     (0, node_test_1.test)('basic', async (t) => {
         const live = 'TRUE' === process.env.OBSIDIAN_TEST_LIVE;
         for (const op of ['load']) {
@@ -62,7 +70,7 @@ const utility_1 = require("../../utility");
         }
         const setup = basicSetup();
         if (setup.live) {
-            return (0, live_entity_1.runLiveEntity)(setup, { "active": true, "alias": { "field": {} }, "fields": { "obsidian": { "a": true, "h": "Obsidian", "n": "obsidian", "r": false, "sh": "Obsidian plugin API version", "t": "`$STRING`", "key$": "obsidian", "index$": 0 }, "self": { "a": true, "h": "Self", "n": "self", "r": false, "sh": "Plugin version.", "t": "`$STRING`", "key$": "self", "index$": 1 } }, "name": "entity1", "op": { "load": { "input": "data", "name": "load", "points": [{ "a": true, "co": { "id": "GET /", "source": "openapi3", "version": 2 }, "g": {}, "k": "http", "m": "GET", "o": "/", "q": {}, "r": {}, "s": [], "t": { "req": "`reqdata`", "res": "`body.versions`" }, "index$": 0 }], "key$": "load" } }, "relations": { "ancestors": [] }, "key$": "entity1", "name__orig": "entity1", "Name": "Entity1", "name_": "entity1", "name-": "entity1", "NAME": "ENTITY1", "index$": 2 }, { "active": true, "entity": "entity1", "key$": "BasicEntity1Flow", "kind": "basic", "name": "BasicEntity1Flow", "param": {}, "step": [{ "a": true, "d": {}, "i": { "ref": "entity1_ref01", "srcdatavar": "entity1_ref01_data", "suffix": "_dt0" }, "m": {}, "o": "load", "s": [], "v": [{ "apply": "TextFieldMark", "def": { "mark": "Mark01-entity1_ref01" } }], "index$": 0 }] }, 'Entity1', { "GET /": { "protocol": "http", "parameters": [] } });
+            return (0, live_entity_1.runLiveEntity)(setup, { "active": true, "alias": { "field": {} }, "fields": { "authenticated": { "a": true, "h": "Authenticated", "n": "authenticated", "r": false, "sh": "Is your current request authenticated?", "t": "`$BOOLEAN`", "key$": "authenticated", "index$": 0 }, "ok": { "a": true, "h": "Ok", "n": "ok", "r": false, "sh": "'OK'", "t": "`$STRING`", "key$": "ok", "index$": 1 }, "service": { "a": true, "h": "Service", "n": "service", "r": false, "sh": "'Obsidian Local REST API'", "t": "`$STRING`", "key$": "service", "index$": 2 }, "versions": { "a": true, "h": "Versions", "n": "versions", "r": false, "t": "`$OBJECT`", "key$": "versions", "index$": 3 } }, "name": "entity1", "op": { "load": { "input": "data", "name": "load", "points": [{ "a": true, "co": { "id": "GET /", "source": "openapi3", "version": 2 }, "g": {}, "k": "http", "m": "GET", "o": "/", "q": {}, "r": {}, "rs": { "kind": "json", "media": "application/json" }, "s": [], "t": { "req": "`reqdata`", "res": "`body`" }, "index$": 0 }], "key$": "load" } }, "relations": { "ancestors": [] }, "key$": "entity1", "name__orig": "entity1", "Name": "Entity1", "name_": "entity1", "name-": "entity1", "NAME": "ENTITY1", "index$": 2 }, { "active": true, "entity": "entity1", "key$": "BasicEntity1Flow", "kind": "basic", "name": "BasicEntity1Flow", "param": {}, "step": [{ "a": true, "d": {}, "i": { "ref": "entity1_ref01", "srcdatavar": "entity1_ref01_data", "suffix": "_dt0" }, "m": {}, "o": "load", "s": [], "v": [{ "apply": "TextFieldMark", "def": { "mark": "Mark01-entity1_ref01" } }], "index$": 0 }] }, 'Entity1', { "GET /": { "protocol": "http", "parameters": [] } }, { strict: LIVE_STRICT, t });
         }
         const client = setup.client;
         const struct = setup.struct;
@@ -76,6 +84,11 @@ const utility_1 = require("../../utility");
         (0, node_assert_1.default)(null != entity1_ref01_data_dt0);
     });
 });
+// main.kit.test.live.strict is true (the default is true): a live
+// request that fails, or a live test missing an input it needs,
+// fails the test.
+// An account with no record for a test to read skips it either way.
+const LIVE_STRICT = true;
 function basicSetup(extra) {
     // TODO: fix test def options
     const options = {}; // null

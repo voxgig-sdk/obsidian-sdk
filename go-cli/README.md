@@ -22,6 +22,7 @@ export OBSIDIAN_APIKEY=sk_live_xxx
 ./obsidian-cli load 1 active            # {id:1} shorthand
 ./obsidian-cli load '{id:1}' active       # explicit match map
 ./obsidian-cli update '{name:"x"}' active
+./obsidian-cli list command
 
 # 5. Override the API base URL for a single call
 OBSIDIAN_BASE=https://api.example.com ./obsidian-cli load 1 active

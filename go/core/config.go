@@ -123,6 +123,21 @@ func MakeConfig() map[string]any {
 				"strict": false,
 				"transport": "wrap",
 			},
+			"station": map[string]any{
+				"options": map[string]any{
+					"active": false,
+					"capture": "meta",
+					"fromEnv": true,
+					"instance": "",
+					"profile": "",
+					"register": true,
+					"secret": "",
+					"url": "",
+				},
+				"optspec": map[string]any{},
+				"strict": false,
+				"transport": "wrap",
+			},
 			"test": map[string]any{
 				"options": map[string]any{
 					"active": false,
@@ -141,6 +156,7 @@ func MakeConfig() map[string]any {
 				},
 				"optspec": map[string]any{
 					"clearTimer": "`$FUNCTION`",
+					"now": "`$FUNCTION`",
 					"setTimer": "`$FUNCTION`",
 				},
 				"strict": false,
@@ -272,33 +288,35 @@ func MakeConfig() map[string]any {
 									"header": []any{
 										map[string]any{
 											"name": "create_target_if_missing",
-											"orig": "create_target_if_missing",
+											"orig": "Create-Target-If-Missing",
 											"type": "`$STRING`",
 											"kind": "header",
 											"example": "false",
 										},
 										map[string]any{
 											"name": "markdown_patch_version",
-											"orig": "markdown_patch_version",
+											"orig": "Markdown-Patch-Version",
 											"type": "`$STRING`",
 											"kind": "header",
 											"example": "2",
 										},
 										map[string]any{
 											"name": "reject_if_content_preexist",
-											"orig": "reject_if_content_preexist",
+											"orig": "Reject-If-Content-Preexists",
 											"type": "`$STRING`",
 											"kind": "header",
 											"example": "false",
 										},
 									},
 								},
-								"select": map[string]any{
-									"exist": []any{
-										"create_target_if_missing",
-										"markdown_patch_version",
-										"reject_if_content_preexist",
-									},
+								"select": map[string]any{},
+								"body": map[string]any{
+									"kind": "raw",
+									"media": "text/markdown",
+								},
+								"response": map[string]any{
+									"kind": "raw",
+									"media": "text/markdown",
 								},
 							},
 						},
@@ -328,25 +346,42 @@ func MakeConfig() map[string]any {
 									"header": []any{
 										map[string]any{
 											"name": "markdown_patch_version",
-											"orig": "markdown_patch_version",
+											"orig": "Markdown-Patch-Version",
 											"type": "`$STRING`",
 											"kind": "header",
 											"example": "2",
 										},
 										map[string]any{
 											"name": "target_scope",
-											"orig": "target_scope",
+											"orig": "Target-Scope",
 											"type": "`$STRING`",
 											"kind": "header",
 											"example": "content",
 										},
 									},
 								},
-								"select": map[string]any{
-									"exist": []any{
-										"markdown_patch_version",
-										"target_scope",
+								"select": map[string]any{},
+								"response": map[string]any{
+									"alternatives": []any{
+										map[string]any{
+											"kind": "json",
+											"media": "application/vnd.olrapi.document-map+json",
+										},
+										map[string]any{
+											"kind": "json",
+											"media": "application/vnd.olrapi.note+json",
+										},
+										map[string]any{
+											"kind": "raw",
+											"media": "text/html",
+										},
+										map[string]any{
+											"kind": "raw",
+											"media": "text/markdown",
+										},
 									},
+									"kind": "json",
+									"media": "application/json",
 								},
 							},
 						},
@@ -388,83 +423,88 @@ func MakeConfig() map[string]any {
 									"header": []any{
 										map[string]any{
 											"name": "create_target_if_missing",
-											"orig": "create_target_if_missing",
+											"orig": "Create-Target-If-Missing",
 											"type": "`$STRING`",
 											"kind": "header",
 											"example": "false",
 										},
 										map[string]any{
 											"name": "destination",
-											"orig": "destination",
+											"orig": "Destination",
 											"type": "`$STRING`",
 											"kind": "header",
+											"field": true,
 										},
 										map[string]any{
 											"name": "if_match",
-											"orig": "if_match",
+											"orig": "If-Match",
 											"type": "`$STRING`",
 											"kind": "header",
 										},
 										map[string]any{
 											"name": "markdown_patch_version",
-											"orig": "markdown_patch_version",
+											"orig": "Markdown-Patch-Version",
 											"type": "`$STRING`",
 											"kind": "header",
 											"example": "2",
 										},
 										map[string]any{
 											"name": "operation",
-											"orig": "operation",
+											"orig": "Operation",
 											"type": "`$STRING`",
 											"kind": "header",
+											"field": true,
 										},
 										map[string]any{
 											"name": "reject_if_content_preexist",
-											"orig": "reject_if_content_preexist",
+											"orig": "Reject-If-Content-Preexists",
 											"type": "`$STRING`",
 											"kind": "header",
 											"example": "false",
 										},
 										map[string]any{
 											"name": "target",
-											"orig": "target",
+											"orig": "Target",
 											"type": "`$STRING`",
 											"kind": "header",
+											"field": true,
 										},
 										map[string]any{
 											"name": "target_scope",
-											"orig": "target_scope",
+											"orig": "Target-Scope",
 											"type": "`$STRING`",
 											"kind": "header",
 											"example": "content",
 										},
 										map[string]any{
 											"name": "target_type",
-											"orig": "target_type",
+											"orig": "Target-Type",
 											"type": "`$STRING`",
 											"kind": "header",
 										},
 										map[string]any{
 											"name": "within",
-											"orig": "within",
+											"orig": "Within",
 											"type": "`$STRING`",
 											"kind": "header",
+											"field": true,
 										},
 									},
 								},
-								"select": map[string]any{
-									"exist": []any{
-										"create_target_if_missing",
-										"destination",
-										"if_match",
-										"markdown_patch_version",
-										"operation",
-										"reject_if_content_preexist",
-										"target",
-										"target_scope",
-										"target_type",
-										"within",
+								"select": map[string]any{},
+								"body": map[string]any{
+									"alternatives": []any{
+										map[string]any{
+											"kind": "json",
+											"media": "application/vnd.olrapi.patch-instruction+json",
+										},
+										map[string]any{
+											"kind": "raw",
+											"media": "text/markdown",
+										},
 									},
+									"kind": "json",
+									"media": "application/json",
 								},
 							},
 						},
@@ -501,11 +541,7 @@ func MakeConfig() map[string]any {
 										},
 									},
 								},
-								"select": map[string]any{
-									"exist": []any{
-										"permanent",
-									},
-								},
+								"select": map[string]any{},
 							},
 						},
 					},
@@ -534,25 +570,34 @@ func MakeConfig() map[string]any {
 									"header": []any{
 										map[string]any{
 											"name": "markdown_patch_version",
-											"orig": "markdown_patch_version",
+											"orig": "Markdown-Patch-Version",
 											"type": "`$STRING`",
 											"kind": "header",
 											"example": "2",
 										},
 										map[string]any{
 											"name": "reject_if_content_preexist",
-											"orig": "reject_if_content_preexist",
+											"orig": "Reject-If-Content-Preexists",
 											"type": "`$STRING`",
 											"kind": "header",
 											"example": "false",
 										},
 									},
 								},
-								"select": map[string]any{
-									"exist": []any{
-										"markdown_patch_version",
-										"reject_if_content_preexist",
+								"select": map[string]any{},
+								"body": map[string]any{
+									"alternatives": []any{
+										map[string]any{
+											"kind": "raw",
+											"media": "text/markdown",
+										},
 									},
+									"kind": "json",
+									"media": "application/json",
+								},
+								"response": map[string]any{
+									"kind": "raw",
+									"media": "text/markdown",
 								},
 							},
 						},
@@ -614,7 +659,7 @@ func MakeConfig() map[string]any {
 									"params": []any{
 										map[string]any{
 											"name": "id",
-											"orig": "command_id",
+											"orig": "commandId",
 											"type": "`$STRING`",
 											"kind": "param",
 											"reqd": true,
@@ -652,6 +697,10 @@ func MakeConfig() map[string]any {
 								},
 								"args": map[string]any{},
 								"select": map[string]any{},
+								"response": map[string]any{
+									"kind": "json",
+									"media": "application/json",
+								},
 							},
 						},
 					},
@@ -663,16 +712,27 @@ func MakeConfig() map[string]any {
 			"entity1": map[string]any{
 				"fields": []any{
 					map[string]any{
-						"name": "obsidian",
-						"title": "Obsidian",
-						"type": "`$STRING`",
-						"short": "Obsidian plugin API version",
+						"name": "authenticated",
+						"title": "Authenticated",
+						"type": "`$BOOLEAN`",
+						"short": "Is your current request authenticated?",
 					},
 					map[string]any{
-						"name": "self",
-						"title": "Self",
+						"name": "ok",
+						"title": "Ok",
 						"type": "`$STRING`",
-						"short": "Plugin version.",
+						"short": "'OK'",
+					},
+					map[string]any{
+						"name": "service",
+						"title": "Service",
+						"type": "`$STRING`",
+						"short": "'Obsidian Local REST API'",
+					},
+					map[string]any{
+						"name": "versions",
+						"title": "Versions",
+						"type": "`$OBJECT`",
 					},
 				},
 				"name": "entity1",
@@ -690,10 +750,14 @@ func MakeConfig() map[string]any {
 								"rename": map[string]any{},
 								"transform": map[string]any{
 									"req": "`reqdata`",
-									"res": "`body.versions`",
+									"res": "`body`",
 								},
 								"args": map[string]any{},
 								"select": map[string]any{},
+								"response": map[string]any{
+									"kind": "json",
+									"media": "application/json",
+								},
 							},
 						},
 					},
@@ -762,24 +826,19 @@ func MakeConfig() map[string]any {
 									"header": []any{
 										map[string]any{
 											"name": "mcp_protocol_version",
-											"orig": "mcp_protocol_version",
+											"orig": "MCP-Protocol-Version",
 											"type": "`$STRING`",
 											"kind": "header",
 										},
 										map[string]any{
 											"name": "mcp_session_id",
-											"orig": "mcp_session_id",
+											"orig": "Mcp-Session-Id",
 											"type": "`$STRING`",
 											"kind": "header",
 										},
 									},
 								},
-								"select": map[string]any{
-									"exist": []any{
-										"mcp_protocol_version",
-										"mcp_session_id",
-									},
-								},
+								"select": map[string]any{},
 							},
 						},
 					},
@@ -808,13 +867,13 @@ func MakeConfig() map[string]any {
 									"header": []any{
 										map[string]any{
 											"name": "mcp_protocol_version",
-											"orig": "mcp_protocol_version",
+											"orig": "MCP-Protocol-Version",
 											"type": "`$STRING`",
 											"kind": "header",
 										},
 										map[string]any{
 											"name": "mcp_session_id",
-											"orig": "mcp_session_id",
+											"orig": "Mcp-Session-Id",
 											"type": "`$STRING`",
 											"kind": "header",
 											"reqd": true,
@@ -823,9 +882,12 @@ func MakeConfig() map[string]any {
 								},
 								"select": map[string]any{
 									"exist": []any{
-										"mcp_protocol_version",
 										"mcp_session_id",
 									},
+								},
+								"response": map[string]any{
+									"kind": "raw",
+									"media": "text/event-stream",
 								},
 							},
 						},
@@ -891,7 +953,7 @@ func MakeConfig() map[string]any {
 									"query": []any{
 										map[string]any{
 											"name": "new_leaf",
-											"orig": "new_leaf",
+											"orig": "newLeaf",
 											"type": "`$BOOLEAN`",
 											"kind": "query",
 										},
@@ -900,7 +962,6 @@ func MakeConfig() map[string]any {
 								"select": map[string]any{
 									"exist": []any{
 										"id",
-										"new_leaf",
 									},
 								},
 							},
@@ -944,7 +1005,7 @@ func MakeConfig() map[string]any {
 									"query": []any{
 										map[string]any{
 											"name": "context_length",
-											"orig": "context_length",
+											"orig": "contextLength",
 											"type": "`$NUMBER`",
 											"kind": "query",
 											"example": 100,
@@ -961,9 +1022,12 @@ func MakeConfig() map[string]any {
 								"select": map[string]any{
 									"$action": "simple",
 									"exist": []any{
-										"context_length",
 										"query",
 									},
+								},
+								"response": map[string]any{
+									"kind": "json",
+									"media": "application/json",
 								},
 							},
 							map[string]any{
@@ -985,6 +1049,14 @@ func MakeConfig() map[string]any {
 								},
 								"args": map[string]any{},
 								"select": map[string]any{},
+								"body": map[string]any{
+									"kind": "json",
+									"media": "application/vnd.olrapi.jsonlogic+json",
+								},
+								"response": map[string]any{
+									"kind": "json",
+									"media": "application/json",
+								},
 							},
 						},
 					},
@@ -1088,6 +1160,10 @@ func MakeConfig() map[string]any {
 								},
 								"args": map[string]any{},
 								"select": map[string]any{},
+								"response": map[string]any{
+									"kind": "json",
+									"media": "application/json",
+								},
 							},
 						},
 					},
@@ -1218,21 +1294,21 @@ func MakeConfig() map[string]any {
 									"header": []any{
 										map[string]any{
 											"name": "create_target_if_missing",
-											"orig": "create_target_if_missing",
+											"orig": "Create-Target-If-Missing",
 											"type": "`$STRING`",
 											"kind": "header",
 											"example": "false",
 										},
 										map[string]any{
 											"name": "markdown_patch_version",
-											"orig": "markdown_patch_version",
+											"orig": "Markdown-Patch-Version",
 											"type": "`$STRING`",
 											"kind": "header",
 											"example": "2",
 										},
 										map[string]any{
 											"name": "reject_if_content_preexist",
-											"orig": "reject_if_content_preexist",
+											"orig": "Reject-If-Content-Preexists",
 											"type": "`$STRING`",
 											"kind": "header",
 											"example": "false",
@@ -1250,11 +1326,16 @@ func MakeConfig() map[string]any {
 								},
 								"select": map[string]any{
 									"exist": []any{
-										"create_target_if_missing",
 										"id",
-										"markdown_patch_version",
-										"reject_if_content_preexist",
 									},
+								},
+								"body": map[string]any{
+									"kind": "raw",
+									"media": "text/markdown",
+								},
+								"response": map[string]any{
+									"kind": "raw",
+									"media": "text/markdown",
 								},
 							},
 						},
@@ -1282,6 +1363,10 @@ func MakeConfig() map[string]any {
 								},
 								"args": map[string]any{},
 								"select": map[string]any{},
+								"response": map[string]any{
+									"kind": "json",
+									"media": "application/json",
+								},
 							},
 						},
 					},
@@ -1318,14 +1403,14 @@ func MakeConfig() map[string]any {
 									"header": []any{
 										map[string]any{
 											"name": "markdown_patch_version",
-											"orig": "markdown_patch_version",
+											"orig": "Markdown-Patch-Version",
 											"type": "`$STRING`",
 											"kind": "header",
 											"example": "2",
 										},
 										map[string]any{
 											"name": "target_scope",
-											"orig": "target_scope",
+											"orig": "Target-Scope",
 											"type": "`$STRING`",
 											"kind": "header",
 											"example": "content",
@@ -1344,9 +1429,29 @@ func MakeConfig() map[string]any {
 								"select": map[string]any{
 									"exist": []any{
 										"id",
-										"markdown_patch_version",
-										"target_scope",
 									},
+								},
+								"response": map[string]any{
+									"alternatives": []any{
+										map[string]any{
+											"kind": "json",
+											"media": "application/vnd.olrapi.document-map+json",
+										},
+										map[string]any{
+											"kind": "json",
+											"media": "application/vnd.olrapi.note+json",
+										},
+										map[string]any{
+											"kind": "raw",
+											"media": "text/html",
+										},
+										map[string]any{
+											"kind": "raw",
+											"media": "text/markdown",
+										},
+									},
+									"kind": "json",
+									"media": "application/json",
 								},
 							},
 							map[string]any{
@@ -1378,7 +1483,7 @@ func MakeConfig() map[string]any {
 									"params": []any{
 										map[string]any{
 											"name": "id",
-											"orig": "path_to_directory",
+											"orig": "pathToDirectory",
 											"type": "`$STRING`",
 											"kind": "param",
 											"reqd": true,
@@ -1389,6 +1494,10 @@ func MakeConfig() map[string]any {
 									"exist": []any{
 										"id",
 									},
+								},
+								"response": map[string]any{
+									"kind": "json",
+									"media": "application/json",
 								},
 							},
 						},
@@ -1438,67 +1547,71 @@ func MakeConfig() map[string]any {
 									"header": []any{
 										map[string]any{
 											"name": "create_target_if_missing",
-											"orig": "create_target_if_missing",
+											"orig": "Create-Target-If-Missing",
 											"type": "`$STRING`",
 											"kind": "header",
 											"example": "false",
 										},
 										map[string]any{
 											"name": "destination",
-											"orig": "destination",
+											"orig": "Destination",
 											"type": "`$STRING`",
 											"kind": "header",
+											"field": true,
 										},
 										map[string]any{
 											"name": "if_match",
-											"orig": "if_match",
+											"orig": "If-Match",
 											"type": "`$STRING`",
 											"kind": "header",
 										},
 										map[string]any{
 											"name": "markdown_patch_version",
-											"orig": "markdown_patch_version",
+											"orig": "Markdown-Patch-Version",
 											"type": "`$STRING`",
 											"kind": "header",
 											"example": "2",
 										},
 										map[string]any{
 											"name": "operation",
-											"orig": "operation",
+											"orig": "Operation",
 											"type": "`$STRING`",
 											"kind": "header",
+											"field": true,
 										},
 										map[string]any{
 											"name": "reject_if_content_preexist",
-											"orig": "reject_if_content_preexist",
+											"orig": "Reject-If-Content-Preexists",
 											"type": "`$STRING`",
 											"kind": "header",
 											"example": "false",
 										},
 										map[string]any{
 											"name": "target",
-											"orig": "target",
+											"orig": "Target",
 											"type": "`$STRING`",
 											"kind": "header",
+											"field": true,
 										},
 										map[string]any{
 											"name": "target_scope",
-											"orig": "target_scope",
+											"orig": "Target-Scope",
 											"type": "`$STRING`",
 											"kind": "header",
 											"example": "content",
 										},
 										map[string]any{
 											"name": "target_type",
-											"orig": "target_type",
+											"orig": "Target-Type",
 											"type": "`$STRING`",
 											"kind": "header",
 										},
 										map[string]any{
 											"name": "within",
-											"orig": "within",
+											"orig": "Within",
 											"type": "`$STRING`",
 											"kind": "header",
+											"field": true,
 										},
 									},
 									"params": []any{
@@ -1513,18 +1626,22 @@ func MakeConfig() map[string]any {
 								},
 								"select": map[string]any{
 									"exist": []any{
-										"create_target_if_missing",
-										"destination",
 										"id",
-										"if_match",
-										"markdown_patch_version",
-										"operation",
-										"reject_if_content_preexist",
-										"target",
-										"target_scope",
-										"target_type",
-										"within",
 									},
+								},
+								"body": map[string]any{
+									"alternatives": []any{
+										map[string]any{
+											"kind": "json",
+											"media": "application/vnd.olrapi.patch-instruction+json",
+										},
+										map[string]any{
+											"kind": "raw",
+											"media": "text/markdown",
+										},
+									},
+									"kind": "json",
+									"media": "application/json",
 								},
 							},
 						},
@@ -1581,7 +1698,6 @@ func MakeConfig() map[string]any {
 								"select": map[string]any{
 									"exist": []any{
 										"id",
-										"permanent",
 									},
 								},
 							},
@@ -1620,14 +1736,14 @@ func MakeConfig() map[string]any {
 									"header": []any{
 										map[string]any{
 											"name": "markdown_patch_version",
-											"orig": "markdown_patch_version",
+											"orig": "Markdown-Patch-Version",
 											"type": "`$STRING`",
 											"kind": "header",
 											"example": "2",
 										},
 										map[string]any{
 											"name": "reject_if_content_preexist",
-											"orig": "reject_if_content_preexist",
+											"orig": "Reject-If-Content-Preexists",
 											"type": "`$STRING`",
 											"kind": "header",
 											"example": "false",
@@ -1646,9 +1762,21 @@ func MakeConfig() map[string]any {
 								"select": map[string]any{
 									"exist": []any{
 										"id",
-										"markdown_patch_version",
-										"reject_if_content_preexist",
 									},
+								},
+								"body": map[string]any{
+									"alternatives": []any{
+										map[string]any{
+											"kind": "raw",
+											"media": "text/markdown",
+										},
+									},
+									"kind": "json",
+									"media": "application/json",
+								},
+								"response": map[string]any{
+									"kind": "raw",
+									"media": "text/markdown",
 								},
 							},
 						},
@@ -1716,6 +1844,10 @@ func makeFeature(name string) Feature {
 	case "retry":
 		if NewRetryFeatureFunc != nil {
 			return NewRetryFeatureFunc()
+		}
+	case "station":
+		if NewStationFeatureFunc != nil {
+			return NewStationFeatureFunc()
 		}
 	case "test":
 		if NewTestFeatureFunc != nil {

@@ -62,7 +62,7 @@ const utility_1 = require("../../utility");
         }
         const setup = basicSetup();
         if (setup.live) {
-            return (0, live_entity_1.runLiveEntity)(setup, { "active": true, "alias": { "field": {} }, "fields": {}, "name": "system", "op": { "load": { "input": "data", "name": "load", "points": [{ "a": true, "co": { "id": "GET /obsidian-local-rest-api.crt", "source": "openapi3", "version": 2 }, "g": {}, "k": "http", "m": "GET", "o": "/obsidian-local-rest-api.crt", "q": {}, "r": {}, "s": [{ "lit": "obsidian-local-rest-api.crt" }], "t": { "req": "`reqdata`", "res": "`body`" }, "index$": 0 }, { "a": true, "co": { "id": "GET /openapi.yaml", "source": "openapi3", "version": 2 }, "g": {}, "k": "http", "m": "GET", "o": "/openapi.yaml", "q": {}, "r": {}, "s": [{ "lit": "openapi.yaml" }], "t": { "req": "`reqdata`", "res": "`body`" }, "index$": 1 }], "key$": "load" } }, "relations": { "ancestors": [] }, "key$": "system", "name__orig": "system", "Name": "System", "name_": "system", "name-": "system", "NAME": "SYSTEM", "index$": 6 }, { "active": true, "entity": "system", "key$": "BasicSystemFlow", "kind": "basic", "name": "BasicSystemFlow", "param": {}, "step": [{ "a": true, "d": {}, "i": { "ref": "system_ref01", "srcdatavar": "system_ref01_data", "suffix": "_dt0" }, "m": {}, "o": "load", "s": [], "v": [{ "apply": "TextFieldMark", "def": { "mark": "Mark01-system_ref01" } }], "index$": 0 }] }, 'System', { "GET /obsidian-local-rest-api.crt": { "protocol": "http", "parameters": [] }, "GET /openapi.yaml": { "protocol": "http", "parameters": [] } });
+            return (0, live_entity_1.runLiveEntity)(setup, { "active": true, "alias": { "field": {} }, "fields": {}, "name": "system", "op": { "load": { "input": "data", "name": "load", "points": [{ "a": true, "co": { "id": "GET /obsidian-local-rest-api.crt", "source": "openapi3", "version": 2 }, "g": {}, "k": "http", "m": "GET", "o": "/obsidian-local-rest-api.crt", "q": {}, "r": {}, "s": [{ "lit": "obsidian-local-rest-api.crt" }], "t": { "req": "`reqdata`", "res": "`body`" }, "index$": 0 }, { "a": true, "co": { "id": "GET /openapi.yaml", "source": "openapi3", "version": 2 }, "g": {}, "k": "http", "m": "GET", "o": "/openapi.yaml", "q": {}, "r": {}, "s": [{ "lit": "openapi.yaml" }], "t": { "req": "`reqdata`", "res": "`body`" }, "index$": 1 }], "key$": "load" } }, "relations": { "ancestors": [] }, "key$": "system", "name__orig": "system", "Name": "System", "name_": "system", "name-": "system", "NAME": "SYSTEM", "index$": 6 }, { "active": true, "entity": "system", "key$": "BasicSystemFlow", "kind": "basic", "name": "BasicSystemFlow", "param": {}, "step": [{ "a": true, "d": {}, "i": { "ref": "system_ref01", "srcdatavar": "system_ref01_data", "suffix": "_dt0" }, "m": {}, "o": "load", "s": [], "v": [{ "apply": "TextFieldMark", "def": { "mark": "Mark01-system_ref01" } }], "index$": 0 }] }, 'System', { "GET /obsidian-local-rest-api.crt": { "protocol": "http", "parameters": [] }, "GET /openapi.yaml": { "protocol": "http", "parameters": [] } }, { strict: LIVE_STRICT, t });
         }
         const client = setup.client;
         const struct = setup.struct;
@@ -76,6 +76,11 @@ const utility_1 = require("../../utility");
         (0, node_assert_1.default)(null != system_ref01_data_dt0);
     });
 });
+// main.kit.test.live.strict is true (the default is true): a live
+// request that fails, or a live test missing an input it needs,
+// fails the test.
+// An account with no record for a test to read skips it either way.
+const LIVE_STRICT = true;
 function basicSetup(extra) {
     // TODO: fix test def options
     const options = {}; // null
